@@ -13,7 +13,7 @@ export class FileSystem {
     }
 
     write = async (context: any, path: string, content: string, enableAppendMode: boolean): Promise<boolean> => {
-        return await context.fs.write(path, content, enableAppendMode);
+        return await context.fs.write(path, content, { append: enableAppendMode });
     }
 
     mkdir = async (context: any, path: string): Promise<boolean> => {
@@ -66,10 +66,10 @@ export class FileSystem {
     }
 
     refreshLists = async (context: any) => {
-        const wallpaper = await this.ls(context, './assets/backgrounds/wallpapers');
-        const audio = await this.ls(context, './assets/backgrounds/audio');
-        const banner = await this.ls(context, './assets/icon/regalia-banners');
-        const font = await this.ls(context, './assets/fonts');
+        const wallpaper = await this.ls(context, './assets/backgrounds/wallpapers') ?? [];
+        const audio = await this.ls(context, './assets/backgrounds/audio') ?? [];
+        const banner = await this.ls(context, './assets/icon/regalia-banners') ?? [];
+        const font = await this.ls(context, './assets/fonts') ?? [];
 
         const FILE_REGEX = {
             Wallpaper: /\.(png|jpg|jpeg|gif|bmp|webp|ico|mp4|webm|mkv|mov|avi|wmv|3gp|m4v)$/,
