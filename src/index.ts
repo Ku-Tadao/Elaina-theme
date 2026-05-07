@@ -26,11 +26,17 @@ import { transparentLobby } from "./src/theme/customUI/transparentLobby.ts";
 import { AutoQueue } from "./src/plugins/autoQueue.ts";
 import { skipHonor } from "./src/plugins/skipHonor.js";
 import /**{ Cdninit } from **/'./src/theme/Cdn.ts';
+import { FileSystem } from "./src/utils/fileSystem.ts";
 
 // Export Init
-export function init(context: any) {
+export async function init(context: any) {
+    log('Initializing file system for theme');
+
+    const fileSystem = new FileSystem();
+    await fileSystem.init(context);
+
     log('Initializing theme');
-    
+
     // createHomePageTab(context);
     Settings(context);
     transparentLobby(context);
@@ -137,6 +143,9 @@ class ElainaTheme {
 
             // Custom Summoner Level
             if (ElainaData.get("custom-summoner-lv")) customSummonerLv.main()
+
+            // Check list change
+            window.refreshLists()
         }, 1000);
     }
 }

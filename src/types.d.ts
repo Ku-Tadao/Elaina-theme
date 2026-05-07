@@ -3,12 +3,12 @@ interface Plugin {
     load?: () => any
     default?: Function | any
 }
-  
+
 interface RcpAnnouceEvent extends CustomEvent {
     errorHandler: () => any
     registrationHandler: (registrar: (e) => Promise<any>) => Promise<any> | void
 }
-  
+
 // built-in types
 interface Action {
     id?: string
@@ -20,47 +20,47 @@ interface Action {
     hidden?: boolean
     perform?: (id?: string) => any
 }
-  
+
 interface CommandBar {
     addAction: (action: Action) => void
     show: () => void
     update: () => void
 }
-  
+
 interface Toast {
     success: (message: string) => void
     error: (message: string) => void
     promise: <T>(
-      promise: Promise<T>,
-      msg: { loading: string, success: string, error: string }
+        promise: Promise<T>,
+        msg: { loading: string, success: string, error: string }
     ) => Promise<T>
 }
-  
+
 interface DataStore {
     has: (key: string) => boolean
     get: <T>(key: string, fallback?: T) => T | any
     set: (key: string, value: any) => boolean
     remove: (key: string) => boolean
 }
-  
+
 interface ApplyEffectFn {
     (type: 'transparent' | 'blurbehind' | 'acrylic' | 'unified', options?: { color: string }): void
     (type: 'mica', options?: { material?: 'auto' | 'mica' | 'acrylic' | 'tabbed' }): void
     (type: 'vibrancy', options: { material: string, alwaysOn?: boolean }): void
 }
-  
+
 interface Effect {
     apply: ApplyEffectFn
     clear: () => void
     setTheme: (theme: 'light' | 'dark') => void
 }
-  
+
 interface FileStat {
     fileName: string
     length: number
     isDir: boolean
 }
-  
+
 interface PluginFS {
     read: (path: string) => Promise<string | undefined>
     write: (path: string, content: string, enableAppendMode: boolean) => Promise<boolean>
@@ -84,57 +84,58 @@ interface elainathemeApi {
 
 interface syncUserIcons {
     uploadIcon: (icon: string, iconType: string) => Promise<void>
-    getIcon: (summonerID: number ,iconType: string) => Promise<string | null>
+    getIcon: (summonerID: number, iconType: string) => Promise<string | null>
     getIconFolder: () => string
     getIconData: () => Record<string, string>
     getFriendsIcons: () => Promise<void>
     main: () => Promise<void>
 }
-  
+
 // globals
 declare interface Window {
-    DataStore   : DataStore;
-    CommandBar  : CommandBar;
-    Toast       : Toast;
-    Effect      : Effect;
-    PluginFS    : PluginFS;
+    DataStore: DataStore;
+    CommandBar: CommandBar;
+    Toast: Toast;
+    Effect: Effect;
+    PluginFS: PluginFS;
     Pengu: {
         version: string;
-        superPotato : boolean;
-        plugins     : string[];
-        isMac       : boolean;
-        fs          : PluginFS;
+        superPotato: boolean;
+        plugins: string[];
+        isMac: boolean;
+        fs: PluginFS;
     };
     os: {
-        name    : 'win' | 'mac';
-        version : string;
-        build   : string;
+        name: 'win' | 'mac';
+        version: string;
+        build: string;
     };
 
-    upl                         : any;
-    openDevTools                : () => void;
-    openPluginsFolder           : (subdir?: string) => void;
-    reloadClient                : () => void;
-    restartClient               : () => void;
-    getScriptPath               : () => string | undefined;
-    storeObserver               : any;
-    __llver                     : string;
+    upl: any;
+    openDevTools: () => void;
+    openPluginsFolder: (subdir?: string) => void;
+    reloadClient: () => void;
+    restartClient: () => void;
+    getScriptPath: () => string | undefined;
+    storeObserver: any;
+    __llver: string;
 
-    ElainaData                  : elainaData;
-    elainathemeApi              : elainathemeApi;
-    syncUserIcons               : syncUserIcons;
-    getThemeName                : () => void;
-    cdnImport                   : (url: string, errorMsg: any) => Promise<any>;
-    log                         : (message: string, ...args: string[]) => void;
-    warn                        : (message: string, ...args: string[]) => void;
-    error                       : (message: string, ...args: string[]) => void;
-    switch_between_status       : () => void;
-    autoAcceptQueueButtonSelect : () => void;
-    exitClient                  : () => void;
-    dodgeQueue                  : () => void;
-    friendIconList              : any;
-    customRank                  : () => void;
+    ElainaData: elainaData;
+    elainathemeApi: elainathemeApi;
+    syncUserIcons: syncUserIcons;
+    getThemeName: () => void;
+    cdnImport: (url: string, errorMsg: any) => Promise<any>;
+    log: (message: string, ...args: string[]) => void;
+    warn: (message: string, ...args: string[]) => void;
+    error: (message: string, ...args: string[]) => void;
+    switch_between_status: () => void;
+    autoAcceptQueueButtonSelect: () => void;
+    exitClient: () => void;
+    dodgeQueue: () => void;
+    friendIconList: any;
+    customRank: () => void;
+    refreshLists: () => Promise<void>;
 };
 
-declare function getString(param: string)   : Promise<string>;
-declare function writeBackupData()          : void;
+declare function getString(param: string): Promise<string>;
+declare function writeBackupData(): void;

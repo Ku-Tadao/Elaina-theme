@@ -123,42 +123,7 @@ export default defineConfig((config) => ({
             
                 // Add author comment block
                 const Author = `/**\n* @name Elaina-Theme\n* @author Elaina Da Catto\n* @description Elaina theme for Pengu Loader\n* @link https://github.com/Elaina69\n* @Nyan Meow~~~\n*/`;
-                const importDir = ""
-
-// + `
-// import wallpaper from "./assets/backgrounds/wallpapers?dir"
-// import audio from "./assets/backgrounds/audio?dir"
-// import font from "./assets/fonts?dir"
-// import banner from "./assets/icon/regalia-banners?dir"
-
-// const refreshList = async () => {
-//     const FILE_REGEX = {
-//         Wallpaper: /\.(png|jpg|jpeg|gif|bmp|webp|ico|mp4|webm|mkv|mov|avi|wmv|3gp|m4v)$/,
-//         Audio: /\.(mp3|flac|ogg|wav|aac)$/,
-//         Font: /\.(ttf|otf|woff|woff2)$/,
-//         Banner: /\.(png|jpg|jpeg|gif|bmp|webp|ico)$/,
-//     };
-
-//     const dataLists = {
-//         Wallpaper: await wallpaper.files(),
-//         Audio: await audio.files(),
-//         Banner: await banner.files(),
-//         Font: await font.files(),
-//     };
-
-//     const filteredLists = Object.keys(FILE_REGEX).reduce((acc, key) => {
-//         acc[key] = dataLists[key].filter(file => FILE_REGEX[key].test(file));
-//         return acc;
-//     }, {});
-
-//     Object.entries(filteredLists).forEach(([key, list]) => {
-//         ElainaData.set(\`\${key}-list\`, list);
-//     });
-// }
-
-// await refreshList()
-// `
-
+                
                 async function prependCommentToFile(filePath: string, commentBlock: string, lineNumber: number) {
                     try {
                         if (!existsSync(filePath)) {
@@ -177,7 +142,6 @@ export default defineConfig((config) => ({
                     }
                 }
             
-                await prependCommentToFile(indexJs, importDir, 30);
                 await prependCommentToFile(indexJs, Author, 1);
             
                 // Copy assets and config folders
