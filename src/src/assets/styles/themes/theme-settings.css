@@ -403,3 +403,8 @@
 	transform: rotate(-90deg);
 	transition: transform 0.3s ease;
 }
+
+#theme-settings-wallpaper-list, #theme-settings-audio-list, #theme-settings-banner-list, #theme-settings-font-list {
+	-webkit-user-select: text !important;
+	user-select: text !important;
+}
