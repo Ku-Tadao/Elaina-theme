@@ -138,8 +138,8 @@ class ElainaTheme {
         // This code will run for each 1s
         window.setInterval(() => {
             // Custom BE/RP
-            if (ElainaData.get("Custom_RP")) customBeRp.RP()
-            if (ElainaData.get("Custom_BE")) customBeRp.BE()
+            if (ElainaData.get("custom-rp")) customBeRp.RP()
+            if (ElainaData.get("custom-be")) customBeRp.BE()
 
             // Custom Summoner Level
             if (ElainaData.get("custom-summoner-lv")) customSummonerLv.main()

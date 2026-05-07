@@ -165,7 +165,7 @@
             "description": "Automatically mute theme audio when in a game.",
             "type": "boolean"
         },
-        "Disable-Theme-Audio": {
+        "disable-theme-audio": {
             "category": "wallpaper-audio",
             "description": "Completely disable background audio.",
             "type": "boolean"
@@ -230,7 +230,7 @@
             "description": "Hide vertical decorative lines in the UI.",
             "type": "boolean"
         },
-        "Custom_RP": {
+        "custom-rp": {
             "category": "plugins",
             "description": "Display a custom RP (Riot Points) amount.",
             "type": "boolean"
@@ -240,7 +240,7 @@
             "description": "The custom RP number to display.",
             "type": "string"
         },
-        "Custom_BE": {
+        "custom-be": {
             "category": "plugins",
             "description": "Display a custom BE (Blue Essence) amount.",
             "type": "boolean"

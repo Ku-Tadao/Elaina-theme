@@ -215,17 +215,17 @@ Elaina Theme stores all its configuration in the Pengu Loader DataStore. You can
 | Plugin | Description |
 |--------|-------------|
 ${plugins
-    .filter(p => p.exports.length > 0)
-    .map(p => {
-        const exp = p.exports[0];
-        const desc = exp.doc?.tags?.wiki
-            || exp.doc?.tags?.description
-            || exp.doc?.description
-            || p.fileDoc?.tags?.description
-            || '_No description yet_';
-        return `| [${toTitleCase(exp.name)}](Plugin-${exp.name}) | ${desc.split('\n')[0]} |`;
-    })
-    .join('\n')}
+            .filter(p => p.exports.length > 0)
+            .map(p => {
+                const exp = p.exports[0];
+                const desc = exp.doc?.tags?.wiki
+                    || exp.doc?.tags?.description
+                    || exp.doc?.description
+                    || p.fileDoc?.tags?.description
+                    || '_No description yet_';
+                return `| [${toTitleCase(exp.name)}](Plugin-${exp.name}) | ${desc.split('\n')[0]} |`;
+            })
+            .join('\n')}
 
 ---
 
@@ -319,8 +319,8 @@ function generatePluginPage(plugin, defaults, settingsMeta, locale) {
             const description = meta?.description || localeName || '_Add description in `docs/settings-meta.json`_';
             const displayDefault = defaultVal === undefined ? '_N/A_'
                 : typeof defaultVal === 'string' ? `\`"${defaultVal}"\``
-                : Array.isArray(defaultVal) ? `_[list]_`
-                : `\`${defaultVal}\``;
+                    : Array.isArray(defaultVal) ? `_[list]_`
+                        : `\`${defaultVal}\``;
 
             md += `| \`${key}\` | ${displayDefault} | ${description} |\n`;
         }
@@ -433,7 +433,7 @@ Custom background audio for the client.
 - **Volume**: \`audio-volume\` (default: \`0.15\`)
 - **Loop**: \`audio-loop\` (default: \`false\`)
 - **Mute in-game**: \`turnoff-audio-ingame\` (default: \`true\`)
-- **Disable entirely**: \`Disable-Theme-Audio\` (default: \`false\`)
+- **Disable entirely**: \`disable-theme-audio\` (default: \`false\`)
 
 ## Fonts
 
