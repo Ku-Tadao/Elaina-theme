@@ -36,32 +36,28 @@ export class FileSystem {
             return
         }
 
-        // await this.mkdir(context, './data')
+        await this.mkdir(context, './data')
 
-        // if (!await this.read(context, './data/ElainaData.json')) {
-        //     await this.write(context, './data/ElainaData.json', JSON.stringify({}), false);
-        // }
+        // For debugging purposes only
+        const readFile = (path: string) => this.read(context, path);
+        // @ts-ignore
+        window.elainaReadFile = readFile;
 
-        // // For debugging purposes only
-        // const readFile = (path: string) => this.read(context, path);
-        // // @ts-ignore
-        // window.elainaReadFile = readFile;
+        const writeFile = (path: string, content: string, enableAppendMode: boolean) => this.write(context, path, content, enableAppendMode);
+        // @ts-ignore
+        window.elainaWriteFile = writeFile;
 
-        // const writeFile = (path: string, content: string, enableAppendMode: boolean) => this.write(context, path, content, enableAppendMode);
-        // // @ts-ignore
-        // window.elainaWriteFile = writeFile;
+        const mkdir = (path: string) => this.mkdir(context, path);
+        // @ts-ignore
+        window.elainaMkdir = mkdir;
 
-        // const mkdir = (path: string) => this.mkdir(context, path);
-        // // @ts-ignore
-        // window.elainaMkdir = mkdir;
+        const stat = (path: string) => this.stat(context, path);
+        // @ts-ignore
+        window.elainaStat = stat;
 
-        // const stat = (path: string) => this.stat(context, path);
-        // // @ts-ignore
-        // window.elainaStat = stat;
-
-        // const ls = (path: string) => this.ls(context, path);
-        // // @ts-ignore
-        // window.elainaLs = ls;
+        const ls = (path: string) => this.ls(context, path);
+        // @ts-ignore
+        window.elainaLs = ls;
 
         const globalRefreshLists = () => this.refreshLists(context);
         window.refreshLists = globalRefreshLists;

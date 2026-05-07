@@ -70,6 +70,19 @@ interface PluginFS {
     rm: (path: string, recursively: boolean) => Promise<number>
 }
 
+interface elainaData {
+    init: (context: any) => Promise<void>;
+    get: (key: string, fallback?: any) => any;
+    set: (key: string, value: any) => boolean;
+    has: (key: string) => boolean;
+    remove: (key: string) => boolean;
+    restoreDefaults: () => void;
+    getAll: () => Record<string, any>;
+    setAll: (data: Record<string, any>) => void;
+    getStorageMode: () => 'fs' | 'datastore';
+    flush: () => Promise<void>;
+}
+
 interface elainathemeApi {
     login: (userId: number, username: string) => Promise<{ token: string }>;
     writeBackup: (token: string, userId: number, data: Object) => Promise<void>;
@@ -140,3 +153,4 @@ declare interface Window {
 
 declare function getString(param: string): Promise<string>;
 declare function writeBackupData(): void;
+declare const ElainaData: elainaData;

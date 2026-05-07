@@ -6,7 +6,7 @@
  * @Nyan Meow~~~
  */
 // Import theme DataStore to use it instead pengu DataStore
-import "./src/utils/themeDataStore.ts";
+import { ElainaData } from "./src/utils/themeDataStore.ts";
 
 // Importing theme contents
 import "./src/languages.ts";
@@ -30,8 +30,10 @@ import { FileSystem } from "./src/utils/fileSystem.ts";
 
 // Export Init
 export async function init(context: any) {
-    log('Initializing file system for theme');
+    log('Initializing ElainaData storage');
+    await ElainaData.init(context);
 
+    log('Initializing file system for theme');
     const fileSystem = new FileSystem();
     await fileSystem.init(context);
 
