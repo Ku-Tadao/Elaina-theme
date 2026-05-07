@@ -89,6 +89,16 @@ async function getSummonerID(): Promise<number> {
 }
 
 /**
+ * Fetches the current summoner's PUUID
+ * @returns {Promise<string>} The summoner PUUID
+ */
+async function getPUUID(): Promise<string> {
+    const response = await fetch("/lol-summoner/v1/current-summoner");
+    const data = await response.json();
+    return data.puuid;
+}
+
+/**
  * Subscribes to a specific endpoint and triggers a callback when that endpoint is called
  * @param {string} endpoint - The endpoint to monitor (use "" to subscribe to all)
  * @param {function} callback - The callback function
@@ -221,6 +231,7 @@ const utils = {
     addFont,
     CustomCursor,
     getSummonerID,
+    getPUUID,
     addStyleWithID,
     freezeProperties,
     stop,

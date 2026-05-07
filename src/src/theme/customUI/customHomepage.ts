@@ -13,7 +13,6 @@ import { log, warn, error } from "../../utils/themeLog.ts";
 import * as upl from 'pengu-upl';
 import utils from '../../utils/utils.ts';
 import { setDefaultData } from "../../services/backupAndRestoreDatastore.ts";
-
 const datapath: string = `//plugins/${getThemeName()}/`
 const iconFolder: string = `${datapath}assets/icon/`;
 const bgFolder: string = `${datapath}assets/backgrounds/`;
@@ -43,11 +42,16 @@ const defaultData = {
 
 setDefaultData(defaultData, false);
 
-// Get Summoner ID
+// Get Summoner ID and PUUID
 window.setTimeout(async () => {
     const summonerID: number = await utils.getSummonerID();
+    const PUUID: string = await utils.getPUUID();
+
     ElainaData.set("Summoner-ID", summonerID);
+    ElainaData.set("PUUID", PUUID);
+
     log(`%cCurrent summonerID: %c${summonerID}`, 'color: #e4c2b3', 'color: #0070ff');
+    log(`%cCurrent PUUID: %c${PUUID}`, 'color: #e4c2b3', 'color: #0070ff');
 }, 7000);
 
 // Create and set new page as Homepage
@@ -207,9 +211,6 @@ class WallpaperController {
         }, 500);
 
         this.wallpaperSlider(BG)
-
-        // @ts-ignore
-        await refreshList()
     }
     
     nextWallpaper = async() => {
@@ -343,9 +344,6 @@ class AudioController {
         this.audioPlayPause();
         this.changeSongName();
         log(`Now playing %c${song}`, 'color: #0070ff');
-
-        // @ts-ignore
-        await refreshList()
     }
     
     nextSong = async () => {

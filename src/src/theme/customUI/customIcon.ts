@@ -1,7 +1,7 @@
 import utils from '../../utils/utils.ts'
 import * as upl from 'pengu-upl';
 import { getThemeName } from "../../otherThings"
-import { log, error } from '../../utils/themeLog';
+import { log, warn, error } from '../../utils/themeLog';
 import { friendIconList } from '../../plugins/syncUserIcons.ts';
 
 const icdata = (await import(`//plugins/${getThemeName()}/config/icons.js`)).default;
@@ -37,7 +37,18 @@ class CustomAvatar {
 	}
 
 	changeFriendAvatar = (element: any, iconElement: HTMLImageElement) => {
-		if (friendIconList.find(x => x.summonerID == element.getAttribute("summoner-id")) && friendIconList.find(x => x.summonerID == element.getAttribute("summoner-id"))?.icon.avatar != null) {
+		let summonerID = element.getAttribute("summoner-id")
+
+		if (summonerID === null || summonerID === undefined || summonerID === "") {
+			warn("Not found summoner ID for element, trying to find with puuid or voice-puuid...")
+			element.setAttribute("summoner-id", friendIconList.find(x => x.puuid == element.getAttribute("puuid"))?.summonerID || friendIconList.find(x => x.puuid == element.getAttribute("voice-puuid"))?.summonerID || null)
+		}
+		else {
+			log("Found summoner ID for element: ", summonerID)
+		}
+			
+		if (friendIconList.find(x => x.summonerID == element.getAttribute("summoner-id")) && 
+			friendIconList.find(x => x.summonerID == element.getAttribute("summoner-id"))?.icon.avatar != null) {
 			iconElement.style.backgroundImage = `url(${friendIconList.find(x => x.summonerID == element.getAttribute("summoner-id"))?.icon.avatar})`
 			utils.freezeProperties(iconElement.style, ['backgroundImage'])
 		}
@@ -55,18 +66,18 @@ class CustomAvatar {
 		}
 	}
 
-	applyCustomAvatar = async (element: any) => {
-		let iconElement = element.shadowRoot.querySelector("lol-regalia-crest-v2-element").shadowRoot.querySelector(".lol-regalia-summoner-icon")
-
-		if (element.getAttribute("summoner-id") == ElainaData.get("Summoner-ID")) {
+	applyCustomAvatar = async (parentElement: any, iconElement: any) => {
+		if (parentElement.getAttribute("summoner-id") == ElainaData.get("Summoner-ID") ||
+			parentElement.getAttribute("puuid") == ElainaData.get("PUUID") ||
+			parentElement.getAttribute("voice-puuid") == ElainaData.get("PUUID")) {
 			this.changeAvatar(iconElement)
 			await utils.stop(1000)
 			this.changeAvatar(iconElement)
 		}
 		else {
-			this.changeFriendAvatar(element, iconElement)
+			this.changeFriendAvatar(parentElement, iconElement)
 			await utils.stop(1000)
-			this.changeFriendAvatar(element, iconElement)
+			this.changeFriendAvatar(parentElement, iconElement)
 		}
 	}
 
@@ -77,24 +88,29 @@ class CustomAvatar {
 		})
 
 		upl.observer.subscribeToElementCreation(`lol-regalia-hovercard-v2-element`, async (element: any)=>{
-			await this.applyCustomAvatar(element)
+			await this.applyCustomAvatar(element, element.shadowRoot.querySelector("lol-regalia-crest-v2-element").shadowRoot.querySelector(".lol-regalia-summoner-icon"))
 		})
 
 		// Identity customizer avatar
 		upl.observer.subscribeToElementCreation("lol-regalia-identity-customizer-element", async (element: any)=>{
-			await this.applyCustomAvatar(element)
+			await this.applyCustomAvatar(element, element.shadowRoot.querySelector("lol-regalia-crest-v2-element").shadowRoot.querySelector(".lol-regalia-summoner-icon"))
 		})
 
 		// Parties avatar
 		upl.observer.subscribeToElementCreation("lol-regalia-parties-v2-element", async (element: any)=>{
-			await this.applyCustomAvatar(element)
+			await this.applyCustomAvatar(element, element.shadowRoot.querySelector("lol-regalia-crest-v2-element").shadowRoot.querySelector(".lol-regalia-summoner-icon"))
+		})
+
+		// Arena parties avatar
+		upl.observer.subscribeToElementCreation(".player-slot__crest-wrapper > lol-regalia-crest-v2-element", async (element: any)=>{
+			await this.applyCustomAvatar(element, element.shadowRoot.querySelector(".lol-regalia-summoner-icon"))
 		})
 
 		// Profile avatar
 		let profileAvatarInterval: number | null = null
 		upl.observer.subscribeToElementCreation('lol-regalia-profile-v2-element', async (element: any) => {
 			profileAvatarInterval = window.setInterval(async () => {
-				await this.applyCustomAvatar(element)
+				await this.applyCustomAvatar(element, element.shadowRoot.querySelector("lol-regalia-crest-v2-element").shadowRoot.querySelector(".lol-regalia-summoner-icon"))
 			}, 100)
 		})
 

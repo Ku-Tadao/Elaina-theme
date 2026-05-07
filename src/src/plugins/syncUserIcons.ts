@@ -9,6 +9,7 @@ const iconFolder  = `${datapath}assets/icon/`
 
 let friendIconList: { 
     summonerID: number, 
+    puuid: string,
     icon: {
         avatar: string, 
         border: string, 
@@ -18,7 +19,10 @@ let friendIconList: {
     } 
 }[] = []
 
-let friendsList: { summonerId: number }[] = []
+let friendsList: { 
+    summonerId: number, 
+    puuid: string 
+}[] = []
 
 class SyncUserIcons {
     getIconFolder() {
@@ -34,7 +38,10 @@ class SyncUserIcons {
         friendsList = []
         for (let i = 0; i < friends.length; i++) {
             if (friends[i]["summonerId"]) {
-                friendsList.push({"summonerId": friends[i]["summonerId"]})
+                friendsList.push({
+                    "summonerId": friends[i]["summonerId"],
+                    "puuid": friends[i]["puuid"]
+                })
             }
         }
     }
@@ -79,7 +86,8 @@ class SyncUserIcons {
         try {
             const icon = await window.elainathemeApi.getImage(summonerID, iconType);
             return icon;
-        } catch (err: any) {
+        } 
+        catch (err: any) {
             error(`Failed to get icon of type ${iconType}`, err);
             return null;
         }
@@ -88,7 +96,8 @@ class SyncUserIcons {
     async deleteIcon(summonerID: number, iconType: string) {
         try {
             await window.elainathemeApi.deleteImage(ElainaData.get("ElainaTheme-Token"), summonerID, iconType);
-        } catch (err: any) {
+        } 
+        catch (err: any) {
             error(`Failed to delete icon of type ${iconType}`, err);
         }
     }
