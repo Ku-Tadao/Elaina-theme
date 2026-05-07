@@ -79,7 +79,7 @@ interface elainathemeApi {
     getImage: (userId: number, type: string) => Promise<string>;
     getImageHash: (userId: number, type: string) => Promise<string | null>;
     deleteImage: (token: string, userId: number, type: string) => Promise<void>;
-    getFriendsImage: (friendList: { summonerId: number }[]) => Promise<{ summonerID: number, icon: { avatar: string, border: string, banner: string, emblem: string, hoverCardBackdrop: string } }[]>;
+    getFriendsImage: (friendList: { summonerId: number, puuid: string }[]) => Promise<{ summonerID: number, puuid: string, icon: { avatar: string, border: string, banner: string, emblem: string, hoverCardBackdrop: string } }[]>;
 }
 
 interface syncUserIcons {
@@ -135,6 +135,7 @@ declare interface Window {
     friendIconList: any;
     customRank: () => void;
     refreshLists: () => Promise<void>;
+    isContextFSExist: boolean;
 };
 
 declare function getString(param: string): Promise<string>;

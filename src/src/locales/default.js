@@ -118,9 +118,10 @@ export default {
     "wallpaper-slideshow"           : "Wallpaper slider",
     "change-slide-delay"            : "Change wallpaper slide delay",
     "speed-check-deny"              : "Only can set the speed >= 6.25 and <= 300",
+    "disable-theme-wallpaper"       : "Disable theme's wallpaper",
     "music-volume"                  : "Music volume",
     "turnoff-audio-ingame"          : "Pause music/wallpaper when ingame",
-    "Disable-Theme-Audio"           : "Disable theme's audio",
+    "disable-theme-audio"           : "Disable theme's audio",
     
     "prevent-manual-update"         : "Don't receive notifications about future manual updates",
     "holiday-message"               : "Message notification for holidays",

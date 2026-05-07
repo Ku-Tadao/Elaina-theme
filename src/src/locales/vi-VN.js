@@ -118,9 +118,10 @@ export default {
     "wallpaper-slideshow"           : "Bộ trình chiếu hình nền",
     "change-slide-delay"            : "Chỉnh độ trễ của bộ trình chiếu hình nền",
     "speed-check-deny"              : "Chỉ có thể chỉnh tốc độ >= 6.25 và <= 300",
+    "disable-theme-wallpaper"       : "Vô hiệu hóa hình nền của Elaina theme",
     "music-volume"                  : "Âm lượng nhạc",
     "turnoff-audio-ingame"          : "Tạm dừng nhạc và hình nền khi vào trận",
-    "Disable-Theme-Audio"           : "Vô hiệu hóa nhạc của Elaina theme",
+    "disable-theme-audio"           : "Vô hiệu hóa nhạc của Elaina theme",
     
     "prevent-manual-update"         : "Không nhận thông báo về các bản cập nhật thủ công trong tương lai",
     "holiday-message"               : "Tin nhắn thông báo cho những ngày lễ",

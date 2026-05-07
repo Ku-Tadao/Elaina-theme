@@ -118,9 +118,10 @@ export default {
     "wallpaper-slideshow"           : "Wallpaper slider",
     "change-slide-delay"            : "Change wallpaper slide delay",
     "speed-check-deny"              : "速度百分比必须在 6.25 到 300 之间",
+    "disable-theme-wallpaper"       : "Disable theme's wallpaper",
     "music-volume"                  : "音乐音量",
     "turnoff-audio-ingame"          : "Pause music/wallpaper when ingame",
-    "Disable-Theme-Audio"           : "Disable theme's audio",
+    "disable-theme-audio"           : "Disable theme's audio",
     
     "prevent-manual-update"         : "不接收未来手动更新通知",
     "holiday-message"               : "Message notification for holidays",

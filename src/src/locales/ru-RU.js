@@ -118,9 +118,10 @@ export default {
     "wallpaper-slideshow"           : "Переключение обоев",
     "change-slide-delay"            : "Изменить задержку переключения обоев",
     "speed-check-deny"              : "Можно установить скорость только >= 6.25 и <= 300",
+    "disable-theme-wallpaper"       : "Disable theme's wallpaper",
     "music-volume"                  : "Громкость музыки",
     "turnoff-audio-ingame"          : "Pause music/wallpaper when ingame",
-    "Disable-Theme-Audio"           : "Отключить аудио темы",
+    "disable-theme-audio"           : "Отключить аудио темы",
     
     "prevent-manual-update"         : "Не получать уведомления о будущих ручных обновлениях",
     "holiday-message"               : "Уведомления о праздниках",

@@ -3,7 +3,16 @@ import { UI } from "./settingsUI.ts"
 import { restartAfterChange } from "../settings.ts"
 import utils from "../../utils/utils.ts";
 import { error } from "../../utils/themeLog.ts";
-import { del_webm_buttons, create_webm_buttons, applyHideAndShowTFTtab, setAudio, hideShowNavBar, changeHomePageStyle } from "../../theme/customUI/customHomepage.ts";
+import {
+    del_webm_buttons,
+    create_webm_buttons,
+    applyHideAndShowTFTtab,
+    setWallpaper,
+    setImageWallpaper,
+    setAudio,
+    hideShowNavBar,
+    changeHomePageStyle
+} from "../../theme/customUI/customHomepage.ts";
 
 const FILE_REGEX = {
     Wallpaper: /\.(png|jpg|jpeg|gif|bmp|webp|ico|mp4|webm|mkv|mov|avi|wmv|3gp|m4v)$/,
@@ -11,7 +20,7 @@ const FILE_REGEX = {
     Font: /\.(ttf|otf|woff|woff2)$/,
     Banner: /\.(png|jpg|jpeg|gif|bmp|webp|ico)$/,
 };
-    
+
 async function themeSettings(panel: Element) {
     const loading = UI.createRow("loading", [
         UI.createLoading(await getString("settings-loading")),
@@ -20,13 +29,13 @@ async function themeSettings(panel: Element) {
 
     try {
         panel.prepend(
-            UI.createRow("",[
-                UI.createRow("Info",[
-                    UI.createRow("Info-div",[
+            UI.createRow("", [
+                UI.createRow("Info", [
+                    UI.createRow("Info-div", [
                         UI.createLink(
                             'ElainaV4',
                             'https://github.com/Elaina69/Elaina-V4',
-                            () => {},
+                            () => { },
                             "theme-link"
                         ),
                         UI.createLabel(
@@ -36,60 +45,81 @@ async function themeSettings(panel: Element) {
                     UI.createImage(true, "logo.png", "theme-settings-logo")
                 ]),
                 UI.createCheckBox(
-                    `${await getString("AllowTrackingData")}`,'trackData','trackDatabox', ()=>{
+                    `${await getString("AllowTrackingData")}`, 'trackData', 'trackDatabox', () => {
                         restartAfterChange('trackData', "AllowTrackingData")
-                    },true, "AllowTrackingData"
+                    }, true, "AllowTrackingData"
                 ),
                 document.createElement('br'),
-                UI.createLabel(await getString("update-list-manually"), ""),
-                UI.createRowHideable("add-background-manually-row", [
-                    UI.createLabel(" ", "add-background-manual-message"),
-                    ...await UI.createFileListRow("wallpaper", "Wallpaper-list", "manual-wallpaper-name", FILE_REGEX.Wallpaper),
-                    ...await UI.createFileListRow("audio", "Audio-list", "manual-audio-name", FILE_REGEX.Audio),
-                    ...await UI.createFileListRow("banner", "Banner-list", "manual-banner-name", FILE_REGEX.Banner),
-                    ...await UI.createFileListRow("font", "Font-list", "manual-font-name", FILE_REGEX.Font),
-                ]),
+                UI.createRow("", [
+                    UI.createLabel(await getString("update-list-manually"), ""),
+                    UI.createRowHideable("add-background-manually-row", [
+                        UI.createLabel(" ", "add-background-manual-message"),
+                        ...await UI.createFileListRow("wallpaper", "Wallpaper-list", "manual-wallpaper-name", FILE_REGEX.Wallpaper),
+                        ...await UI.createFileListRow("audio", "Audio-list", "manual-audio-name", FILE_REGEX.Audio),
+                        ...await UI.createFileListRow("banner", "Banner-list", "manual-banner-name", FILE_REGEX.Banner),
+                        ...await UI.createFileListRow("font", "Font-list", "manual-font-name", FILE_REGEX.Font),
+                    ]),
+                ], !window.isContextFSExist),
                 UI.createLabel(await getString("wallpaper/audio-settings"), ""),
-                UI.createRowHideable("background-settings",[
+                UI.createRowHideable("background-settings", [
                     document.createElement('br'),
                     UI.createButton(await getString("open-background-folder"), "open-background-folder", () => { window.openPluginsFolder(`${ElainaData.get("Plugin-folder-name")}/assets/backgrounds`) }),
                     UI.createLabel(await getString("WallpaperAudio-timeUpdate"), ""),
                     UI.createSearchBox("WallpaperAudio-timeUpdate"),
                     document.createElement('br'),
                     UI.Slider(
-                        await getString("wallpaper-volume"),ElainaData.get("wallpaper-volume"),"elaina-bg","wallpaper-volume"
+                        await getString("wallpaper-volume"), ElainaData.get("wallpaper-volume"), "elaina-bg", "wallpaper-volume"
                     ),
-                    UI.createRow("changePlaybackRow",[
+                    UI.createRow("changePlaybackRow", [
                         UI.createLabel(await getString("Wallpaper-Speed"), ""),
                         UI.createSpeedInput("Playback-speed"),
-                        UI.createLabel("%","playback-percent"),
+                        UI.createLabel("%", "playback-percent"),
                     ]),
                     UI.createLabel("", "speed-check"),
                     document.createElement('br'),
                     UI.createCheckBox(
-                        `${await getString("wallpaper-slideshow")}`,'wallpaperSlide','wallpaperSlidebox', 
-                        ()=>{
+                        `${await getString("wallpaper-slideshow")}`, 'wallpaperSlide', 'wallpaperSlidebox',
+                        () => {
                             restartAfterChange("wallpaperSlide", "wallpaper-slideshow")
-                        },true, "wallpaper-slideshow"
+                        }, true, "wallpaper-slideshow"
                     ),
-                    UI.createRow("slideTimeRow",[
-                        UI.createLabel(await getString("change-slide-delay"),""),
+                    UI.createRow("slideTimeRow", [
+                        UI.createLabel(await getString("change-slide-delay"), ""),
                         UI.createSearchBox("wallpaper-change-slide-time"),
                     ]),
+                    UI.createCheckBox(
+                        `${await getString("disable-theme-wallpaper")}`, "disablethemewallpaper", "disablethemewallpaperbox", () => {
+                            let wallpaperController: any = document.querySelector(".wallpaper-controls")
+                            let video: any = document.getElementById("elaina-bg")
+                            let imgWallpaper: any = document.getElementById("elaina-static-bg")
+
+                            if (!ElainaData.get("disable-theme-wallpaper")) {
+                                setWallpaper()
+                                setImageWallpaper()
+                                wallpaperController.style.display = "flex"
+                            }
+                            else {
+                                video.src = ''
+                                imgWallpaper.src = ''
+                                wallpaperController.style.display = "none"
+                            }
+                        }, true, "disable-theme-wallpaper"
+                    ),
+                    document.createElement('br'),
                     UI.Slider(
-                        await getString("music-volume"),ElainaData.get("audio-volume"),"bg-audio","audio-volume"
+                        await getString("music-volume"), ElainaData.get("audio-volume"), "bg-audio", "audio-volume"
                     ),
                     UI.createCheckBox(
-                        `${await getString("turnoff-audio-ingame")}`,'offaudio','offaudiobox', 
-                        ()=>{},true, "turnoff-audio-ingame"
+                        `${await getString("turnoff-audio-ingame")}`, 'offaudio', 'offaudiobox',
+                        () => { }, true, "turnoff-audio-ingame"
                     ),
                     document.createElement('br'),
                     UI.createCheckBox(
-                        `${await getString("Disable-Theme-Audio")}`,"disablethemeaudio","disablethemeaudiobox", ()=>{
+                        `${await getString("disable-theme-audio")}`, "disablethemeaudio", "disablethemeaudiobox", () => {
                             let audioController: any = document.querySelector(".webm-bottom-buttons-container")
                             let audio: any = document.getElementById("bg-audio")
-                    
-                            if (!ElainaData.get("Disable-Theme-Audio")) {
+
+                            if (!ElainaData.get("disable-theme-audio")) {
                                 setAudio()
                                 audioController.style.display = "flex"
                             }
@@ -97,30 +127,30 @@ async function themeSettings(panel: Element) {
                                 audio.src = ''
                                 audioController.style.display = "none"
                             }
-                        },true, "Disable-Theme-Audio"
+                        }, true, "disable-theme-audio"
                     ),
                 ]),
                 document.createElement('br'),
                 UI.createCheckBox(
-                    `${await getString("prevent-manual-update")}`,'prvtup','prvtupbox',
-                    ()=>{},true,"prevent-manual-update"
+                    `${await getString("prevent-manual-update")}`, 'prvtup', 'prvtupbox',
+                    () => { }, true, "prevent-manual-update"
                 ),
                 document.createElement('br'),
                 UI.createCheckBox(
-                    `${await getString("holiday-message")}`,'holiday','holidaybox', ()=>{
+                    `${await getString("holiday-message")}`, 'holiday', 'holidaybox', () => {
                         restartAfterChange("holiday", "holiday-message")
                     }, true, "holiday-message"
                 ),
                 document.createElement('br'),
                 document.createElement('br'),
                 UI.createCheckBox(
-                    await getString("sync-user-icons"),'syncusericons','syncusericonsbox', () => {
+                    await getString("sync-user-icons"), 'syncusericons', 'syncusericonsbox', () => {
                         restartAfterChange('syncusericons', "sync-user-icons")
                     }, true, "sync-user-icons"
                 ),
                 document.createElement('br'),
                 UI.createCheckBox(
-                    `${await getString("hide-homepage-navbar")}`,'homenav','homenavbox', ()=>{
+                    `${await getString("hide-homepage-navbar")}`, 'homenav', 'homenavbox', () => {
                         hideShowNavBar()
                         changeHomePageStyle()
                     }, true, "hide-homepage-navbar"
@@ -133,78 +163,78 @@ async function themeSettings(panel: Element) {
                 // ),
                 // document.createElement('br'),
                 UI.createCheckBox(
-                    `${await getString("old-prev/next-button")}`,"oldpnb","oldpnbbox",
-                    ()=>{
+                    `${await getString("old-prev/next-button")}`, "oldpnb", "oldpnbbox",
+                    () => {
                         del_webm_buttons()
                         create_webm_buttons()
-                    },true, "old-prev/next-button"
+                    }, true, "old-prev/next-button"
                 ),
                 document.createElement('br'),
                 UI.createCheckBox(
-                    `${await getString("enable-hide-top-navbar-friendlist-button")}`,'hidetopnavfriend','hidetopnavfriendbox', 
-                    ()=>{
+                    `${await getString("enable-hide-top-navbar-friendlist-button")}`, 'hidetopnavfriend', 'hidetopnavfriendbox',
+                    () => {
                         restartAfterChange("hidetopnavfriend", "enable-hide-top-navbar-friendlist-button")
-                    },true, "enable-hide-top-navbar-friendlist-button"
+                    }, true, "enable-hide-top-navbar-friendlist-button"
                 ),
                 document.createElement('br'),
                 UI.createCheckBox(
-                    `${await getString("sidebar-transparent")}`,'sbt','sbtbox', 
-                    ()=>{
+                    `${await getString("sidebar-transparent")}`, 'sbt', 'sbtbox',
+                    () => {
                         restartAfterChange("sbt", "sidebar-transparent")
-                    },true, "sidebar-transparent"
+                    }, true, "sidebar-transparent"
                 ),
                 document.createElement('br'),
                 UI.createCheckBox(
-                    `${await getString("lobby-transparent-filter")}`,'ltf','ltfbox', 
-                    ()=>{
+                    `${await getString("lobby-transparent-filter")}`, 'ltf', 'ltfbox',
+                    () => {
                         restartAfterChange("ltf", "lobby-transparent-filter")
-                    },true, "lobby-transparent-filter"
+                    }, true, "lobby-transparent-filter"
                 ),
                 document.createElement('br'),
                 UI.createCheckBox(
-                    `${await getString("settings-dialogs-transparent")}`,'stdiat','stdiatbox',
-                    ()=>{
-                        restartAfterChange("stdiat","settings-dialogs-transparent")
-                    },true, "settings-dialogs-transparent"
+                    `${await getString("settings-dialogs-transparent")}`, 'stdiat', 'stdiatbox',
+                    () => {
+                        restartAfterChange("stdiat", "settings-dialogs-transparent")
+                    }, true, "settings-dialogs-transparent"
                 ),
                 document.createElement('br'),
-                UI.createCheckBox(await getString("hide-profile-background"), "hideprfbg", "hideprfbgbox", 
-                    ()=>{
+                UI.createCheckBox(await getString("hide-profile-background"), "hideprfbg", "hideprfbgbox",
+                    () => {
                         restartAfterChange("hideprfbg", "hide-profile-background")
                     }, true, "hide-profile-background"
                 ),
                 document.createElement('br'),
                 UI.createCheckBox(
-                    `${await getString("hide-champions-splash-art")}`,'hidechampart','hidechampartbox',
-                    ()=>{
+                    `${await getString("hide-champions-splash-art")}`, 'hidechampart', 'hidechampartbox',
+                    () => {
                         restartAfterChange('hidechampart', "hide-champions-splash-art")
-                    },true, "hide-champions-splash-art"
+                    }, true, "hide-champions-splash-art"
                 ),
                 document.createElement('br'),
                 UI.createCheckBox(
-                    `${await getString("hide-vertical-lines")}`,"hidevl","hidevlbox",
-                    ()=>{
+                    `${await getString("hide-vertical-lines")}`, "hidevl", "hidevlbox",
+                    () => {
                         restartAfterChange("hidevl", "hide-vertical-lines")
-                    },true, "hide-vertical-lines"
+                    }, true, "hide-vertical-lines"
                 ),
                 document.createElement('br'),
-                UI.createRow("Custom-Curency",[
-                    UI.createRow("custom-rp",[
+                UI.createRow("Custom-Curency", [
+                    UI.createRow("custom-rp", [
                         UI.createCheckBox(
-                            `${await getString("custom-rp")}`,'cusrp','cusrpbox',
-                            ()=>{
-                                restartAfterChange('cusrp', "Custom_RP")
-                            },true, "Custom_RP"
+                            `${await getString("custom-rp")}`, 'cusrp', 'cusrpbox',
+                            () => {
+                                restartAfterChange('cusrp', "custom-rp")
+                            }, true, "custom-rp"
                         ),
                         document.createElement('br'),
                         UI.createSearchBox("RP-data")
                     ]),
-                    UI.createRow("custom-be",[
+                    UI.createRow("custom-be", [
                         UI.createCheckBox(
-                            `${await getString("custom-be")}`,'cusbe','cusbebox',
-                            ()=>{
-                                restartAfterChange('cusbe', "Custom_BE")
-                            },true, "Custom_BE"
+                            `${await getString("custom-be")}`, 'cusbe', 'cusbebox',
+                            () => {
+                                restartAfterChange('cusbe', "custom-be")
+                            }, true, "custom-be"
                         ),
                         document.createElement('br'),
                         UI.createSearchBox("BE")
@@ -212,40 +242,40 @@ async function themeSettings(panel: Element) {
                 ]),
                 document.createElement('br'),
                 UI.createCheckBox(
-                    `${await getString("custom-summoner-lv")}`,'cussumlv','cussumlvbox',
-                    ()=>{
+                    `${await getString("custom-summoner-lv")}`, 'cussumlv', 'cussumlvbox',
+                    () => {
                         restartAfterChange('cussumlv', "custom-summoner-lv")
-                    },true, "custom-summoner-lv"
+                    }, true, "custom-summoner-lv"
                 ),
                 document.createElement('br'),
                 UI.createSearchBox("custom-summoner-lv-number"),
                 document.createElement('br'),
                 UI.createCheckBox(
-                    `${await getString("custom-rank-name")}`,'cusrankname','cusranknamebox',
-                    ()=>{
+                    `${await getString("custom-rank-name")}`, 'cusrankname', 'cusranknamebox',
+                    () => {
                         restartAfterChange('cusrankname', "Custom-Rank-Name")
-                    },true, "Custom-Rank-Name"
+                    }, true, "Custom-Rank-Name"
                 ),
                 document.createElement('br'),
                 UI.createSearchBox("Rank-line1"),
                 UI.createSearchBox("Rank-line2"),
                 document.createElement('br'),
                 UI.createCheckBox(
-                    `${await getString("custom-font")}`,'cusfont','cusfontbox',
-                    ()=>{
+                    `${await getString("custom-font")}`, 'cusfont', 'cusfontbox',
+                    () => {
                         if (!ElainaData.get("Custom-Font")) {
                             document.querySelector("#Custom-font")?.remove()
                         }
                         else {
-                            utils.addFont(ElainaData.get("Font-folder")+ElainaData.get("CurrentFont"),"Custom-font","Custom")
+                            utils.addFont(ElainaData.get("Font-folder") + ElainaData.get("CurrentFont"), "Custom-font", "Custom")
                         }
-                    },true, "Custom-Font"
+                    }, true, "Custom-Font"
                 ),
                 document.createElement('br'),
                 UI.DropdownCustomFont(),
                 document.createElement('br'),
                 UI.createCheckBox(
-                    `${await getString("change-nickname-color")}`,'nicknamecolor','nicknamecolorbox', ()=>{     
+                    `${await getString("change-nickname-color")}`, 'nicknamecolor', 'nicknamecolorbox', () => {
                         if (!ElainaData.get("change-nickname-color")) {
                             document.getElementById("nickname-color-css")?.remove()
                         }
@@ -256,23 +286,23 @@ async function themeSettings(panel: Element) {
                                 }
                             `)
                         }
-                    },true, "change-nickname-color"
+                    }, true, "change-nickname-color"
                 ),
                 UI.createRowHideable("change-nickname-color-row", [
                     document.createElement('br'),
                     UI.createRow("nickname-color-with-text", [
                         UI.colorPicker("nickname-color", "nickname-color", () => {
                             let input: any = document.getElementById("nickname-color")
-            
+
                             ElainaData.set("nickname-color", input.value)
                             ElainaData.set("nickname-color-with-opacity", input.value + ElainaData.get("nickname-opacity"))
-        
+
                             let color: any = document.getElementById("nickname-color-text")
                             color.textContent = ElainaData.get("nickname-color-with-opacity")
-            
+
                             if (ElainaData.get("change-nickname-color")) {
                                 document.getElementById("nickname-color-css")?.remove()
-            
+
                                 utils.addStyleWithID("nickname-color-css", /*css*/`
                                     span.player-name__force-locale-text-direction, #nickname-color-preview {
                                         color: ${sanitizeColor(ElainaData.get("nickname-color-with-opacity"))};
@@ -284,25 +314,25 @@ async function themeSettings(panel: Element) {
                         UI.createLabel(`${await getString("preview")}: `, "nickname-color-preview-label"),
                         UI.createLabel(
                             // @ts-ignore
-                            document.querySelector(".rcp-fe-lol-social .player-name__force-locale-text-direction")?.textContent, 
+                            document.querySelector(".rcp-fe-lol-social .player-name__force-locale-text-direction")?.textContent,
                             "nickname-color-preview"
                         )
                     ]),
-                    UI.opacitySlider("change-nickname-opacity", await getString("opacity"), "nickname-opacity", async ()=> {
+                    UI.opacitySlider("change-nickname-opacity", await getString("opacity"), "nickname-opacity", async () => {
                         let origin: any = document.getElementById("change-nickname-opacity")
                         let title: any = document.getElementById("change-nickname-opacity-title")
-        
+
                         ElainaData.set("nickname-opacity", Math.round(origin.value / 100 * 255).toString(16).padStart(2, '0'))
-                        ElainaData.set("nickname-color-with-opacity", ElainaData.get("nickname-color")+ElainaData.get("nickname-opacity"))
-        
+                        ElainaData.set("nickname-color-with-opacity", ElainaData.get("nickname-color") + ElainaData.get("nickname-opacity"))
+
                         title.textContent = `${await getString("opacity")}: ${origin.value}%`
-        
+
                         let color: any = document.getElementById("nickname-color-text")
                         color.textContent = ElainaData.get("nickname-color-with-opacity")
-        
+
                         if (ElainaData.get("change-nickname-color")) {
                             document.getElementById("nickname-color-css")?.remove()
-        
+
                             utils.addStyleWithID("nickname-color-css", /*css*/`
                                 span.player-name__force-locale-text-direction, #nickname-color-preview {
                                     color: ${sanitizeColor(ElainaData.get("nickname-color-with-opacity"))};
@@ -312,116 +342,116 @@ async function themeSettings(panel: Element) {
                     }),
                 ]),
                 UI.createCheckBox(
-                    `${await getString("animate-loading")}`,'aniload','aniloadbox',
-                    ()=>{},true, "animate-loading"
+                    `${await getString("animate-loading")}`, 'aniload', 'aniloadbox',
+                    () => { }, true, "animate-loading"
                 ),
                 document.createElement('br'),
                 UI.createCheckBox(
-                    `${await getString("custom-icon")}`,'cusicon','cusiconbox',
-                    ()=>{
+                    `${await getString("custom-icon")}`, 'cusicon', 'cusiconbox',
+                    () => {
                         restartAfterChange('cusicon', "Custom-Icon")
-                    },true, "Custom-Icon"
+                    }, true, "Custom-Icon"
                 ),
-                UI.createRowHideable("Custom-icon-list",[
+                UI.createRowHideable("Custom-icon-list", [
                     document.createElement('br'),
                     UI.createCheckBox(
-                        `${await getString("Custom-Loading-Icon")}`,'cusloadicon','cusloadiconbox',
-                        ()=>{
+                        `${await getString("Custom-Loading-Icon")}`, 'cusloadicon', 'cusloadiconbox',
+                        () => {
                             restartAfterChange('cusloadicon', "Custom-Loading-Icon")
-                        },true, "Custom-Loading-Icon"
+                        }, true, "Custom-Loading-Icon"
                     ),
                     document.createElement('br'),
                     UI.createCheckBox(
-                        `${await getString("custom-avatar")}`,'cusav','cusavbox',
-                        ()=>{
+                        `${await getString("custom-avatar")}`, 'cusav', 'cusavbox',
+                        () => {
                             restartAfterChange('cusav', "Custom-Avatar")
-                        },true, "Custom-Avatar"
+                        }, true, "Custom-Avatar"
                     ),
                     document.createElement('br'),
                     UI.createCheckBox(
-                        `${await getString("Custom-Border")}`,'cusbor','cusborbox',
-                        ()=>{
+                        `${await getString("Custom-Border")}`, 'cusbor', 'cusborbox',
+                        () => {
                             restartAfterChange('cusbor', "Custom-Border")
-                        },true, "Custom-Border"
+                        }, true, "Custom-Border"
                     ),
                     document.createElement('br'),
                     UI.createCheckBox(
-                        `${await getString("Custom-Regalia-Banner")}`,'cusregabnr','cusregabnrbox',
-                        ()=>{
+                        `${await getString("Custom-Regalia-Banner")}`, 'cusregabnr', 'cusregabnrbox',
+                        () => {
                             restartAfterChange('cusregabnr', "Custom-Regalia-Banner")
-                        },true, "Custom-Regalia-Banner"
+                        }, true, "Custom-Regalia-Banner"
                     ),
                     document.createElement('br'),
                     UI.createRow("Custom-banner-row", [
                         UI.DropdownCustomBanner()
                     ]),
                     UI.createCheckBox(
-                        `${await getString("Custom-Hover-card-backdrop")}`,'cushvbdrop','cushvbdropbox',
-                        ()=>{
+                        `${await getString("Custom-Hover-card-backdrop")}`, 'cushvbdrop', 'cushvbdropbox',
+                        () => {
                             restartAfterChange('cushvbdrop', "Custom-Hover-card-backdrop")
-                        },true, "Custom-Hover-card-backdrop"
+                        }, true, "Custom-Hover-card-backdrop"
                     ),
                     document.createElement('br'),
                     UI.createCheckBox(
-                        `${await getString("Custom-RP-Icon")}`,'cusrpi','cusrpibox',
-                        ()=>{
+                        `${await getString("Custom-RP-Icon")}`, 'cusrpi', 'cusrpibox',
+                        () => {
                             restartAfterChange('cusrpi', "Custom-RP-Icon")
-                        },true, "Custom-RP-Icon"
+                        }, true, "Custom-RP-Icon"
                     ),
                     document.createElement('br'),
                     UI.createCheckBox(
-                        `${await getString("Custom-BE-Icon")}`,'cusbei','cusbeibox',
-                        ()=>{
+                        `${await getString("Custom-BE-Icon")}`, 'cusbei', 'cusbeibox',
+                        () => {
                             restartAfterChange('cusbei', "Custom-BE-Icon")
-                        },true, "Custom-BE-Icon"
+                        }, true, "Custom-BE-Icon"
                     ),
                     document.createElement('br'),
                     UI.createCheckBox(
-                        `${await getString("Custom-Rank-Icon")}`,'cusranki','cusrankibox',
-                        ()=>{
+                        `${await getString("Custom-Rank-Icon")}`, 'cusranki', 'cusrankibox',
+                        () => {
                             restartAfterChange('cusranki', "Custom-Rank-Icon")
-                        },true, "Custom-Rank-Icon"
+                        }, true, "Custom-Rank-Icon"
                     ),
                     document.createElement('br'),
                     UI.createCheckBox(
-                        `${await getString("Custom-Emblem")}`,'cusemi','cusemibox',
-                        ()=>{
-                            restartAfterChange('cusemi',"Custom-Emblem")
-                        },true, "Custom-Emblem"
+                        `${await getString("Custom-Emblem")}`, 'cusemi', 'cusemibox',
+                        () => {
+                            restartAfterChange('cusemi', "Custom-Emblem")
+                        }, true, "Custom-Emblem"
                     ),
                     document.createElement('br'),
                     UI.createCheckBox(
-                        `${await getString("Custom-Clash-banner")}`,'cusclassb','cusclassbbox',
-                        ()=>{
+                        `${await getString("Custom-Clash-banner")}`, 'cusclassb', 'cusclassbbox',
+                        () => {
                             restartAfterChange('cusclassb', "Custom-Clash-banner")
-                        },true, "Custom-Clash-banner"
+                        }, true, "Custom-Clash-banner"
                     ),
                     document.createElement('br'),
                     UI.createCheckBox(
-                        `${await getString("Custom-Trophy")}`,'custrophy','custrophybox',
-                        ()=>{
+                        `${await getString("Custom-Trophy")}`, 'custrophy', 'custrophybox',
+                        () => {
                             restartAfterChange('custrophy', "Custom-Trophy")
-                        },true, "Custom-Trophy"
+                        }, true, "Custom-Trophy"
                     ),
                     document.createElement('br'),
                     UI.createCheckBox(
-                        `${await getString('Custom-Gamemode-Icon')}`,'cusgameicon','cusgameiconbox',
-                        ()=>{
+                        `${await getString('Custom-Gamemode-Icon')}`, 'cusgameicon', 'cusgameiconbox',
+                        () => {
                             restartAfterChange('cusgameicon', 'Custom-Gamemode-Icon')
-                        },true, 'Custom-Gamemode-Icon'
+                        }, true, 'Custom-Gamemode-Icon'
                     ),
                     document.createElement('br'),
                     UI.createCheckBox(
-                        `${await getString("Custom-Ticker")}`,'custick','custickbox',
-                        ()=>{
+                        `${await getString("Custom-Ticker")}`, 'custick', 'custickbox',
+                        () => {
                             restartAfterChange('custick', "Custom-Ticker")
-                        },true, "Custom-Ticker"
+                        }, true, "Custom-Ticker"
                     ),
                     document.createElement('br')
                 ]),
                 UI.createCheckBox(
-                    `${await getString("custom-runes-bg")}`,'rsbg','rsbgbox',
-                    ()=>{
+                    `${await getString("custom-runes-bg")}`, 'rsbg', 'rsbgbox',
+                    () => {
                         restartAfterChange('rsbg', "Runes-BG")
                     }, true, "Runes-BG"
                 ),
@@ -442,8 +472,8 @@ async function themeSettings(panel: Element) {
                 // ),
                 // document.createElement('br'),
                 UI.createCheckBox(
-                    `${await getString("hide-theme-usage-time")}`,'hideusetime','hideusetimebox',
-                    ()=>{},true,"hide-theme-usage-time"
+                    `${await getString("hide-theme-usage-time")}`, 'hideusetime', 'hideusetimebox',
+                    () => { }, true, "hide-theme-usage-time"
                 ),
                 document.createElement('br'),
                 // UI.createCheckBox(
@@ -475,51 +505,51 @@ async function themeSettings(panel: Element) {
                 // ),
                 // document.createElement('br'),
                 UI.createCheckBox(
-                    `${await getString("hide-tft-match-history")}`,'hidetftmhtab','hidetftmhtabbox',
-                    ()=>{
+                    `${await getString("hide-tft-match-history")}`, 'hidetftmhtab', 'hidetftmhtabbox',
+                    () => {
                         applyHideAndShowTFTtab()
-                    },true, "hide-tft-match-history"
+                    }, true, "hide-tft-match-history"
                 ),
                 document.createElement('br'),
                 UI.createCheckBox(
-                    `${await getString("hide-tft-news")}`,'hidetftntab','hidetftntabbox',
-                    ()=>{
+                    `${await getString("hide-tft-news")}`, 'hidetftntab', 'hidetftntabbox',
+                    () => {
                         applyHideAndShowTFTtab()
-                    },true, "hide-tft-news"
+                    }, true, "hide-tft-news"
                 ),
                 document.createElement('br'),
                 UI.createCheckBox(
-                    `${await getString("hide-tft-rotational-shop")}`,'hidetftrstab','hidetftrstabbox',
-                    ()=>{
+                    `${await getString("hide-tft-rotational-shop")}`, 'hidetftrstab', 'hidetftrstabbox',
+                    () => {
                         applyHideAndShowTFTtab()
-                    },true, "hide-tft-rotational-shop"
+                    }, true, "hide-tft-rotational-shop"
                 ),
                 document.createElement('br'),
                 UI.createCheckBox(
-                    `${await getString("hide-tft-troves")}`,'hidetfttrovestab','hidetfttrovestabbox',
-                    ()=>{
+                    `${await getString("hide-tft-troves")}`, 'hidetfttrovestab', 'hidetfttrovestabbox',
+                    () => {
                         applyHideAndShowTFTtab()
-                    },true, "hide-tft-troves"
+                    }, true, "hide-tft-troves"
                 ),
                 document.createElement('br'),
                 UI.createCheckBox(
-                    `${await getString("hide-tft-battle-pass")}`,'hidetftbattletab','hidetftbattletabbox',
-                    ()=>{
+                    `${await getString("hide-tft-battle-pass")}`, 'hidetftbattletab', 'hidetftbattletabbox',
+                    () => {
                         applyHideAndShowTFTtab()
                     }, true, "hide-tft-battle-pass"
                 ),
                 document.createElement('br'),
                 UI.createCheckBox(
-                    `${await getString("hide-tft-home")}`,'hidetfthometab','hidetfthometabbox',
-                    ()=>{
+                    `${await getString("hide-tft-home")}`, 'hidetfthometab', 'hidetfthometabbox',
+                    () => {
                         applyHideAndShowTFTtab()
-                    },true, "hide-tft-home"
+                    }, true, "hide-tft-home"
                 ),
                 document.createElement('br'),
                 document.createElement('br'),
                 UI.createCheckBox(
-                    `${await getString("NSFW-Content")}`,'nsfw','nsfwbox',
-                    ()=>{},true, "NSFW-Content"
+                    `${await getString("NSFW-Content")}`, 'nsfw', 'nsfwbox',
+                    () => { }, true, "NSFW-Content"
                 ),
                 document.createElement('br'),
                 document.createElement('br'),

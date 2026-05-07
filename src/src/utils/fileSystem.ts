@@ -2,6 +2,7 @@ import { log, error } from './themeLog';
 import { del_webm_buttons, create_webm_buttons } from '../theme/customUI/customHomepage';
 
 export class FileSystem {
+    isContextFSExist = true;
     private currentWallpaperList: string[] = [];
     private currentAudioList: string[] = []
     private currentBannerList: string[] = [];
@@ -30,6 +31,8 @@ export class FileSystem {
     init = async (context: any) => {
         if (!context.fs) {
             error('context.fs is missing')
+            this.isContextFSExist = false;
+            window.refreshLists = async () => { }
             return
         }
 
@@ -62,6 +65,8 @@ export class FileSystem {
 
         const globalRefreshLists = () => this.refreshLists(context);
         window.refreshLists = globalRefreshLists;
+
+        window.isContextFSExist = this.isContextFSExist;
     }
 
     refreshLists = async (context: any) => {
