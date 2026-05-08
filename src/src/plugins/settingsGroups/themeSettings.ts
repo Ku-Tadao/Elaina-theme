@@ -11,7 +11,9 @@ import {
     setImageWallpaper,
     setAudio,
     hideShowNavBar,
-    changeHomePageStyle
+    changeHomePageStyle,
+    wallpaperPlayPause,
+    audioPlayPause
 } from "../../theme/customUI/customHomepage.ts";
 
 const FILE_REGEX = {
@@ -96,6 +98,7 @@ async function themeSettings(panel: Element) {
                             if (!ElainaData.get("disable-theme-wallpaper")) {
                                 setWallpaper()
                                 setImageWallpaper()
+                                wallpaperPlayPause()
                                 wallpaperController.style.display = "flex"
                             }
                             else {
@@ -121,6 +124,7 @@ async function themeSettings(panel: Element) {
 
                             if (!ElainaData.get("disable-theme-audio")) {
                                 setAudio()
+                                audioPlayPause()
                                 audioController.style.display = "flex"
                             }
                             else {

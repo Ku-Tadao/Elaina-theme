@@ -153,7 +153,7 @@ const changeHomePageTabs = new ChangeHomePageTabs()
 // Create wallpaper/audio controller button
 // For wallpaper
 class WallpaperController {
-    elainaPlayPause = () => {
+    wallpaperPlayPause = () => {
         const elainaBg: any = document.getElementById("elaina-bg");
         switch (ElainaData.get('pause-wallpaper') % 2) {
             case 1:
@@ -707,7 +707,7 @@ class MainController {
         wallpaperControls.addEventListener('click', (event: any) => {
             if (event.target.closest('#pause-bg')) {
                 ElainaData.set('pause-wallpaper', ElainaData.get('pause-wallpaper') + 1);
-                wallpaperController.elainaPlayPause();
+                wallpaperController.wallpaperPlayPause();
                 wallpaperController.playPauseSetIcon();
             }
             if (event.target.closest('#next-bg')) {
@@ -1152,7 +1152,7 @@ class WallpaperAndAudio {
                             audio.pause();
                         }
                     } else {
-                        wallpaperController.elainaPlayPause();
+                        wallpaperController.wallpaperPlayPause();
                         audioController.audioPlayPause();
                     }
                 });
@@ -1272,6 +1272,8 @@ const setImageWallpaper = wallpaperAndAudio.setImageWallpaperElement
 const setAudio = wallpaperAndAudio.setAudioElement
 const hideShowNavBar = hideNavbarButton.hideShowNavBar
 const changeHomePageStyle = hideNavbarButton.changeHomePageStyle
+const wallpaperPlayPause = wallpaperController.wallpaperPlayPause
+const audioPlayPause = audioController.audioPlayPause
 
 export {
     del_webm_buttons,
@@ -1281,5 +1283,7 @@ export {
     setImageWallpaper,
     setAudio,
     hideShowNavBar,
-    changeHomePageStyle
+    changeHomePageStyle,
+    wallpaperPlayPause,
+    audioPlayPause
 };
