@@ -195,7 +195,7 @@ export default {
 
     "old-ll-settings"           : "Bảng cài đặt League loader cũ",
     "loot-helper"               : "Kho báu vật V2",
-    "auto_accept_button"        : "Huút tự động chấp thuận",
+    "auto_accept_button"        : "Hiện nút tự động chấp thuận",
     "dodge-button"              : "Hiện nút thoát trận",
     "Enable-Invite-Fr"          : 'Kích hoạt plugin "Mời toàn bộ bạn bè"',
     "aram-only"                 : "Main Aram (\")>",

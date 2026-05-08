@@ -42,8 +42,9 @@ import { CustomSummonerLv } from "./src/plugins/customSummonerLv.ts"
 import { LootHelper } from "./src/plugins/lootHelper.ts"
 import { NameSpoofer } from "./src/plugins/nameSpoofer.ts"
 import { OfflineMode } from "./src/plugins/offlineMode.ts"
-import { Practice5vs5 } from "./src/plugins/practice5vs5.ts"
+// import { Practice5vs5 } from "./src/plugins/practice5vs5.ts"
 import { InviteAllFriends } from "./src/plugins/inviteAllFriends.ts"
+// import { DodgeButton } from "./src/plugins/dodgeButton.ts"
 
 // Import other plugins
 import * as upl from "pengu-upl"
@@ -132,8 +133,8 @@ class ElainaTheme {
         nameSpoofer.main()
 
         // Add practice 5vs5 room button
-        const practice5vs5 = new Practice5vs5()
-        if (!ElainaData.get("aram-only")) practice5vs5.main()
+        // const practice5vs5 = new Practice5vs5()
+        // if (!ElainaData.get("aram-only")) practice5vs5.main()
 
         // Offline mode
         const offlineMode = new OfflineMode()
