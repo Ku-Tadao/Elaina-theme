@@ -49,7 +49,7 @@ import { InviteAllFriends } from "./src/plugins/inviteAllFriends.ts"
 import * as upl from "pengu-upl"
 import { ForceJungLane } from "./src/plugins/forceJungleLane.ts"
 import "./src/plugins/syncUserIcons.ts";
-import "./src/utils/debug.ts"
+import { initDebug } from "./src/utils/debug.ts"
 
 // Export Init
 export async function init(context: any) {
@@ -64,6 +64,7 @@ export async function init(context: any) {
 
     log('Initializing theme');
     await initThemeDataCdn();
+    initDebug();
 
     // createHomePageTab(context);
     Settings(context);
