@@ -48,12 +48,12 @@ export class BackupRestoreData {
 				this.setDefaultData(datastore_list)
 				setTimeout(async () => {
 					resolve()
-					window.restartClient()
+					// window.restartClient()
 				},5000)
 			})
 			
 			window.Toast.promise(restoreData, {
-				loading: 'Restoring Datastore...',
+				loading: 'Restoring default Elaina theme data...',
 				success: 'Restore complete!',
 				error: ''
 			})
