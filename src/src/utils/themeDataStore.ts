@@ -10,6 +10,8 @@ let cache: Record<string, any> = {};
 let storageMode: StorageMode = 'datastore';
 let fsContext: any = null;
 let initPromiseResolve: (() => void) | null = null;
+let pendingPersist: Promise<boolean> | null = null;
+let persistAgain = false;
 
 /**
  * A promise that resolves once ElainaData has been fully initialized.
@@ -27,7 +29,7 @@ async function persistToFile(): Promise<boolean> {
     if (storageMode !== 'fs' || !fsContext) return false;
     try {
         const json = JSON.stringify(cache, null, 2);
-        const success = await fsContext.fs.write(DATA_FILE_PATH, json, false);
+        const success = await fsContext.fs.write(DATA_FILE_PATH, json, { append: false });
         if (!success) {
             error('context.fs.write returned false — data may not be persisted');
         }
@@ -36,6 +38,26 @@ async function persistToFile(): Promise<boolean> {
         error('Failed to persist ElainaData to file', err);
         return false;
     }
+}
+
+function queuePersist(): Promise<boolean> {
+    if (pendingPersist) {
+        persistAgain = true;
+        return pendingPersist;
+    }
+
+    pendingPersist = (async () => {
+        let success = true;
+        do {
+            persistAgain = false;
+            success = await persistToFile();
+        } while (persistAgain);
+        return success;
+    })().finally(() => {
+        pendingPersist = null;
+    });
+
+    return pendingPersist;
 }
 
 // ---------------------------------------------------------------------------
@@ -173,8 +195,7 @@ const ElainaData = {
     set(key: string, value: any): boolean {
         if (storageMode === 'fs') {
             cache[key] = value;
-            // Fire-and-forget but no debounce — persist every write
-            persistToFile();
+            queuePersist();
             return true;
         }
         return datastoreSet(key, value);
@@ -201,7 +222,7 @@ const ElainaData = {
         if (storageMode === 'fs') {
             if (cache.hasOwnProperty(key)) {
                 delete cache[key];
-                persistToFile();
+                queuePersist();
                 return true;
             }
             return false;
@@ -215,8 +236,7 @@ const ElainaData = {
     restoreDefaults(): void {
         if (storageMode === 'fs') {
             cache = {};
-            // Flush immediately — user is about to reload
-            persistToFile();
+            queuePersist();
         } else {
             window.DataStore.set("ElainaTheme", {});
         }
@@ -240,7 +260,7 @@ const ElainaData = {
     setAll(data: Record<string, any>): void {
         if (storageMode === 'fs') {
             cache = { ...data };
-            persistToFile();
+            queuePersist();
         } else {
             window.DataStore.set("ElainaTheme", data);
         }
@@ -253,7 +273,7 @@ const ElainaData = {
 
     /** Force an immediate flush of cache to file (fs mode only). */
     async flush(): Promise<void> {
-        await persistToFile();
+        await queuePersist();
     }
 };
 

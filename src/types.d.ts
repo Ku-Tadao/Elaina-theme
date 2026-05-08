@@ -63,11 +63,11 @@ interface FileStat {
 
 interface PluginFS {
     read: (path: string) => Promise<string | undefined>
-    write: (path: string, content: string, enableAppendMode: boolean) => Promise<boolean>
+    write: (path: string, content: string, options?: { append?: boolean }) => Promise<boolean>
     mkdir: (path: string) => Promise<boolean>
     stat: (path: string) => Promise<FileStat | undefined>
     ls: (path: string) => Promise<string[] | undefined>
-    rm: (path: string, recursively: boolean) => Promise<number>
+    rm: (path: string, options?: { recursive?: boolean }) => Promise<number>
 }
 
 interface elainaData {
