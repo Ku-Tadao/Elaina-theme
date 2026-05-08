@@ -18,56 +18,38 @@ log('Importing theme contents');
 
 // Import server-side backup/restore data service
 import { restoreDefaultDataStore } from './src/services/backupAndRestoreDatastore';
+import { initThemeDataCdn } from './src/theme/Cdn.ts';
 
-let Settings: any;
-let transparentLobby: any;
-let AutoQueue: any;
-let skipHonor: any;
-let FileSystem: any;
-let CheckUpdate: any;
-let ApplyUI: any;
-let Filters: any;
-let LoadCss: any;
-let ThemePresetSettings: any;
-let CustomStatus: any;
-let AutoAccept: any;
-let CustomBeRp: any;
-let CustomSummonerLv: any;
-let LootHelper: any;
-let NameSpoofer: any;
-let OfflineMode: any;
-let Practice5vs5: any;
-let InviteAllFriends: any;
-let ForceJungLane: any;
-let upl: any;
+// Import Init modules
+import { Settings } from "./src/plugins/settings.ts";
+import { transparentLobby } from "./src/theme/customUI/transparentLobby.ts";
+import { AutoQueue } from "./src/plugins/autoQueue.ts";
+import { skipHonor } from "./src/plugins/skipHonor.js";
+import { FileSystem } from "./src/utils/fileSystem.ts";
 
-async function loadRuntimeModules() {
-    if (Settings) return;
+// Import modules
+import { CheckUpdate } from "./src/updates/checkUpdate.ts"
+import { ApplyUI } from "./src/theme/loadCustomUi.ts";
+import { Filters } from "./src/theme/loadCustomFilters.ts"
+import { LoadCss } from "./src/theme/loadCustomCss.ts"
+import { ThemePresetSettings } from "./src/plugins/themePresetSettingsTab.ts"
 
-    ({ Settings } = await import("./src/plugins/settings.ts"));
-    ({ transparentLobby } = await import("./src/theme/customUI/transparentLobby.ts"));
-    ({ AutoQueue } = await import("./src/plugins/autoQueue.ts"));
-    ({ skipHonor } = await import("./src/plugins/skipHonor.js"));
-    ({ FileSystem } = await import("./src/utils/fileSystem.ts"));
-    ({ CheckUpdate } = await import("./src/updates/checkUpdate.ts"));
-    ({ ApplyUI } = await import("./src/theme/loadCustomUi.ts"));
-    ({ Filters } = await import("./src/theme/loadCustomFilters.ts"));
-    ({ LoadCss } = await import("./src/theme/loadCustomCss.ts"));
-    ({ ThemePresetSettings } = await import("./src/plugins/themePresetSettingsTab.ts"));
-    ({ CustomStatus } = await import("./src/plugins/customStatus.ts"));
-    ({ AutoAccept } = await import("./src/plugins/autoAccept.ts"));
-    ({ CustomBeRp } = await import("./src/plugins/customBeRp.ts"));
-    ({ CustomSummonerLv } = await import("./src/plugins/customSummonerLv.ts"));
-    ({ LootHelper } = await import("./src/plugins/lootHelper.ts"));
-    ({ NameSpoofer } = await import("./src/plugins/nameSpoofer.ts"));
-    ({ OfflineMode } = await import("./src/plugins/offlineMode.ts"));
-    ({ Practice5vs5 } = await import("./src/plugins/practice5vs5.ts"));
-    ({ InviteAllFriends } = await import("./src/plugins/inviteAllFriends.ts"));
-    ({ ForceJungLane } = await import("./src/plugins/forceJungleLane.ts"));
-    upl = await import("pengu-upl");
-    await import("./src/plugins/syncUserIcons.ts");
-    await import("./src/utils/debug.ts");
-}
+// Import plugins
+import { CustomStatus } from "./src/plugins/customStatus.ts"
+import { AutoAccept } from "./src/plugins/autoAccept.ts"
+import { CustomBeRp } from "./src/plugins/customBeRp.ts"
+import { CustomSummonerLv } from "./src/plugins/customSummonerLv.ts"
+import { LootHelper } from "./src/plugins/lootHelper.ts"
+import { NameSpoofer } from "./src/plugins/nameSpoofer.ts"
+import { OfflineMode } from "./src/plugins/offlineMode.ts"
+import { Practice5vs5 } from "./src/plugins/practice5vs5.ts"
+import { InviteAllFriends } from "./src/plugins/inviteAllFriends.ts"
+
+// Import other plugins
+import * as upl from "pengu-upl"
+import { ForceJungLane } from "./src/plugins/forceJungleLane.ts"
+import "./src/plugins/syncUserIcons.ts";
+import { initDebug } from "./src/utils/debug.ts"
 
 // Export Init
 export async function init(context: any) {
@@ -75,15 +57,14 @@ export async function init(context: any) {
     await ElainaData.init(context);
     await restoreDefaultDataStore();
     ElainaData.set("start-time", Date.now());
-    await loadRuntimeModules();
 
     log('Initializing file system for theme');
     const fileSystem = new FileSystem();
     await fileSystem.init(context);
 
     log('Initializing theme');
-    const { initThemeDataCdn } = await import('./src/theme/Cdn.ts');
     await initThemeDataCdn();
+    initDebug();
 
     // createHomePageTab(context);
     Settings(context);
@@ -175,7 +156,6 @@ class ElainaTheme {
 
 const elainaTheme = new ElainaTheme()
 export async function load() {
-    await loadRuntimeModules();
     await elainaTheme.main()
 
     // For debug only

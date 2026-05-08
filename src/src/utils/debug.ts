@@ -4,6 +4,7 @@ let riotclient_auth: any, riotclient_port: any
 let regex_rc_auth = /^--riotclient-auth-token=(.+)$/
 let regex_rc_port = /^--riotclient-app-port=([0-9]+)$/
 let debug_sub = true
+let initialized = false
 
 async function subscribe_endpoint(endpoint: any, callback: any) {
 	const getUri: any = document.querySelector('link[rel="riot:plugins:websocket"]')
@@ -37,9 +38,11 @@ let debugLogEndpoints = async (message: any) => {
 	}
 }
 
-window.addEventListener('load', () => {
+export function initDebug() {
+	if (initialized) return
+	initialized = true
 	fetch_riotclient_credentials()
 	if (ElainaData.get("Debug-mode")) {
 		subscribe_endpoint("", debugLogEndpoints)
 	}
-})
+}
