@@ -17,9 +17,6 @@ const datapath: string = `//plugins/${getThemeName()}/`
 const iconFolder: string = `${datapath}assets/icon/`;
 const bgFolder: string = `${datapath}assets/backgrounds/`;
 
-ElainaData.set("Font-folder", `${datapath}assets/fonts/`);
-ElainaData.set("Plugin-folder-name", getThemeName());
-
 let addedBackgrounds = false
 let navbarContentList: any[] = [];
 let haveNewContent = 0
@@ -40,10 +37,13 @@ const defaultData = {
     "WallpaperAudio-timeUpdate": 3000,
 };
 
-setDefaultData(defaultData, false);
+function initHomepageData() {
+    ElainaData.set("Font-folder", `${datapath}assets/fonts/`);
+    ElainaData.set("Plugin-folder-name", getThemeName());
+    setDefaultData(defaultData, false);
+}
 
-// Get Summoner ID and PUUID
-window.setTimeout(async () => {
+async function updateSummonerIdentity() {
     const summonerID: number = await utils.getSummonerID();
     const PUUID: string = await utils.getPUUID();
 
@@ -52,7 +52,7 @@ window.setTimeout(async () => {
 
     log(`%cCurrent summonerID: %c${summonerID}`, 'color: #e4c2b3', 'color: #0070ff');
     log(`%cCurrent PUUID: %c${PUUID}`, 'color: #e4c2b3', 'color: #0070ff');
-}, 7000);
+}
 
 // Create and set new page as Homepage
 export function createHomePageTab(context: any) {
@@ -1248,6 +1248,9 @@ const addHomePage = new AddHomePage()
 /** Manages the custom homepage including wallpapers, audio, navbar buttons, and page listeners. */
 export class HomePage {
     main = () => {
+        initHomepageData()
+        window.setTimeout(updateSummonerIdentity, 7000)
+
         log("Add wallpaper and audio")
         wallpaperAndAudio.addWallpaperElement()
         wallpaperAndAudio.addImageWallpaperElement()

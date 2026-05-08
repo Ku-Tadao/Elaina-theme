@@ -4,8 +4,10 @@ import { cdnImport } from "./theme/Cdn.ts"
 export function getThemeName(): string | null {
     const error = new Error();
     const stackTrace = error.stack;
-    const scriptPath = stackTrace?.match(/(?:http|https):\/\/[^\s]+\.js/g)?.[0];
-    const match = scriptPath?.match(/\/([^/]+)\/index\.js$/);
+    const scriptPath = stackTrace
+        ?.match(/(?:http|https):\/\/plugins\/[^\s)]+\.js/g)
+        ?.find((url) => !url.includes('/@/'));
+    const match = scriptPath?.match(/\/\/plugins\/([^/?#]+)\//);
     return match ? match[1] : null;
 }
 
