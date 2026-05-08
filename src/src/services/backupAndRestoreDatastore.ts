@@ -65,10 +65,4 @@ const backupRestoreData = new BackupRestoreData()
 const restoreDefaultDataStore = backupRestoreData.restore
 const setDefaultData = backupRestoreData.setDefaultData
 
-try {
-	// Restore Datastore file if no theme's data
-	await restoreDefaultDataStore()
-}
-catch(err:any) { error("Can not restore datastore", err) }
-
-export { setDefaultData }
+export { restoreDefaultDataStore, setDefaultData }
