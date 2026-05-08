@@ -41,7 +41,7 @@ export default {
 	"holiday-message"               : true,
 
 	"sync-user-icons"               : true,
-	"hide-homepage-navbar"          : false,
+	"hide-homepage-navbar"          : true,
 	"old-prev/next-button"          : false,
 	"enable-hide-top-navbar-friendlist-button" : true,
 	"sidebar-transparent"           : false,
