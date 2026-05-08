@@ -165,7 +165,13 @@ export default {
     
     "custom-runes-bg"               : "自定义符文页背景",
     "custom-champs-image"           : "Custom champions image",
+    
     "hide-theme-usage-time"         : "隐藏主题使用时间",
+    "hide-summoner-rift-5v5"        : "Hide Summoner Rift 5v5",
+    "hide-aram"                     : "Hide ARAM",
+    "hide-arena"                    : "Hide Arena",
+    "hide-custom-game-section"      : "Hide custom game section",
+    "hide-tft"                      : "Hide TFT",
     "Hide-linking-settings"         : "隐藏账户绑定设置",
     "Hide-verify-acc"               : "隐藏账户验证设置",
     "hide-overview"                 : "隐藏概览标签",

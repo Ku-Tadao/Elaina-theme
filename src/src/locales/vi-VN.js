@@ -165,7 +165,13 @@ export default {
     
     "custom-runes-bg"               : "Hình nền trang ngọc tùy chỉnh",
     "custom-champs-image"           : "Hình ảnh tướng tùy chỉnh",
+
     "hide-theme-usage-time"         : "Ẩn thời gian sử dụng theme",
+    "hide-summoner-rift-5v5"        : "Ẩn Summoner Rift 5vs5",
+    "hide-aram"                     : "Ẩn ARAM",
+    "hide-arena"                    : "Ẩn Võ Đài",
+    "hide-custom-game-section"      : "Ẩn mục trận tùy chọn",
+    "hide-tft"                      : "Ẩn Đấu Trường Chân Lý",
     "Hide-linking-settings"         : "Ẩn cài đặt liên kết tài khoản",
     "Hide-verify-acc"               : "Ẩn cài đặt xác minh tài khoản",
     "hide-overview"                 : "Ẩn tab Tổng quan",
@@ -189,7 +195,7 @@ export default {
 
     "old-ll-settings"           : "Bảng cài đặt League loader cũ",
     "loot-helper"               : "Kho báu vật V2",
-    "auto_accept_button"        : "Nút tự động chấp thuận",
+    "auto_accept_button"        : "Huút tự động chấp thuận",
     "dodge-button"              : "Hiện nút thoát trận",
     "Enable-Invite-Fr"          : 'Kích hoạt plugin "Mời toàn bộ bạn bè"',
     "aram-only"                 : "Main Aram (\")>",

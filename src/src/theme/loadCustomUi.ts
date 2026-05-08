@@ -1,7 +1,7 @@
 import * as upl from 'pengu-upl'
 
 import { HomePage } from "./customUI/customHomepage.ts";
-import { AramOnlyMode } from './customUI/aramOnlyMode.ts';
+import { RemoveGamemode } from './customUI/removeGamemode.ts';
 import { CustomProfile } from './customUI/customProfile.ts';
 import { CustomRunesBackground } from './customUI/customRuneBg.ts';
 import { CustomGameSearchCard } from './customUI/customGameSearchCard.ts';
@@ -21,13 +21,9 @@ export class ApplyUI {
         const homePage = new HomePage()
         homePage.main()
 
-		// Aram only mode
-		if (ElainaData.get("aram-only")) {
-			const aramOnlyMode = new AramOnlyMode()
-
-			aramOnlyMode.removeOtherGamemode()
-			aramOnlyMode.removeOtherCustomGamemode()
-		}
+		// Remove gamemodes
+		const removeGamemode = new RemoveGamemode()
+		removeGamemode.main()
 
 		// Custom profile
 		const customProfile = new CustomProfile()
@@ -45,7 +41,7 @@ export class ApplyUI {
 				}, 10000)
 			}
 		}
-		if (ElainaData.get("Custom-Rank-Name")) customProfile.CustomProfileRankName()
+		if (ElainaData.get("custom-rank-name")) customProfile.CustomProfileRankName()
 
 		// Custom runes background
 		if (ElainaData.get("Runes-BG")) {

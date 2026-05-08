@@ -165,7 +165,13 @@ export default {
     
     "custom-runes-bg"               : "Пользовательский фон страницы рун",
     "custom-champs-image"           : "Пользовательские изображения чемпионов",
+    
     "hide-theme-usage-time"         : "Скрыть время использования темы",
+    "hide-summoner-rift-5v5"        : "Hide Summoner Rift 5v5",
+    "hide-aram"                     : "Hide ARAM",
+    "hide-arena"                    : "Hide Arena",
+    "hide-custom-game-section"      : "Hide custom game section",
+    "hide-tft"                      : "Hide TFT",
     "Hide-linking-settings"         : "Скрыть настройки привязки аккаунта",
     "Hide-verify-acc"               : "Скрыть настройки верификации аккаунта",
     "hide-overview"                 : "Скрыть вкладку обзора",

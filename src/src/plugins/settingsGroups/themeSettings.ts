@@ -257,8 +257,8 @@ async function themeSettings(panel: Element) {
                 UI.createCheckBox(
                     `${await getString("custom-rank-name")}`, 'cusrankname', 'cusranknamebox',
                     () => {
-                        restartAfterChange('cusrankname', "Custom-Rank-Name")
-                    }, true, "Custom-Rank-Name"
+                        restartAfterChange('cusrankname', "custom-rank-name")
+                    }, true, "custom-rank-name"
                 ),
                 document.createElement('br'),
                 UI.createSearchBox("Rank-line1"),
@@ -467,6 +467,7 @@ async function themeSettings(panel: Element) {
                     }, true, "custom-champs-image"
                 ),
                 document.createElement('br'),
+                document.createElement('br'),
                 // UI.createCheckBox(
                 //     `${await getString("custom-cursor")}`,'cuscursor','cuscursorbox',
                 //     ()=>{},true, "Custom-Cursor"
@@ -508,6 +509,41 @@ async function themeSettings(panel: Element) {
                 //     },true, "hide-esport"
                 // ),
                 // document.createElement('br'),
+                UI.createCheckBox(
+                    `${await getString("hide-summoner-rift-5v5")}`, 'hidesr5v5tab', 'hidesr5v5tabbox',
+                    () => {
+                        restartAfterChange('hidesr5v5tab', 'hide-summoner-rift-5v5')
+                    }, true, "hide-summoner-rift-5v5"
+                ),
+                document.createElement('br'),
+                UI.createCheckBox(
+                    `${await getString("hide-aram")}`, 'hidearamtab', 'hidearamtabbox',
+                    () => {
+                        restartAfterChange('hidearamtab', 'hide-aram')
+                    }, true, "hide-aram"
+                ),
+                document.createElement('br'),
+                UI.createCheckBox(
+                    `${await getString("hide-arena")}`, 'hidearenatab', 'hidearenatabbox',
+                    () => {
+                        restartAfterChange('hidearenatab', 'hide-arena')
+                    }, true, "hide-arena"
+                ),
+                document.createElement('br'),
+                UI.createCheckBox(
+                    `${await getString("hide-custom-game-section")}`, 'hidecustomtab', 'hidecustomtabbox',
+                    () => {
+                        restartAfterChange('hidecustomtab', 'hide-custom-game-section')
+                    }, true, "hide-custom-game-section"
+                ),
+                document.createElement('br'),
+                UI.createCheckBox(
+                    `${await getString("hide-tft")}`, 'hidetfttab', 'hidetfttabbox',
+                    () => {
+                        restartAfterChange('hidetfttab', 'hide-tft')
+                    }, true, "hide-tft"
+                ),
+                document.createElement('br'),
                 UI.createCheckBox(
                     `${await getString("hide-tft-match-history")}`, 'hidetftmhtab', 'hidetftmhtabbox',
                     () => {

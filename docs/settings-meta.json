@@ -260,7 +260,7 @@
             "description": "The custom summoner level to display.",
             "type": "string"
         },
-        "Custom-Rank-Name": {
+        "custom-rank-name": {
             "category": "plugins",
             "description": "Display a custom rank name on your profile.",
             "type": "boolean"

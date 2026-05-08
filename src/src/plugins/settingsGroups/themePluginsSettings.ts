@@ -69,13 +69,13 @@ async function pluginsSettings(panel: Element) {
                     },true, "Enable-Invite-Fr"
                 ),
                 document.createElement('br'),
-                UI.createCheckBox(
-                    `${await getString("aram-only")}`, "Aram only", "Aram only checkbox",
-                    ()=>{
-                        restartAfterChange("Aram only", "aram-only")
-                    },true, "aram-only"
-                ),
-                document.createElement('br'),
+                // UI.createCheckBox(
+                //     `${await getString("aram-only")}`, "Aram only", "Aram only checkbox",
+                //     ()=>{
+                //         restartAfterChange("Aram only", "aram-only")
+                //     },true, "aram-only"
+                // ),
+                // document.createElement('br'),
                 // UI.createRow("j1_4",[
                 //     UI.createCheckBox(
                 //         `${await getString("1/4-joke")}`,'_1_4','_1_4box',

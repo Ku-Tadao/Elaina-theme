@@ -165,7 +165,13 @@ export default {
     
     "custom-runes-bg"               : "Custom runes page background",
     "custom-champs-image"           : "Custom champions image",
+
     "hide-theme-usage-time"         : "Hide theme usage time",
+    "hide-summoner-rift-5v5"        : "Hide Summoner Rift 5v5",
+    "hide-aram"                     : "Hide ARAM",
+    "hide-arena"                    : "Hide Arena",
+    "hide-custom-game-section"      : "Hide custom game section",
+    "hide-tft"                      : "Hide TFT",
     "Hide-linking-settings"         : "Hide linking account settings",
     "Hide-verify-acc"               : "Hide account verification settings",
     "hide-overview"                 : "Hide overview tab",
