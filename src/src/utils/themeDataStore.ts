@@ -9,6 +9,7 @@ type StorageMode = 'fs' | 'datastore';
 let cache: Record<string, any> = {};
 let storageMode: StorageMode = 'datastore';
 let fsContext: any = null;
+let initialized = false;
 let initPromiseResolve: (() => void) | null = null;
 let pendingPersist: Promise<boolean> | null = null;
 let persistAgain = false;
@@ -108,6 +109,7 @@ const ElainaData = {
         if (!context || !context.fs) {
             log('context.fs not available — using DataStore mode');
             storageMode = 'datastore';
+            initialized = true;
             initPromiseResolve?.();
             return;
         }
@@ -144,22 +146,8 @@ const ElainaData = {
                 }
             }
 
-            // Merge any keys that backupAndRestoreDatastore set into DataStore
-            // BEFORE init() was called (top-level await runs first).
-            // This ensures defaults and pre-init writes are not lost.
-            const currentDatastore: Record<string, any> = window.DataStore.get("ElainaTheme", {});
-            let merged = false;
-            for (const [key, value] of Object.entries(currentDatastore)) {
-                if (!cache.hasOwnProperty(key)) {
-                    cache[key] = value;
-                    merged = true;
-                }
-            }
-            if (merged) {
-                log('Merged missing keys from DataStore into fs cache');
-            }
-
             storageMode = 'fs';
+            initialized = true;
 
             // Persist immediately to ensure file is up-to-date
             await persistToFile();
@@ -167,6 +155,7 @@ const ElainaData = {
         } catch (err: any) {
             error('Failed to init ElainaData in fs mode, falling back to DataStore', err);
             storageMode = 'datastore';
+            initialized = true;
         }
 
         initPromiseResolve?.();
@@ -179,6 +168,11 @@ const ElainaData = {
      * @returns The value associated with the key or the fallback.
      */
     get(key: string, fallback: any = null): any {
+        if (!initialized) {
+            error(`ElainaData.get("${key}") called before ElainaData.init()`);
+            return fallback;
+        }
+
         if (storageMode === 'fs') {
             return cache.hasOwnProperty(key) ? cache[key] : fallback;
         }
@@ -193,6 +187,11 @@ const ElainaData = {
      * @returns True if the key was set successfully, false otherwise.
      */
     set(key: string, value: any): boolean {
+        if (!initialized) {
+            error(`ElainaData.set("${key}") called before ElainaData.init()`);
+            return false;
+        }
+
         if (storageMode === 'fs') {
             cache[key] = value;
             queuePersist();
@@ -207,6 +206,11 @@ const ElainaData = {
      * @returns True if the key exists, false otherwise.
      */
     has(key: string): boolean {
+        if (!initialized) {
+            error(`ElainaData.has("${key}") called before ElainaData.init()`);
+            return false;
+        }
+
         if (storageMode === 'fs') {
             return cache.hasOwnProperty(key);
         }
@@ -219,6 +223,11 @@ const ElainaData = {
      * @returns True if the key was removed, false otherwise.
      */
     remove(key: string): boolean {
+        if (!initialized) {
+            error(`ElainaData.remove("${key}") called before ElainaData.init()`);
+            return false;
+        }
+
         if (storageMode === 'fs') {
             if (cache.hasOwnProperty(key)) {
                 delete cache[key];
