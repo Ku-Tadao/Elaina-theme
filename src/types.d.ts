@@ -136,7 +136,7 @@ declare interface Window {
     ElainaData: elainaData;
     elainathemeApi: elainathemeApi;
     syncUserIcons: syncUserIcons;
-    getThemeName: () => void;
+    getThemeName: () => string | null;
     cdnImport: (url: string, errorMsg: any) => Promise<any>;
     log: (message: string, ...args: string[]) => void;
     warn: (message: string, ...args: string[]) => void;
@@ -154,3 +154,4 @@ declare interface Window {
 declare function getString(param: string): Promise<string>;
 declare function writeBackupData(): void;
 declare const ElainaData: elainaData;
+declare const Pengu: Window['Pengu'];

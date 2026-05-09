@@ -11,6 +11,7 @@ import { ElainaData } from "./src/utils/themeDataStore.ts";
 // Importing theme contents
 import "./src/languages.ts";
 import { log } from './src/utils/themeLog.ts';
+import { initThemeName } from './src/otherThings.ts';
 
 log('By %cElaina Da Catto', 'color: #e4c2b3');
 log('%cMeow ~~~', 'color: #e4c2b3');
@@ -54,6 +55,9 @@ import { initDebug } from "./src/utils/debug.ts"
 
 // Export Init
 export async function init(context: any) {
+    log('Resolving theme name');
+    initThemeName(context);
+
     log('Initializing ElainaData storage');
     await ElainaData.init(context);
     await restoreDefaultDataStore();
