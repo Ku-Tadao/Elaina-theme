@@ -8,8 +8,17 @@ import archiver from "archiver"
 import chalk from 'chalk';
 
 import pkg from './package.json';
-const PENGU_PATH = pkg.config.penguPath;
-const PLUGIN_NAME = pkg.name;
+const PLUGINS_PATH = pkg.config.pluginsPath;
+const PLUGIN_NAME = pkg.folderName;
+const Author = 
+`/**
+* @name ${pkg.pluginName}
+* @author ${pkg.author.name}
+* @description ${pkg.description}
+* @link https://github.com/${pkg.author.github}
+* @Nyan Meow~~~
+*/
+`;
 
 const getIndexCode = (port: number) => (
     `await import('https://localhost:${port}/@vite/client');
@@ -18,7 +27,7 @@ const getIndexCode = (port: number) => (
 
 let port: number;
 const outDir = resolve(__dirname, 'dist');
-const pluginsDir = resolve(__dirname, PENGU_PATH, 'plugins', PLUGIN_NAME);
+const pluginsDir = resolve(__dirname, PLUGINS_PATH, PLUGIN_NAME);
 
 async function emptyDir(path: string) {
     if (existsSync(path)) {
@@ -120,9 +129,6 @@ export default defineConfig((config) => ({
                 }
             
                 await writeFile(indexJs, jsCode);
-            
-                // Add author comment block
-                const Author = `/**\n* @name Elaina-Theme\n* @author Elaina Da Catto\n* @description Elaina theme for Pengu Loader\n* @link https://github.com/Elaina69\n* @Nyan Meow~~~\n*/`;
                 
                 async function prependCommentToFile(filePath: string, commentBlock: string, lineNumber: number) {
                     try {
