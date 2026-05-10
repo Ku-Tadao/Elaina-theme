@@ -60,17 +60,27 @@
 
 ## Special Thanks
 
->  - Developers       : Me (ofc), [teiseire117](https://github.com/teisseire117)
->  - Supporters       : [teiseire117](https://github.com/teisseire117), [Nomi-san](https://github.com/nomi-san), [controlado](https://github.com/controlado), [Sarah Engel](https://github.com/PrincessAkira), [Yurichtofen](https://github.com/Yurichtofen), [Legnatbird](https://github.com/Legnatbird), [Dmitry Nemykin](https://github.com/DmitryFisk)
->  - Theme Optimizers : [Yurichtofen](https://github.com/Yurichtofen), [Kubi](https://github.com/Ku-Tadao)
->  - Translators      : 
->    + English : (A lot)
->    + Vietnamese : Me ._.
+>  - Developers: Me (ofc), 
+[Lyfhael](https://github.com/teisseire117)
+[Kubi](https://github.com/Ku-Tadao)
+>  - Supporters: 
+[Nomi-san](https://github.com/nomi-san), 
+[BakaFT](https://github.com/BakaFT), 
+[Sarah Engel](https://github.com/PrincessAkira),
+[controlado](https://github.com/controlado), 
+[Dmitry Nemykin](https://github.com/DmitryFisk)
+[Legnatbird](https://github.com/Legnatbird), 
+[Flirip](https://github.com/Flirip)
+[Unproductive](https://github.com/imunproductive), 
+[Rumi](https://github.com/rumi-chan)
+
 
 ## 🙏 Support
 
 <p align="left">
     <a href="https://www.paypal.com/paypalme/ElainaDaCattoRiel"><img src="https://ionicabizau.github.io/badges/paypal.svg" alt="Donate"/></a>
+    <a href="https://ko-fi.com/ElainaDaCattoRiel" target="_blank" rel="noopener noreferrer"><img src="https://img.shields.io/badge/Ko--fi-Donate-ff5e5b?style=flat-square&logo=ko-fi&logoColor=white" alt="Donate on Ko-fi"/></a>
+    <a href="https://momo.vn/" target="_blank" rel="noopener noreferrer"><img src="https://img.shields.io/badge/MoMo-Donate-FF5AB5?style=flat-square" alt="Donate via MoMo"/></a>
 </p>
 
 
