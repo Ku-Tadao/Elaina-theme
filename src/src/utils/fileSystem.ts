@@ -1,75 +1,88 @@
 import { log, error } from './themeLog';
 import { del_webm_buttons, create_webm_buttons } from '../theme/customUI/customHomepage';
 
-export class FileSystem {
+class FileSystem {
     isContextFSExist = true;
+    private context: any = null;
     private currentWallpaperList: string[] = [];
     private currentAudioList: string[] = []
     private currentBannerList: string[] = [];
     private currentFontList: string[] = [];
 
-    read = async (context: any, path: string): Promise<string | undefined> => {
-        return await context.fs.read(path);
+    read = async (path: string): Promise<string | undefined> => {
+        return await this.context?.fs.read(path);
     }
 
-    write = async (context: any, path: string, content: string, enableAppendMode: boolean): Promise<boolean> => {
-        return await context.fs.write(path, content, { append: enableAppendMode });
+    write = async (path: string, content: string, enableAppendMode = false): Promise<boolean> => {
+        return await this.context?.fs.write(path, content, { append: enableAppendMode }) ?? false;
     }
 
-    mkdir = async (context: any, path: string): Promise<boolean> => {
-        return await context.fs.mkdir(path);
+    mkdir = async (path: string): Promise<boolean> => {
+        return await this.context?.fs.mkdir(path) ?? false;
     }
 
-    stat = async (context: any, path: string): Promise<FileStat | undefined> => {
-        return await context.fs.stat(path);
+    stat = async (path: string): Promise<FileStat | undefined> => {
+        return await this.context?.fs.stat(path);
     }
 
-    ls = async (context: any, path: string): Promise<string[] | undefined> => {
-        return await context.fs.ls(path);
+    ls = async (path: string): Promise<string[] | undefined> => {
+        return await this.context?.fs.ls(path);
+    }
+
+    rm = async (path: string, options?: { recursive?: boolean }): Promise<number> => {
+        return await this.context?.fs.rm(path, options) ?? 0;
     }
 
     init = async (context: any) => {
         if (!context.fs) {
             error('context.fs is missing')
             this.isContextFSExist = false;
+            this.context = null;
             window.refreshLists = async () => { }
+            window.isContextFSExist = this.isContextFSExist;
             return
         }
 
-        await this.mkdir(context, './data')
+        this.isContextFSExist = true;
+        this.context = context;
+        await this.mkdir('./data')
 
         // For debugging purposes only
-        const readFile = (path: string) => this.read(context, path);
+        const readFile = (path: string) => this.read(path);
         // @ts-ignore
         window.elainaReadFile = readFile;
 
-        const writeFile = (path: string, content: string, enableAppendMode: boolean) => this.write(context, path, content, enableAppendMode);
+        const writeFile = (path: string, content: string, enableAppendMode: boolean) => this.write(path, content, enableAppendMode);
         // @ts-ignore
         window.elainaWriteFile = writeFile;
 
-        const mkdir = (path: string) => this.mkdir(context, path);
+        const mkdir = (path: string) => this.mkdir(path);
         // @ts-ignore
         window.elainaMkdir = mkdir;
 
-        const stat = (path: string) => this.stat(context, path);
+        const stat = (path: string) => this.stat(path);
         // @ts-ignore
         window.elainaStat = stat;
 
-        const ls = (path: string) => this.ls(context, path);
+        const ls = (path: string) => this.ls(path);
         // @ts-ignore
         window.elainaLs = ls;
 
-        const globalRefreshLists = () => this.refreshLists(context);
+        const rm = (path: string, options?: { recursive?: boolean }) => this.rm(path, options);
+        // @ts-ignore
+        window.elainaRm = rm;
+
+        const globalRefreshLists = () => this.refreshLists();
         window.refreshLists = globalRefreshLists;
 
         window.isContextFSExist = this.isContextFSExist;
     }
 
-    refreshLists = async (context: any) => {
-        const wallpaper = await this.ls(context, './assets/backgrounds/wallpapers') ?? [];
-        const audio = await this.ls(context, './assets/backgrounds/audio') ?? [];
-        const banner = await this.ls(context, './assets/icon/regalia-banners') ?? [];
-        const font = await this.ls(context, './assets/fonts') ?? [];
+    refreshLists = async () => {
+        const wallpaper = await this.ls('./assets/backgrounds/wallpapers') ?? [];
+        const audio = await this.ls('./assets/backgrounds/audio') ?? [];
+        const banner = await this.ls('./assets/icon/regalia-banners') ?? [];
+        const font = await this.ls('./assets/fonts') ?? [];
 
         const FILE_REGEX = {
             Wallpaper: /\.(png|jpg|jpeg|gif|bmp|webp|ico|mp4|webm|mkv|mov|avi|wmv|3gp|m4v)$/,
@@ -111,3 +124,5 @@ export class FileSystem {
         });
     }
 }
+
+export const fileSystem = new FileSystem();

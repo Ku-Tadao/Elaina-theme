@@ -26,7 +26,7 @@ import { Settings } from "./src/plugins/settings.ts";
 import { transparentLobby } from "./src/theme/customUI/transparentLobby.ts";
 import { AutoQueue } from "./src/plugins/autoQueue.ts";
 import { skipHonor } from "./src/plugins/skipHonor.js";
-import { FileSystem } from "./src/utils/fileSystem.ts";
+import { fileSystem } from "./src/utils/fileSystem.ts";
 
 // Import modules
 import { CheckUpdate } from "./src/updates/checkUpdate.ts"
@@ -50,7 +50,7 @@ import { InviteAllFriends } from "./src/plugins/inviteAllFriends.ts"
 // Import other plugins
 import * as upl from "pengu-upl"
 import { ForceJungLane } from "./src/plugins/forceJungleLane.ts"
-import "./src/plugins/syncUserIcons.ts";
+import { syncUserIcons } from "./src/plugins/syncUserIcons.ts";
 import { initDebug } from "./src/utils/debug.ts"
 
 // Export Init
@@ -64,8 +64,10 @@ export async function init(context: any) {
     ElainaData.set("start-time", Date.now());
 
     log('Initializing file system for theme');
-    const fileSystem = new FileSystem();
     await fileSystem.init(context);
+
+    log('Initializing icon sync storage');
+    await syncUserIcons.init();
 
     log('Initializing theme');
     await initThemeDataCdn();

@@ -2,20 +2,6 @@ import utils from '../../utils/utils.ts'
 import * as upl from 'pengu-upl';
 import { rankList } from '../../utils/rankList.ts';
 
-interface BadgeChallenge {
-    id: number;
-}
-
-interface Title {
-    itemId: number;
-}
-
-interface PlayerPreferences {
-    challengeIds: number[];
-    title?: string;
-    bannerAccent?: string;
-}
-
 async function requestChallengeCrystal() {
     const rank = await rankList()
 

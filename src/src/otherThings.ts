@@ -1,14 +1,11 @@
 import { cdnImport } from "./theme/Cdn.ts"
 
-/** Cached theme name (may include @scope prefix, e.g. "@Elaina-Plugins/elaina-theme") */
-var _cachedThemeName: string | null = null;
+var cachedThemeName: string | null = null;
 
 /**
  * Extract the theme folder name from the call stack.
- * Works for both scoped (`//plugins/@Scope/theme/...`) and
- * unscoped (`//plugins/theme/...`) layouts.
  */
-function _getThemeNameFromStack(): string | null {
+function getThemeNameFromStack(): string | null {
     const error = new Error();
     const stackTrace = error.stack;
     const scriptPath = stackTrace
@@ -28,16 +25,10 @@ function _getThemeNameFromStack(): string | null {
 
 /**
  * Initialize the theme name using Pengu context APIs.
- * Must be called once during `init(context)` before any other module
- * accesses `getThemeName()`.
- *
- * Resolution order:
- * 1. `context.meta.name` + `Pengu.plugins` → scoped path (new Pengu ≥1.2.2)
- * 2. Stack-trace regex fallback (old Pengu without scope)
  */
 export function initThemeName(context: any): void {
     // Already resolved
-    if (_cachedThemeName) return;
+    if (cachedThemeName) return;
 
     const folderName: string | undefined = context?.meta?.name;
 
@@ -60,22 +51,22 @@ export function initThemeName(context: any): void {
         if (match) {
             // Remove the trailing "/index.js" (or similar entry file) to get the plugin path
             const lastSlash = match.lastIndexOf('/');
-            _cachedThemeName = lastSlash > 0 ? match.substring(0, lastSlash) : folderName;
+            cachedThemeName = lastSlash > 0 ? match.substring(0, lastSlash) : folderName;
             return;
         }
     }
 
     // Fallback: stack-trace regex (works for old Pengu without @scope)
-    _cachedThemeName = _getThemeNameFromStack();
+    cachedThemeName = getThemeNameFromStack();
 }
 
 /** Get this theme folder's name (may include @scope, e.g. "@Elaina-Plugins/elaina-theme") */
 export function getThemeName(): string | null {
-    if (_cachedThemeName) return _cachedThemeName;
+    if (cachedThemeName) return cachedThemeName;
 
     // If initThemeName was never called (old Pengu path), try stack trace
-    _cachedThemeName = _getThemeNameFromStack();
-    return _cachedThemeName;
+    cachedThemeName = getThemeNameFromStack();
+    return cachedThemeName;
 }
 
 export { cdnImport }

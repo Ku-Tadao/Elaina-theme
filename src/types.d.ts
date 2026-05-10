@@ -91,17 +91,68 @@ interface elainathemeApi {
     uploadImage: (token: string, userId: number, type: string, file: File) => Promise<void>;
     getImage: (userId: number, type: string) => Promise<string>;
     getImageHash: (userId: number, type: string) => Promise<string | null>;
+    getImageHashes: (userId: number, types: string[]) => Promise<Record<string, string | null> | null>;
     deleteImage: (token: string, userId: number, type: string) => Promise<void>;
     getFriendsImage: (friendList: { summonerId: number, puuid: string }[]) => Promise<{ summonerID: number, puuid: string, icon: { avatar: string, border: string, banner: string, emblem: string, hoverCardBackdrop: string } }[]>;
+    syncFriendsIcons: (friendList: { summonerId: number, puuid: string }[], localHashes: Record<string, string>) => Promise<{ summonerID: number, puuid: string, icons: Record<string, { data: string, hash: string } | null> }[] | null>;
 }
 
 interface syncUserIcons {
+    init: () => Promise<void>
     uploadIcon: (icon: string, iconType: string) => Promise<void>
-    getIcon: (summonerID: number, iconType: string) => Promise<string | null>
     getIconFolder: () => string
     getIconData: () => Record<string, string>
     getFriendsIcons: () => Promise<void>
+    syncIconsWithHashCheck: () => Promise<void>
     main: () => Promise<void>
+}
+
+// Custom profiles interfaces
+interface BadgeChallenge {
+    id: number;
+}
+
+interface Title {
+    itemId: number;
+}
+
+interface PlayerPreferences {
+    challengeIds: number[];
+    title?: string;
+    bannerAccent?: string;
+}
+
+// Sync user icons interfaces
+interface FriendIconEntry {
+    summonerID: number;
+    puuid: string;
+    icon: Record<IconType, string | null>;
+}
+
+interface SyncIconUpdate {
+    data: string;
+    hash: string;
+}
+
+interface SyncFriendIconPatch {
+    summonerID: number;
+    puuid: string;
+    icons: Partial<Record<IconType, SyncIconUpdate | null>>;
+}
+
+interface FriendIconSyncStats {
+    serverMs: number;
+    cacheMs: number;
+    saveMs: number;
+    patches: number;
+    cacheReads: number;
+    updatedIcons: number;
+    deletedIcons: number;
+}
+
+interface OwnIconEntry {
+    url: string;
+    type: IconType;
 }
 
 // globals
