@@ -27,7 +27,6 @@ function getThemeNameFromStack(): string | null {
  * Initialize the theme name using Pengu context APIs.
  */
 export function initThemeName(context: any): void {
-    // Already resolved
     if (cachedThemeName) return;
 
     const folderName: string | undefined = context?.meta?.name;
