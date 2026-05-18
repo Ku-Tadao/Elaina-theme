@@ -1,6 +1,5 @@
 import utils from "../utils/utils.ts"
 import { getThemeName } from "../otherThings.ts"
-import { sanitizeColor } from "../utils/sanitize.ts"
 
 let icdata: Object = (await import(`//plugins/${getThemeName()}/config/icons.js`)).default;
 let datapath: string = `//plugins/${getThemeName()}/`
@@ -10,7 +9,7 @@ let bgFolder: string = `${datapath}assets/backgrounds/`
 
 class AddCss {
 	cssVar = () => {
-		utils.addStyle(/*css*/`
+		utils.addStyleNode(/*css*/`
 			:root {
 				--classic_def: url("${iconFolder}gamemodes/${icdata["classic_def"]}");
 				--classic_act: url("${iconFolder}gamemodes/${icdata["classic_act"]}");
@@ -46,7 +45,7 @@ class AddCss {
 	}
 
 	mainThemeCss = () => {
-		utils.addStyle(`
+		utils.addStyleNode(`
 			@import url("${datapath}assets/styles/themes/elaina.css");
 			@font-face {
 				font-family: 'Elaina';
@@ -166,7 +165,7 @@ class AddCss {
 			});
 		}
 	
-		utils.addStyle(cssImports);
+		utils.addStyleNode(cssImports);
 	};
 
 	customFont = () => {
@@ -178,9 +177,9 @@ class AddCss {
 	}
 
 	customNicknameColor = () => {
-		utils.addStyleWithID("nickname-color-css", /*css*/`
+		utils.addStyleNodeWithID("nickname-color-css", /*css*/`
 			span.player-name__force-locale-text-direction, #nickname-color-preview {
-				color: ${sanitizeColor(ElainaData.get("nickname-color-with-opacity"))};
+				color: ${utils.sanitizeColor(ElainaData.get("nickname-color-with-opacity"))};
 			}
 		`)
 	}

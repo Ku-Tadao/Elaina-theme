@@ -79,8 +79,8 @@
 
 <p align="left">
     <a href="https://www.paypal.com/paypalme/ElainaDaCattoRiel"><img src="https://ionicabizau.github.io/badges/paypal.svg" alt="Donate"/></a>
-    <a href="https://ko-fi.com/ElainaDaCattoRiel" target="_blank" rel="noopener noreferrer"><img src="https://img.shields.io/badge/Ko--fi-Donate-ff5e5b?style=flat-square&logo=ko-fi&logoColor=white" alt="Donate on Ko-fi"/></a>
-    <a href="https://momo.vn/" target="_blank" rel="noopener noreferrer"><img src="https://img.shields.io/badge/MoMo-Donate-FF5AB5?style=flat-square" alt="Donate via MoMo"/></a>
+    <a href="https://ko-fi.com/elainadacatto" target="_blank" rel="noopener noreferrer"><img src="https://img.shields.io/badge/Ko--fi-Donate-ff5e5b?style=flat-square&logo=ko-fi&logoColor=white" alt="Donate on Ko-fi"/></a>
+    <a href="https://me.momo.vn/elainadacatto" target="_blank" rel="noopener noreferrer"><img src="https://img.shields.io/badge/MoMo-Donate-FF5AB5?style=flat-square" alt="Donate via MoMo"/></a>
 </p>
 
 

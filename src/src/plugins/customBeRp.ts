@@ -1,4 +1,4 @@
-import { escapeHtml } from "../utils/sanitize"
+import utils from "../utils/utils.ts";
 
 /**
  * Displays custom Blue Essence and Riot Points values in the client.
@@ -35,7 +35,7 @@ export class CustomBeRp {
 				<lol-uikit-video type="intro" src="/fe/lol-navigation/add-blue-essence.webm" class="animation-add-blue-essence"></lol-uikit-video>
 				<lol-uikit-video type="intro" src="/fe/lol-navigation/remove-blue-essence.webm" class="animation-remove-blue-essence"></lol-uikit-video>
 			</div>
-			${escapeHtml(ElainaData.get("BE"))}
+			${utils.escapeHtml(ElainaData.get("BE"))}
 		`
 	}
 }

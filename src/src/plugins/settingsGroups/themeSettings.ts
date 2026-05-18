@@ -1,4 +1,3 @@
-import { sanitizeColor } from "../../utils/sanitize.ts";
 import { UI } from "./settingsUI.ts"
 import { restartAfterChange } from "../settings.ts"
 import utils from "../../utils/utils.ts";
@@ -284,9 +283,9 @@ async function themeSettings(panel: Element) {
                             document.getElementById("nickname-color-css")?.remove()
                         }
                         else {
-                            utils.addStyleWithID("nickname-color-css", /*css*/`
+                            utils.addStyleNodeWithID("nickname-color-css", /*css*/`
                                 span.player-name__force-locale-text-direction, #nickname-color-preview {
-                                    color: ${sanitizeColor(ElainaData.get("nickname-color-with-opacity"))};
+                                    color: ${utils.sanitizeColor(ElainaData.get("nickname-color-with-opacity"))};
                                 }
                             `)
                         }
@@ -307,9 +306,9 @@ async function themeSettings(panel: Element) {
                             if (ElainaData.get("change-nickname-color")) {
                                 document.getElementById("nickname-color-css")?.remove()
 
-                                utils.addStyleWithID("nickname-color-css", /*css*/`
+                                utils.addStyleNodeWithID("nickname-color-css", /*css*/`
                                     span.player-name__force-locale-text-direction, #nickname-color-preview {
-                                        color: ${sanitizeColor(ElainaData.get("nickname-color-with-opacity"))};
+                                        color: ${utils.sanitizeColor(ElainaData.get("nickname-color-with-opacity"))};
                                     }
                                 `)
                             }
@@ -337,9 +336,9 @@ async function themeSettings(panel: Element) {
                         if (ElainaData.get("change-nickname-color")) {
                             document.getElementById("nickname-color-css")?.remove()
 
-                            utils.addStyleWithID("nickname-color-css", /*css*/`
+                            utils.addStyleNodeWithID("nickname-color-css", /*css*/`
                                 span.player-name__force-locale-text-direction, #nickname-color-preview {
-                                    color: ${sanitizeColor(ElainaData.get("nickname-color-with-opacity"))};
+                                    color: ${utils.sanitizeColor(ElainaData.get("nickname-color-with-opacity"))};
                                 }
                             `)
                         }

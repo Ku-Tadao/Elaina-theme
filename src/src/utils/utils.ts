@@ -1,116 +1,31 @@
 /**
  * @author Teisseire117
  * @modifier Elaina Da Catto
- * @version 1.4.1
+ * @version 1.5.0
  * @description Utility functions for League of Legends client customization
  */
 
+import { stop } from './_stop';
+import { addStyleNode } from './_addStyleNode';
+import { addStyleNodeWithID } from './_addStyleNodeWithID';
+import { addFont } from './_addFont';
+import { updateImageSrc } from './_updateImageSrc';
+import { CustomCursor } from './_CustomCursor';
+import { getSummonerID } from './_getSummonerID';
+import { getPUUID } from './_getPUUID';
+import { subscribe_endpoint } from './_subscribe_endpoint';
+import { routineAddCallback as _routineAddCallback } from './_routineAddCallback';
+import { mutationObserverAddCallback as _mutationObserverAddCallback } from './_mutationObserverAddCallback';
+import { freezeProperties } from './_freezeProperties';
+import { sanitizeColor, sanitizeFileName, escapeHtml } from './_sanitize';
+
 // State variables
-let pvp_net_id: any, 
-    summoner_id: any, 
+let pvp_net_id: any,
+    summoner_id: any,
     phase: any;
 
 const routines: {callback: Function, target: string[]}[] = [];
 const mutationCallbacks: {callback: Function, target: string[]}[] = [];
-
-/**
- * Pauses execution for a specified time
- * @param {number} time - The time to pause in milliseconds
- * @returns {Promise<void>} A promise that resolves after the specified time
- */
-async function stop(time: number): Promise<void> {
-    return await new Promise(resolve => setTimeout(resolve, time));
-}
-
-/**
- * Adds a CSS style to the document body
- * @param {string} style - The CSS style to add
- */
-function addStyle(style: string) {
-    const styleElement = document.createElement('style');
-    styleElement.appendChild(document.createTextNode(style));
-    document.body.appendChild(styleElement);
-}
-
-/**
- * Adds a CSS style to the document body with a specific ID
- * @param Id The ID for the style element
- * @param style The CSS style to add
- */
-function addStyleWithID(Id: string, style: string) {
-    const styleElement = document.createElement('style');
-    styleElement.id = Id
-    styleElement.appendChild(document.createTextNode(style));
-    document.body.appendChild(styleElement);
-}
-
-/**
- * Adds a font to the document 
- * @param {string} folder - The font file path
- * @param {string} font_id - The ID for the style element
- * @param {string} font_family - The font family name
- */
-function addFont(folder: string, font_id: string, font_family: string) {
-    const fontStyle = document.createElement('style');
-    fontStyle.id = font_id;
-    fontStyle.appendChild(document.createTextNode(
-        `@font-face {font-family: ${font_family}; src: url(${folder})}`
-    ));
-    document.body.appendChild(fontStyle);
-}
-
-/**
- * Adds a custom cursor to the document
- * @param {string} folder - The cursor image path
- * @param {string} css - Additional CSS for the cursor
- */
-function CustomCursor(folder: string, css: string) {
-    const cursor = document.createElement("div");
-    cursor.classList.add("cursor");
-    cursor.style.background = folder;
-
-    document.addEventListener('mousemove', (e) => {
-        cursor.style.transform = `translate3d(calc(${e.clientX}px - 40%), calc(${e.clientY}px - 40%), 0)`;
-    });
-
-    let htmlElement: any = document.querySelector("html")
-    htmlElement.appendChild(cursor);
-    addStyle(css);
-}
-
-/**
- * Fetches the current summoner's ID
- * @returns {Promise<number>} The summoner ID
- */
-async function getSummonerID(): Promise<number> {
-    const response = await fetch("/lol-summoner/v1/current-summoner");
-    const data = await response.json();
-    return JSON.parse(data.summonerId);
-}
-
-/**
- * Fetches the current summoner's PUUID
- * @returns {Promise<string>} The summoner PUUID
- */
-async function getPUUID(): Promise<string> {
-    const response = await fetch("/lol-summoner/v1/current-summoner");
-    const data = await response.json();
-    return data.puuid;
-}
-
-/**
- * Subscribes to a specific endpoint and triggers a callback when that endpoint is called
- * @param {string} endpoint - The endpoint to monitor (use "" to subscribe to all)
- * @param {function} callback - The callback function
- */
-async function subscribe_endpoint(endpoint: string, callback: any) {
-    const getUri: HTMLAnchorElement | null= document.querySelector('link[rel="riot:plugins:websocket"]')
-    const uri: any = getUri?.href;
-    const ws = new WebSocket(uri, 'wamp');
-
-    ws.onopen = () => ws.send(JSON.stringify([5, 'OnJsonApiEvent' + endpoint.replace(/\//g, '_')]));
-    ws.onmessage = callback;
-}
 
 /**
  * Updates user PvP.net info
@@ -131,45 +46,6 @@ const updateUserPvpNetInfos = async (message: MessageEvent) => {
 const updatePhaseCallback = async (message: MessageEvent) => {
     phase = JSON.parse(message.data)[2].data;
 };
-
-/**
- * Adds a routine callback
- * @param {function} callback - The callback function
- * @param {string} target - The list of class targets
- */
-function routineAddCallback(callback: Function, target: string[]) {
-    routines.push({ callback, target });
-}
-
-/**
- * Adds a mutation observer callback
- * @param {function} callback - The callback function
- * @param {string} target - The list of class targets
- */
-function mutationObserverAddCallback(callback: Function, target: string[]) {
-    mutationCallbacks.push({ callback, target });
-}
-
-/**
- * Freezes properties of an object to prevent modification
- * @param object The object to freeze properties on
- * @param properties The list of properties to freeze, if empty all properties will be frozen
- */
-function freezeProperties(object: Object, properties: any[]) {
-	for (const type in object) {
-		if ((properties && properties.length && properties.includes(type)) || (!properties || !properties.length)) {
-			let value = object[type]
-			try {
-				Object.defineProperty(object, type, {
-					configurable: false,
-					get: () => value,
-					set: (v) => v,
-				})
-			}
-			catch {}
-		}
-	}
-}
 
 // Initialize event listeners and observers
 window.addEventListener('load', () => {
@@ -199,43 +75,41 @@ window.addEventListener('load', () => {
     observer.observe(document, { attributes: true, childList: true, subtree: true });
 });
 
-/** Updates the source of images matching a specific old source to a new source
- * @param {string} oldSrc - The old image source to match
- * @param {string} newSrc - The new image source to set
- */
-function updateImageSrc(oldSrc: string, newSrc: string) {
-    const originalSrc: any = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, "src");
+// Export utility class
+class Utils {
+    get phase() { return phase; }
+    set phase(value: any) { phase = value; }
 
-    Object.defineProperty(HTMLImageElement.prototype, "src", {
-        get: originalSrc.get,
-        set: function(value) {
-            if (typeof value === "string" && value.includes(oldSrc)) {
-                const newLink = newSrc;
-                return originalSrc.set.call(this, newLink);
-            }
+    get summoner_id() { return summoner_id; }
+    set summoner_id(value: any) { summoner_id = value; }
 
-            return originalSrc.set.call(this, value);
-        }
-    });
+    get pvp_net_id() { return pvp_net_id; }
+    set pvp_net_id(value: any) { pvp_net_id = value; }
+
+    subscribe_endpoint = subscribe_endpoint;
+
+    routineAddCallback(callback: Function, target: string[]) {
+        _routineAddCallback(routines, callback, target);
+    }
+
+    mutationObserverAddCallback(callback: Function, target: string[]) {
+        _mutationObserverAddCallback(mutationCallbacks, callback, target);
+    }
+
+    addStyleNode = addStyleNode;
+    addFont = addFont;
+    CustomCursor = CustomCursor;
+    getSummonerID = getSummonerID;
+    getPUUID = getPUUID;
+    addStyleNodeWithID = addStyleNodeWithID;
+    freezeProperties = freezeProperties;
+    stop = stop;
+    updateImageSrc = updateImageSrc;
+    sanitizeColor = sanitizeColor;
+    sanitizeFileName = sanitizeFileName;
+    escapeHtml = escapeHtml;
 }
 
-// Export utility functions
-const utils = {
-    phase,
-    summoner_id,
-    pvp_net_id,
-    subscribe_endpoint,
-    routineAddCallback,
-    mutationObserverAddCallback,
-    addStyle,
-    addFont,
-    CustomCursor,
-    getSummonerID,
-    getPUUID,
-    addStyleWithID,
-    freezeProperties,
-    stop,
-    updateImageSrc
-};
+const utils = new Utils();
 
 export default utils;

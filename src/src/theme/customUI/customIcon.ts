@@ -1,7 +1,7 @@
 import utils from '../../utils/utils.ts'
 import * as upl from 'pengu-upl';
 import { getThemeName } from "../../otherThings"
-import { log, warn, error } from '../../utils/themeLog';
+import { log, warn, error } from '../../utils/themeLog.ts';
 import { friendIconList } from '../../plugins/syncUserIcons.ts';
 
 const icdata = (await import(`//plugins/${getThemeName()}/config/icons.js`)).default;

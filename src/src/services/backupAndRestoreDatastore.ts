@@ -1,5 +1,5 @@
 import { getThemeName } from "../otherThings.ts"
-import { log, error } from '../utils/themeLog';
+import { log, error } from '../utils/themeLog.ts';
 
 let datastore_list = (await import(`//plugins/${getThemeName()}/config/datastoreDefault.js`)).default
 

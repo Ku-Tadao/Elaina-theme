@@ -24,7 +24,7 @@ export class Filters {
 	};
 
 	addFilterCss = () => {
-		utils.addStyle(/*css*/`
+		utils.addStyleNode(/*css*/`
 			:root {
 				--play-button-filter: ${filtersData["PlayButton"]};
 				--find-match-button: ${filtersData["find-match-button"]};

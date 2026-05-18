@@ -466,7 +466,7 @@ function CreateSkinsInformation() {
  */
 export class LootHelper {
     main = () => {
-        utils.addStyle(/*css*/`
+        utils.addStyleNode(/*css*/`
             @import url("${datapath}assets/styles/components/loothelper.css");
             :root {
                 --OC_button:url("${datapath}assets/icon/plugins-icons/button-open-chests.png");

@@ -79,7 +79,7 @@ export class HideFriendList {
                 document.querySelector("#centerViewport")?.remove();
             } 
             catch {}
-            utils.addStyleWithID("centerViewport", `
+            utils.addStyleNodeWithID("centerViewport", `
                 div[data-screen-name=social] > .social-plugin-home > .ember-view {
                     height: 100% !important;
                 }
@@ -113,7 +113,7 @@ export class HideFriendList {
                 document.querySelector("#centerViewport")?.remove();
             } 
             catch {}
-            utils.addStyleWithID("centerViewport", `
+            utils.addStyleNodeWithID("centerViewport", `
                 div[data-screen-name=social] > .social-plugin-home > .ember-view {
                     height: 0% !important;
                 }

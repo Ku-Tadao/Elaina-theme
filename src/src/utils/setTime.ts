@@ -1,1 +1,0 @@
-ElainaData.set("start-time", Date.now())

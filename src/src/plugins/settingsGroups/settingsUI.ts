@@ -467,7 +467,7 @@ class ui {
      * @param dropdownId Id của dropdown
      * @returns 
      */
-    Dropdown = (DataList: Object, Datastore: string, text: string, name: string, id: string, dropdownId?: string) => {
+    Dropdown = (DataList: Object, Datastore: string, text: string, name: string, id: string, dropdownId?: string, onChange: any = () => {}) => {
         const origin = document.createElement("div")
         origin.classList.add("Dropdown-div")
         origin.id = dropdownId || ""
@@ -487,6 +487,7 @@ class ui {
             el.id = opt[id]
             el.onclick = () => {
                 ElainaData.set(Datastore, opt[id])
+                onChange(opt)
             }
             if (ElainaData.get(Datastore) == opt[id]) {
                 el.setAttribute("selected", "true")
@@ -654,7 +655,7 @@ class ui {
                 ElainaData.set(target, opt)
                 try {
                     document.querySelector(target).remove()
-                    utils.addStyleWithID(target, "")
+                    utils.addStyleNodeWithID(target, "")
                 }
                 catch{}
             }
