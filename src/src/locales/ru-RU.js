@@ -80,6 +80,14 @@ export default {
 
     // Theme settings
     "theme-settings"                : "Настройки темы",
+    "settings-section-asset-library": "Asset library",
+    "settings-section-wallpaper"    : "Wallpaper",
+    "settings-section-audio"        : "Audio",
+    "settings-section-updates"      : "Updates and notifications",
+    "settings-section-custom-assets": "Custom assets",
+    "settings-section-interface"    : "Interface and layout",
+    "settings-section-profile"      : "Profile and identity",
+    "settings-section-game-tabs"    : "Game tabs",
 
     "AllowTrackingData"             : "Разрешить теме собирать определенную информацию (Имя пользователя, время использования и текущий язык)",
     "update-list-manually"          : "Обновить список темы вручную", 
@@ -119,6 +127,10 @@ export default {
     "change-slide-delay"            : "Изменить задержку переключения обоев",
     "speed-check-deny"              : "Можно установить скорость только >= 6.25 и <= 300",
     "disable-theme-wallpaper"       : "Disable theme's wallpaper",
+    "window-effects"                : "Window effects",
+    "window-effect-name"            : "Effect",
+    "window-effect-color"           : "Effect color",
+    "window-effect-material"        : "Material",
     "music-volume"                  : "Громкость музыки",
     "turnoff-audio-ingame"          : "Pause music/wallpaper when ingame",
     "disable-theme-audio"           : "Отключить аудио темы",
@@ -192,6 +204,10 @@ export default {
 
     // Plugins settings
     "plugins-settings"          : "Настройки плагинов",
+    "settings-section-plugin-core"     : "Core plugins",
+    "settings-section-plugin-queue"    : "Queue automation",
+    "settings-section-plugin-profile"  : "Profile and identity plugins",
+    "settings-section-plugin-developer": "Developer tools",
 
     "old-ll-settings"           : "Старые настройки League Loader",
     "loot-helper"               : "Помощник добычи",

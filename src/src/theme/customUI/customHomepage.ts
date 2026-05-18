@@ -1235,12 +1235,86 @@ class AddHomePage {
 
 const addHomePage = new AddHomePage()
 
-class WindowEffects {}
+type WindowEffectName = "transparent" | "blurbehind" | "acrylic" | "unified" | "mica" | "vibrancy";
+
+class WindowEffects {
+    private effectsWithColor = new Set(["transparent", "blurbehind", "acrylic", "unified"]);
+
+    private normalizeColorBase = (color: string) => /^#[0-9a-f]{6}$/i.test(color) ? color : "#ffffff";
+
+    private normalizeAlpha = (alpha: string) => /^[0-9a-f]{2}$/i.test(alpha) ? alpha.toLowerCase() : "00";
+
+    private normalizeEffectName = (effect: string): WindowEffectName => {
+        const validEffects = ["transparent", "blurbehind", "acrylic", "unified", "mica", "vibrancy"];
+        return validEffects.includes(effect) ? effect as WindowEffectName : "transparent";
+    }
+
+    normalizeWindowEffect = () => {
+        const name = this.normalizeEffectName(ElainaData.get("window-effect-name"));
+        const colorBase = this.normalizeColorBase(ElainaData.get("window-effect-color-base"));
+        const alpha = this.normalizeAlpha(ElainaData.get("window-effect-alpha"));
+        const color = `${colorBase}${alpha}`;
+        const material = ElainaData.get("window-effect-material") || "none";
+
+        if (ElainaData.get("window-effect-color") !== color) {
+            ElainaData.set("window-effect-color", color);
+        }
+
+        return { name, color, material };
+    }
+
+    buildWindowEffectOptions = (effect = this.normalizeWindowEffect()) => {
+        const options: { color?: string, material?: string } = {};
+
+        if (this.effectsWithColor.has(effect.name)) {
+            options.color = effect.color;
+        }
+
+        if (
+            (effect.name === "mica" || effect.name === "vibrancy") &&
+            effect.material &&
+            effect.material !== "none"
+        ) {
+            options.material = effect.material;
+        }
+
+        return options;
+    }
+
+    applyWindowEffect = () => {
+        if (!window.Effect) return;
+
+        if (!ElainaData.get("disable-theme-wallpaper")) {
+            window.Effect.clear();
+            return;
+        }
+
+        const effect = this.normalizeWindowEffect();
+        const options = this.buildWindowEffectOptions(effect);
+
+        if (Object.keys(options).length > 0) {
+            (window.Effect.apply as any)(effect.name, options);
+        }
+        else {
+            (window.Effect.apply as any)(effect.name);
+        }
+    }
+
+    setSettingsVisibility = () => {
+        const row = document.getElementById("window-effects-settings");
+        if (!row) return;
+
+        row.style.display = ElainaData.get("disable-theme-wallpaper") ? "" : "none";
+    }
+}
+
+const windowEffects = new WindowEffects()
 
 /** Manages the custom homepage including wallpapers, audio, navbar buttons, and page listeners. */
 export class HomePage {
     main = () => {
         initHomepageData()
+        windowEffects.applyWindowEffect()
         window.setTimeout(updateSummonerIdentity, 7000)
 
         log("Add wallpaper and audio")
@@ -1266,6 +1340,8 @@ const hideShowNavBar = hideNavbarButton.hideShowNavBar
 const changeHomePageStyle = hideNavbarButton.changeHomePageStyle
 const wallpaperPlayPause = wallpaperController.wallpaperPlayPause
 const audioPlayPause = audioController.audioPlayPause
+const applyWindowEffect = windowEffects.applyWindowEffect
+const setWindowEffectsSettingsVisibility = windowEffects.setSettingsVisibility
 
 export {
     del_webm_buttons,
@@ -1277,5 +1353,7 @@ export {
     hideShowNavBar,
     changeHomePageStyle,
     wallpaperPlayPause,
-    audioPlayPause
+    audioPlayPause,
+    applyWindowEffect,
+    setWindowEffectsSettingsVisibility
 };

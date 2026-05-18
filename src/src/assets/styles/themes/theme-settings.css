@@ -36,6 +36,48 @@
     overflow-wrap: break-word !important;
 }
 
+.theme-settings-section {
+	border-top: 1px solid rgba(200, 170, 110, 0.25);
+	padding-top: 14px;
+	margin-bottom: 24px !important;
+}
+
+.theme-settings-section:first-child {
+	border-top: 0;
+	padding-top: 0;
+}
+
+.theme-settings-section-title {
+	color: #f0e6d2 !important;
+	font-size: 14px !important;
+	font-weight: 700 !important;
+	letter-spacing: .075em !important;
+	line-height: 18px !important;
+	margin-bottom: 12px !important;
+	text-transform: uppercase;
+}
+
+.theme-settings-subsection-title {
+	color: #f0e6d2 !important;
+	font-size: 13px !important;
+	font-weight: 700 !important;
+	letter-spacing: .075em !important;
+	line-height: 18px !important;
+	margin-bottom: 8px !important;
+}
+
+.theme-settings-section-content {
+	margin-left: 25px !important;
+}
+
+.theme-settings-message {
+	color: #f0e6d2 !important;
+	font-size: 14px !important;
+	font-weight: 700 !important;
+	letter-spacing: .075em !important;
+	line-height: 18px !important;
+}
+
 #Q-Delay {
 	display: flex;
 	margin-bottom: 0px !important;
@@ -103,7 +145,8 @@
 #customchallengecrystal, #customstatus, #restoreFileInfo, 
 #background-settings, #change-nickname-color-row, #add-background-manually-row, 
 #slideTimeRow, #wallpaperSlide, #offaudio, 
-#disablethemewallpaper, #disablethemeaudio, #Custom-banner-row {
+#disablethemewallpaper, #disablethemeaudio, #Custom-banner-row,
+#oldpnb, #window-effects-settings {
 	margin-left: 25px !important;
 }
 
@@ -281,6 +324,24 @@
 
 #nickname-color-with-text {
 	display: flex;
+}
+
+#window-effect-main-row,
+#window-effect-color-row {
+	display: flex;
+	align-items: center;
+}
+
+#window-effect-color-row {
+	margin-left: 15px;
+    margin-top: 36px;
+    margin-bottom: 0px;
+}
+
+#window-effect-color-text {
+	margin-top: 0px !important;
+    margin-left: 15px;
+    margin-bottom: 0px;
 }
 
 #nickname-color-text {

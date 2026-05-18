@@ -1,6 +1,7 @@
 /* By Elaina Da Catto */
 /* Meow~~~ */
 
+/* test */
 @import url("./rcp-fe-lol-activity-center.css");
 @import url("./rcp-fe-lol-clash-full.css");
 @import url("./rcp-fe-lol-event-hub.css");
@@ -149,6 +150,10 @@ lol-uikit-navigation-item > .section::after {
 
 .loading-content div > div > .loading-text {
 	display: none !important;
+}
+
+lol-uikit-full-page-backdrop {
+	background: transparent !important;
 }
 /*_________________________________________________________________________________________________________________________________*/
 /* End */	

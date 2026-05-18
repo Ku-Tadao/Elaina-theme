@@ -80,6 +80,14 @@ export default {
 
     // Theme settings
     "theme-settings"                : "Theme settings",
+    "settings-section-asset-library": "Asset library",
+    "settings-section-wallpaper"    : "Wallpaper",
+    "settings-section-audio"        : "Audio",
+    "settings-section-updates"      : "Updates and notifications",
+    "settings-section-custom-assets": "Custom assets",
+    "settings-section-interface"    : "Interface and layout",
+    "settings-section-profile"      : "Profile and identity",
+    "settings-section-game-tabs"    : "Game tabs",
 
     "AllowTrackingData"             : "Allow theme collecting specific infomation (Username, using time and current language)",
     "update-list-manually"          : "Update theme's list manually", 
@@ -119,6 +127,10 @@ export default {
     "change-slide-delay"            : "Change wallpaper slide delay",
     "speed-check-deny"              : "Only can set the speed >= 6.25 and <= 300",
     "disable-theme-wallpaper"       : "Disable theme's wallpaper",
+    "window-effects"                : "Window effects",
+    "window-effect-name"            : "Effect",
+    "window-effect-color"           : "Effect color",
+    "window-effect-material"        : "Material",
     "music-volume"                  : "Music volume",
     "turnoff-audio-ingame"          : "Pause music/wallpaper when ingame",
     "disable-theme-audio"           : "Disable theme's audio",
@@ -192,6 +204,10 @@ export default {
 
     // Plugins settings
     "plugins-settings"          : "Plugins Settings",
+    "settings-section-plugin-core"     : "Core plugins",
+    "settings-section-plugin-queue"    : "Queue automation",
+    "settings-section-plugin-profile"  : "Profile and identity plugins",
+    "settings-section-plugin-developer": "Developer tools",
 
     "old-ll-settings"           : "Old League Loader settings",
     "loot-helper"               : "Loot helper",

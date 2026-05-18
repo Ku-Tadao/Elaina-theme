@@ -34,6 +34,11 @@ export default {
 	"wallpaper-slideshow"           : false,
 	"wallpaper-change-slide-time"   : 10000,
 	"disable-theme-wallpaper"       : false,
+	"window-effect-name"            : "transparent",
+	"window-effect-color-base"      : "#ffffff",
+	"window-effect-alpha"           : "00",
+	"window-effect-color"           : "#ffffff00",
+	"window-effect-material"        : "none",
 	"turnoff-audio-ingame"          : true,
 	"disable-theme-audio"           : false,
 

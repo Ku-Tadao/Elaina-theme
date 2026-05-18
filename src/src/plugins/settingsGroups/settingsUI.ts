@@ -158,7 +158,9 @@ class ui {
 
         label.classList.add('lol-settings-window-size-text')
         label.classList.add('elaina-theme-settings-text')
-        label.classList.add(cls)
+        if (cls.trim()) {
+            cls.trim().split(/\s+/).forEach((className) => label.classList.add(className))
+        }
         label.id = id
         label.style.cssText = style
         label.innerText = text

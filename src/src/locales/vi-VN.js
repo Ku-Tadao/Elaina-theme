@@ -80,6 +80,14 @@ export default {
 
     // Theme settings
     "theme-settings"                : "Cài đặt chủ đề",
+    "settings-section-asset-library": "Thư viện tài nguyên",
+    "settings-section-wallpaper"    : "Hình nền",
+    "settings-section-audio"        : "Âm thanh",
+    "settings-section-updates"      : "Cập nhật và thông báo",
+    "settings-section-custom-assets": "Tài nguyên tùy chỉnh",
+    "settings-section-interface"    : "Giao diện và bố cục",
+    "settings-section-profile"      : "Hồ sơ và định danh",
+    "settings-section-game-tabs"    : "Tab và chế độ game",
 
     "AllowTrackingData"             : "Cho phép chủ đề thu thập thông tin cụ thể (Tên, thời gian sử dụng và ngôn ngữ hiện tại)",
     "update-list-manually"          : "Cập nhật thủ công danh sách của theme",
@@ -119,6 +127,10 @@ export default {
     "change-slide-delay"            : "Chỉnh độ trễ của bộ trình chiếu hình nền",
     "speed-check-deny"              : "Chỉ có thể chỉnh tốc độ >= 6.25 và <= 300",
     "disable-theme-wallpaper"       : "Vô hiệu hóa hình nền của Elaina theme",
+    "window-effects"                : "Hiệu ứng cửa sổ",
+    "window-effect-name"            : "Hiệu ứng",
+    "window-effect-color"           : "Màu hiệu ứng",
+    "window-effect-material"        : "Chất liệu",
     "music-volume"                  : "Âm lượng nhạc",
     "turnoff-audio-ingame"          : "Tạm dừng nhạc và hình nền khi vào trận",
     "disable-theme-audio"           : "Vô hiệu hóa nhạc của Elaina theme",
@@ -192,6 +204,10 @@ export default {
 
     // Plugins settings
     "plugins-settings"          : "Cài đặt plugins",
+    "settings-section-plugin-core"     : "Plugins chính",
+    "settings-section-plugin-queue"    : "Tự động hàng chờ",
+    "settings-section-plugin-profile"  : "Plugins hồ sơ và định danh",
+    "settings-section-plugin-developer": "Công cụ nhà phát triển",
 
     "old-ll-settings"           : "Bảng cài đặt League loader cũ",
     "loot-helper"               : "Kho báu vật V2",
