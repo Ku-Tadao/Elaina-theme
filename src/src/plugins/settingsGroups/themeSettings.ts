@@ -63,6 +63,16 @@ const WINDOW_EFFECT_MATERIALS = {
 };
 
 async function themeSettings(panel: Element) {
+    const themeLanguageOptions = {
+        "Theme-language": [
+            { name: await getString("theme-language-client"), id: "client" },
+            { name: "English", id: "default" },
+            { name: "Tiếng Việt", id: "vi-VN" },
+            { name: "Русский", id: "ru-RU" },
+            { name: "中文", id: "zh-CN" },
+        ],
+    };
+
     const loading = UI.createRow("loading", [
         UI.createLoading(await getString("settings-loading")),
     ])
@@ -104,6 +114,17 @@ async function themeSettings(panel: Element) {
                     `${await getString("AllowTrackingData")}`, 'trackData', 'trackDatabox', () => {
                         restartAfterChange('trackData', "AllowTrackingData")
                     }, true, "AllowTrackingData"
+                ),
+                UI.Dropdown(
+                    themeLanguageOptions,
+                    "Theme-language",
+                    await getString("theme-language"),
+                    "name",
+                    "id",
+                    "theme-language-dropdown",
+                    () => {
+                        restartAfterChange("theme-language-dropdown", "Theme-language")
+                    }
                 ),
 
                 createSection("theme-settings-asset-library", await getString("settings-section-asset-library"), [

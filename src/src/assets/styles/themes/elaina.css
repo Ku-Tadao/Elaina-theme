@@ -151,9 +151,5 @@ lol-uikit-navigation-item > .section::after {
 .loading-content div > div > .loading-text {
 	display: none !important;
 }
-
-lol-uikit-full-page-backdrop {
-	background: transparent !important;
-}
 /*_________________________________________________________________________________________________________________________________*/
 /* End */	

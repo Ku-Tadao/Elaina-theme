@@ -27,6 +27,7 @@ export default {
 
 
 	// Theme settings
+	"Theme-language"                : "client",
 	"manual-wallpaper-name"         : "Ex: Wallpaper.webm",
 	"manual-audio-name"             : "Ex: Audio.mp3",
 	"manual-banner-name"            : "Ex: Banner.png",
@@ -131,6 +132,7 @@ export default {
 	"loot-helper"                   : true,
 	"auto_accept"                   : false,
 	"auto_accept_button"            : true,
+	"auto_accept_delay"             : 0,
 	"dodge-button"                  : true,
 	"Enable-Invite-Fr"              : true,
 	"Auto-Find-Queue"               : false,

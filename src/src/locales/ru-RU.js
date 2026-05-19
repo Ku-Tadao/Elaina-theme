@@ -15,6 +15,7 @@ export default {
 
     // auto accept button
     "auto_accept"     : "Авто Принять",
+    "auto_accept_delay" : "Задержка авто принятия (мс)",
 
 
     // Preset settings
@@ -90,6 +91,8 @@ export default {
     "settings-section-game-tabs"    : "Game tabs",
 
     "AllowTrackingData"             : "Разрешить теме собирать определенную информацию (Имя пользователя, время использования и текущий язык)",
+    "theme-language"                : "Язык темы",
+    "theme-language-client"         : "Как в клиенте",
     "update-list-manually"          : "Обновить список темы вручную", 
     "add"                           : "Добавить", 
     "delete"                        : "Удалить", 

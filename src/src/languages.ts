@@ -1,5 +1,6 @@
 import { warn, log } from "./utils/themeLog.js";
 import { getThemeName } from "./otherThings.js";
+import { ElainaData } from "./utils/themeDataStore.js";
 
 /**
  * Imports a locale file for the specified language code.
@@ -18,6 +19,16 @@ async function importLocale(langCode: string): Promise<Object> {
 function getClientLocale(): string  {
     const lang = document.querySelector("html")?.lang as string;
     return lang
+}
+
+/**
+ * Gets the locale selected for Elaina theme. Falls back to the client locale.
+ */
+function getThemeLocale(): string {
+    const selectedLang = ElainaData.get("Theme-language", "client");
+
+    if (selectedLang && selectedLang !== "client") return selectedLang;
+    return getClientLocale();
 }
 
 /**
@@ -66,7 +77,7 @@ async function checkTranslationKey(lang: string, key: string): Promise<string> {
  * @param key The key to look up in the translation file, string
  */
 async function getString(key: string): Promise<string> {
-    let result = await checkTranslationKey(getClientLocale(), key);
+    let result = await checkTranslationKey(getThemeLocale(), key);
     return result
 }
 

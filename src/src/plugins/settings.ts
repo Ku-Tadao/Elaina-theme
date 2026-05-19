@@ -10,11 +10,114 @@ import { getThemeName } from '../otherThings.ts'
 
 const datapath = `//plugins/${getThemeName()}/`
 
+function getSettingsBackdrop(): HTMLElement | null {
+    const settingsApp = document.querySelector(".rcp-fe-lol-settings") as HTMLElement | null
+    const backdrop = settingsApp?.previousElementSibling as HTMLElement | null
+
+    if (backdrop?.matches("lol-uikit-full-page-backdrop.backdrop")) return backdrop
+    return null
+}
+
+function makeSettingsBackdropTransparent() {
+    const backdrop = getSettingsBackdrop()
+    if (!backdrop) return
+
+    backdrop.style.setProperty("background", "transparent", "important")
+    backdrop.setAttribute("data-elaina-settings-backdrop", "true")
+}
+
+function makeSettingsDraggable() {
+    const frame = document.querySelector("lol-uikit-dialog-frame.lol-settings-container") as HTMLElement | null
+    const handle = frame?.querySelector(".lol-settings-title-bar") as HTMLElement | null
+
+    if (!frame || !handle) return
+    if (frame.hasAttribute("data-elaina-settings-draggable")) {
+        makeSettingsBackdropTransparent()
+        return
+    }
+
+    let dragging = false
+    let pointerId = 0
+    let startX = 0
+    let startY = 0
+    let startLeft = 0
+    let startTop = 0
+    
+    const getFrameRect = () => frame.getBoundingClientRect()
+
+    const onPointerMove = (event: PointerEvent) => {
+        if (!dragging || event.pointerId !== pointerId) return
+
+        const rect = getFrameRect()
+        const nextLeft = Math.min(Math.max(startLeft + event.clientX - startX, 0), window.innerWidth - rect.width)
+        const nextTop = Math.min(Math.max(startTop + event.clientY - startY, 0), window.innerHeight - rect.height)
+
+        frame.style.left = `${nextLeft}px`
+        frame.style.top = `${nextTop}px`
+    }
+
+    const onPointerUp = (event: PointerEvent) => {
+        if (!dragging || event.pointerId !== pointerId) return
+
+        dragging = false
+        handle.releasePointerCapture?.(pointerId)
+        handle.style.cursor = "grab"
+        document.removeEventListener("pointermove", onPointerMove)
+        document.removeEventListener("pointerup", onPointerUp)
+        document.removeEventListener("pointercancel", onPointerUp)
+    }
+
+    handle.addEventListener("pointerdown", (event: PointerEvent) => {
+        if (event.button !== 0) return
+
+        const target = event.target as HTMLElement | null
+        if (target?.closest("button, input, textarea, select, lol-uikit-flat-button-secondary")) return
+
+        const rect = getFrameRect()
+        dragging = true
+        pointerId = event.pointerId
+        startX = event.clientX
+        startY = event.clientY
+        startLeft = rect.left
+        startTop = rect.top
+
+        frame.style.position = "fixed"
+        frame.style.left = `${rect.left}px`
+        frame.style.top = `${rect.top}px`
+        frame.style.right = "auto"
+        frame.style.bottom = "auto"
+        frame.style.margin = "0"
+        handle.style.cursor = "grabbing"
+        handle.setPointerCapture?.(pointerId)
+
+        document.addEventListener("pointermove", onPointerMove)
+        document.addEventListener("pointerup", onPointerUp)
+        document.addEventListener("pointercancel", onPointerUp)
+        event.preventDefault()
+    })
+
+    handle.style.cursor = "grab"
+    frame.setAttribute("data-elaina-settings-draggable", "true")
+    makeSettingsBackdropTransparent()
+}
+
 /** Shows a restart prompt when settings are changed that require a client restart. */
 async function restartAfterChange(el: string, data: string) {
-    let lastdata: any = document.getElementById(el)?.getAttribute("lastdatastore")
-    
-    ElainaData.set("settingsChangenumber", lastdata == JSON.stringify(!ElainaData.get(data))? ElainaData.get("settingsChangenumber") + 1 : ElainaData.get("settingsChangenumber") - 1)
+    const element = document.getElementById(el);
+    const lastdata = element?.getAttribute("lastdatastore");
+    const currentData = JSON.stringify(ElainaData.get(data));
+    const wasChanged = element?.getAttribute("restart-change-active") === "true";
+    const isChanged = lastdata !== currentData;
+    const settingsChangeNumber = ElainaData.get("settingsChangenumber") || 0;
+
+    if (isChanged && !wasChanged) {
+        ElainaData.set("settingsChangenumber", settingsChangeNumber + 1);
+        element?.setAttribute("restart-change-active", "true");
+    }
+    else if (!isChanged && wasChanged) {
+        ElainaData.set("settingsChangenumber", Math.max(settingsChangeNumber - 1, 0));
+        element?.setAttribute("restart-change-active", "false");
+    }
 
     if (!document.querySelector("#restartAfterChangeButton") && ElainaData.get("settingsChangenumber") > 0) {
         let target = document.querySelector(".lol-settings-footer.ember-view")
@@ -92,7 +195,10 @@ window.addEventListener('load', async () => {
         const manager = document.getElementById('lol-uikit-layer-manager-wrapper')
         if (manager) {
             clearInterval(interval)
+            makeSettingsDraggable()
             new MutationObserver((mutations) => {
+                makeSettingsDraggable()
+
                 const plugin = document.querySelector('lol-uikit-scrollable.plugins_settings')
                 const theme = document.querySelector('lol-uikit-scrollable.theme_settings')
                 const backupandrestore = document.querySelector('lol-uikit-scrollable.backup_restore_settings')

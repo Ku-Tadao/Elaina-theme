@@ -473,6 +473,7 @@ class ui {
         const origin = document.createElement("div")
         origin.classList.add("Dropdown-div")
         origin.id = dropdownId || ""
+        origin.setAttribute("lastDatastore", JSON.stringify(ElainaData.get(Datastore)))
 
         const title = this.createLabel(text, "")
 

@@ -15,6 +15,7 @@ export default {
 
     // auto accept button
     "auto_accept"     : "Tự động chấp thuận",
+    "auto_accept_delay" : "Độ trễ tự động chấp thuận (ms)",
 
 
     // Preset settings
@@ -90,6 +91,8 @@ export default {
     "settings-section-game-tabs"    : "Tab và chế độ game",
 
     "AllowTrackingData"             : "Cho phép chủ đề thu thập thông tin cụ thể (Tên, thời gian sử dụng và ngôn ngữ hiện tại)",
+    "theme-language"                : "Ngôn ngữ của theme",
+    "theme-language-client"         : "Theo ngôn ngữ client",
     "update-list-manually"          : "Cập nhật thủ công danh sách của theme",
     "add"                           : "Thêm", 
     "delete"                        : "Xóa", 
