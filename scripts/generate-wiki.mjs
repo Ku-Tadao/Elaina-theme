@@ -189,26 +189,6 @@ ${renderInstallationQuickGuide(install.quickGuide)}
 
 ${renderBulletList(install.folderLayout)}
 
-## Pengu Loader before 1.2.0
-
-${install.legacy.summary}
-
-${renderNumberedList(install.legacy.steps)}
-
-### Important notes for older Pengu builds
-
-${renderBulletList(install.legacy.notes)}
-
-## Pengu Loader 1.2.0 and newer (PluginFS)
-
-${install.pluginFs.summary}
-
-${renderNumberedList(install.pluginFs.steps)}
-
-### What PluginFS changes
-
-${renderBulletList(install.pluginFs.notes)}
-
 ## After installation
 
 ${renderNumberedList(install.afterInstall)}

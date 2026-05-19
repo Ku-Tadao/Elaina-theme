@@ -110,40 +110,6 @@
             "The folder must contain the built `index.js`, `assets`, `config`, `locales`, and related theme files.",
             "Do not move files out of the theme folder after installation; relative asset paths depend on that layout."
         ],
-        "legacy": {
-            "summary": "Pengu Loader before 1.2.0 does not expose PluginFS to the plugin context. Elaina Theme still works, but settings are saved in Pengu DataStore and asset lists must be updated manually from the settings UI.",
-            "steps": [
-                "Install Pengu Loader and open its plugins folder.",
-                "Copy the built Elaina Theme folder into the plugins folder.",
-                "Start or restart the League Client.",
-                "Open League Client Settings -> Elaina Theme.",
-                "For custom wallpaper, audio, banner, or font files, place the files in the matching asset folder and add each filename in Theme Settings -> Asset library.",
-                "Reload or restart the client after changing settings that require reload."
-            ],
-            "notes": [
-                "Settings are stored in Pengu DataStore, not in `./data/ElainaData.json`.",
-                "The Asset library section is visible because the theme cannot scan the local asset folders automatically.",
-                "When adding files manually, type the filename exactly, including extension.",
-                "Manual backup exports a JSON file and is the safest way to move settings between installs."
-            ]
-        },
-        "pluginFs": {
-            "summary": "Pengu Loader 1.2.0 and newer provides PluginFS through `context.fs`. Elaina Theme uses it to persist settings in a JSON file and to scan asset folders automatically.",
-            "steps": [
-                "Install or update to Pengu Loader 1.2.0 or newer.",
-                "Copy the built Elaina Theme folder into the Pengu Loader plugins folder.",
-                "Start or restart the League Client.",
-                "Open League Client Settings -> Elaina Theme and verify that the theme tabs are visible.",
-                "Place wallpapers, audio, banners, and fonts into the matching asset folders.",
-                "Wait for the theme to refresh lists automatically, or reload the client after adding many files."
-            ],
-            "notes": [
-                "Settings are stored at `./data/ElainaData.json` inside the theme PluginFS scope.",
-                "Existing Pengu DataStore values are migrated into the file-backed ElainaData cache when possible.",
-                "Asset folder scanning updates `Wallpaper-list`, `Audio-list`, `Banner-list`, and `Font-list`.",
-                "The manual Asset library input is hidden when PluginFS is available."
-            ]
-        },
         "afterInstall": [
             "Open League Client Settings.",
             "Scroll to Elaina Theme.",
