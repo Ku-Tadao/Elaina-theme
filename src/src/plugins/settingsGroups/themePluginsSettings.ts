@@ -69,6 +69,7 @@ async function pluginsSettings(panel: Element) {
                         () => {
                             if (!ElainaData.get("auto_accept_button")) {
                                 document.getElementById("autoAcceptQueueButton")?.remove()
+                                document.getElementById("autoAcceptDelayInput")?.remove()
                             }
                         }, true, "auto_accept_button"
                     ),
