@@ -40,6 +40,11 @@
             "description": "Master toggle to enable or disable all Elaina Theme plugins.",
             "type": "boolean"
         },
+        "Theme-language": {
+            "category": "theme-core",
+            "description": "Theme UI language. Use client to follow the League Client language.",
+            "type": "string"
+        },
         "Theme-version": {
             "category": "theme-core",
             "description": "Current installed theme version (managed automatically).",
@@ -159,6 +164,46 @@
             "category": "wallpaper-audio",
             "description": "Time between wallpaper changes in slideshow mode (milliseconds).",
             "type": "number"
+        },
+        "WallpaperAudio-timeUpdate": {
+            "category": "wallpaper-audio",
+            "description": "Interval for saving wallpaper/audio playback progress to ElainaData (milliseconds).",
+            "type": "number"
+        },
+        "Playback-speed": {
+            "category": "wallpaper-audio",
+            "description": "Wallpaper video playback speed as a percentage.",
+            "type": "number"
+        },
+        "disable-theme-wallpaper": {
+            "category": "wallpaper-audio",
+            "description": "Completely disable the theme wallpaper background.",
+            "type": "boolean"
+        },
+        "window-effect-name": {
+            "category": "wallpaper-audio",
+            "description": "Window background effect mode such as transparent, acrylic, mica, or vibrancy.",
+            "type": "string"
+        },
+        "window-effect-color-base": {
+            "category": "wallpaper-audio",
+            "description": "Base color used by the selected window effect before alpha is applied.",
+            "type": "string"
+        },
+        "window-effect-alpha": {
+            "category": "wallpaper-audio",
+            "description": "Alpha component appended to the window effect color.",
+            "type": "string"
+        },
+        "window-effect-color": {
+            "category": "wallpaper-audio",
+            "description": "Computed window effect color including alpha.",
+            "type": "string"
+        },
+        "window-effect-material": {
+            "category": "wallpaper-audio",
+            "description": "Material variant used by window effects that support material selection.",
+            "type": "string"
         },
         "turnoff-audio-ingame": {
             "category": "wallpaper-audio",
@@ -415,6 +460,31 @@
             "description": "Hide the theme usage time counter in settings.",
             "type": "boolean"
         },
+        "hide-summoner-rift-5v5": {
+            "category": "theme-visual",
+            "description": "Hide the Summoner's Rift 5v5 tab or section in the play page.",
+            "type": "boolean"
+        },
+        "hide-aram": {
+            "category": "theme-visual",
+            "description": "Hide the ARAM tab or section in the play page.",
+            "type": "boolean"
+        },
+        "hide-arena": {
+            "category": "theme-visual",
+            "description": "Hide the Arena tab or section in the play page.",
+            "type": "boolean"
+        },
+        "hide-custom-game-section": {
+            "category": "theme-visual",
+            "description": "Hide the custom game section in the play page.",
+            "type": "boolean"
+        },
+        "hide-tft": {
+            "category": "tft",
+            "description": "Hide the TFT tab or section in the play page.",
+            "type": "boolean"
+        },
         "hide-tft-match-history": {
             "category": "tft",
             "description": "Hide TFT match history section.",
@@ -469,6 +539,11 @@
             "category": "plugins",
             "description": "Show the auto-accept toggle button in the lobby.",
             "type": "boolean"
+        },
+        "auto_accept_delay": {
+            "category": "plugins",
+            "description": "Delay before auto-accepting a ready check (milliseconds).",
+            "type": "number"
         },
         "dodge-button": {
             "category": "plugins",

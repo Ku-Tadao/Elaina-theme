@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 
 /**
- * Wiki Generator for Elaina Theme
+ * GitHub Wiki generator for Elaina Theme.
  *
- * Generates GitHub Wiki markdown pages from source code documentation.
+ * The wiki text is maintained in docs/wiki-content.json.
+ * Setting descriptions are maintained in docs/settings-meta.json.
  *
  * Usage:
- *   node scripts/generate-wiki.mjs           # Generate wiki pages
- *   node scripts/generate-wiki.mjs --check   # Validate docs only (no file writes)
+ *   node scripts/generate-wiki.mjs
+ *   node scripts/generate-wiki.mjs --check
  */
 
 import fs from 'node:fs';
@@ -16,541 +17,38 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
-const PLUGINS_DIR = path.join(ROOT, 'src', 'src', 'plugins');
 const CONFIG_DIR = path.join(ROOT, 'src', 'src', 'config');
 const LOCALES_DIR = path.join(ROOT, 'src', 'src', 'locales');
+const DOCS_DIR = path.join(ROOT, 'docs');
 const WIKI_DIR = path.join(ROOT, 'wiki');
-const META_FILE = path.join(ROOT, 'docs', 'settings-meta.json');
-const SETTINGS_GROUPS_DIR = path.join(PLUGINS_DIR, 'settingsGroups');
+
+const DEFAULTS_FILE = path.join(CONFIG_DIR, 'datastoreDefault.js');
+const LOCALE_FILE = path.join(LOCALES_DIR, 'default.js');
+const SETTINGS_META_FILE = path.join(DOCS_DIR, 'settings-meta.json');
+const WIKI_CONTENT_FILE = path.join(DOCS_DIR, 'wiki-content.json');
 
 const CHECK_MODE = process.argv.includes('--check');
 const warnings = [];
 const errors = [];
 
-// ─── Parsing Helpers ──────────────────────────────────────────────────────────
-
-/**
- * Parse a JSDoc block string into a structured object.
- */
-function parseJSDocBlock(raw) {
-    const result = { description: '', tags: {} };
-    const lines = raw.split('\n').map(l => l.replace(/^\s*\*\s?/, ''));
-    const descLines = [];
-    let currentTag = null;
-    let currentTagValue = [];
-
-    function flushTag() {
-        if (currentTag) {
-            const value = currentTagValue.join('\n').trim();
-            if (result.tags[currentTag]) {
-                if (!Array.isArray(result.tags[currentTag])) {
-                    result.tags[currentTag] = [result.tags[currentTag]];
-                }
-                result.tags[currentTag].push(value);
-            } else {
-                result.tags[currentTag] = value;
-            }
-        }
-    }
-
-    for (const line of lines) {
-        const tagMatch = line.match(/^@(\w[\w-]*)\s*(.*)/);
-        if (tagMatch) {
-            flushTag();
-            currentTag = tagMatch[1];
-            currentTagValue = [tagMatch[2]];
-        } else if (currentTag) {
-            currentTagValue.push(line);
-        } else {
-            descLines.push(line);
-        }
-    }
-    flushTag();
-
-    result.description = descLines.join('\n').trim();
-    return result;
-}
-
-/**
- * Extract the first file-level JSDoc from file content.
- */
-function extractFileJSDoc(content) {
-    const match = content.match(/^\s*\/\*\*([\s\S]*?)\*\//);
-    if (!match) return null;
-    return parseJSDocBlock(match[1]);
-}
-
-/**
- * Extract exported class/function names with their preceding JSDoc.
- */
-function extractExports(content) {
-    const results = [];
-    // Use negative lookahead (?!\*\/) to ensure we capture only ONE JSDoc block
-    // (prevents matching from an earlier /** across code to a later */ before export)
-    const regex = /\/\*\*((?:(?!\*\/)[\s\S])*)\*\/\s+export\s+(?:class|function)\s+(\w+)/g;
-    let match;
-    while ((match = regex.exec(content)) !== null) {
-        results.push({
-            name: match[2],
-            doc: parseJSDocBlock(match[1]),
-        });
-    }
-
-    // Also find exports without JSDoc
-    const bareRegex = /(?:^|\n)\s*export\s+(?:class|function)\s+(\w+)/g;
-    while ((match = bareRegex.exec(content)) !== null) {
-        if (!results.find(r => r.name === match[1])) {
-            results.push({ name: match[1], doc: null });
-        }
-    }
-
-    return results;
-}
-
-/**
- * Extract all ElainaData.get/set keys from file content.
- */
-function extractDataStoreKeys(content) {
-    const keys = new Set();
-    const regex = /ElainaData\.(?:get|set)\(\s*["']([^"']+)["']/g;
-    let match;
-    while ((match = regex.exec(content)) !== null) {
-        keys.add(match[1]);
-    }
-    return [...keys].sort();
-}
-
-/**
- * Convert PascalCase or camelCase to Title Case with spaces.
- */
-function toTitleCase(name) {
-    return name
-        .replace(/([a-z])([A-Z])/g, '$1 $2')
-        .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
-        .replace(/^./, s => s.toUpperCase());
-}
-
-// ─── Data Loading ─────────────────────────────────────────────────────────────
-
-async function loadDefaults() {
+async function loadJsDefault(filePath, fallback, label) {
     try {
-        const filePath = path.join(CONFIG_DIR, 'datastoreDefault.js');
         const module = await import(pathToFileURL(filePath).href);
-        return module.default || {};
-    } catch (e) {
-        warnings.push(`Could not load datastoreDefault.js: ${e.message}`);
-        return {};
+        return module.default ?? fallback;
+    } catch (err) {
+        errors.push(`Could not load ${label}: ${err.message}`);
+        return fallback;
     }
 }
 
-async function loadLocale() {
+function loadJson(filePath, fallback, label) {
     try {
-        const filePath = path.join(LOCALES_DIR, 'default.js');
-        const module = await import(pathToFileURL(filePath).href);
-        return module.default || {};
-    } catch (e) {
-        warnings.push(`Could not load default locale: ${e.message}`);
-        return {};
+        return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+    } catch (err) {
+        errors.push(`Could not load ${label}: ${err.message}`);
+        return fallback;
     }
 }
-
-function loadSettingsMeta() {
-    try {
-        const raw = fs.readFileSync(META_FILE, 'utf-8');
-        return JSON.parse(raw);
-    } catch (e) {
-        warnings.push(`Could not load settings-meta.json: ${e.message}`);
-        return { categories: {}, settings: {} };
-    }
-}
-
-function loadPluginFiles() {
-    const files = [];
-    const entries = fs.readdirSync(PLUGINS_DIR, { withFileTypes: true });
-    for (const entry of entries) {
-        if (entry.isFile() && /\.(ts|js)$/.test(entry.name)) {
-            const filePath = path.join(PLUGINS_DIR, entry.name);
-            const content = fs.readFileSync(filePath, 'utf-8');
-            files.push({
-                fileName: entry.name,
-                filePath,
-                content,
-                fileDoc: extractFileJSDoc(content),
-                exports: extractExports(content),
-                dataStoreKeys: extractDataStoreKeys(content),
-            });
-        }
-    }
-    return files;
-}
-
-// ─── Wiki Page Generators ─────────────────────────────────────────────────────
-
-function generateHomePage(plugins, defaults) {
-    const settingsCount = Object.keys(defaults).length;
-    const pluginCount = plugins.filter(p => p.exports.length > 0).length;
-
-    return `# Elaina Theme Wiki
-
-Welcome to the **Elaina Theme** wiki — your guide to customizing and using the theme for [Pengu Loader](https://pengu.lol).
-
-## Quick Links
-
-- [**Plugins**](Plugins) — All available plugins and how to use them (${pluginCount} plugins)
-- [**Settings Reference**](Settings-Reference) — Complete list of all settings (${settingsCount}+ options)
-- [**Theme Customization**](Theme-Customization) — Wallpapers, fonts, banners, icons
-- [**FAQ & Troubleshooting**](FAQ) — Common questions and solutions
-
-## How Settings Work
-
-Elaina Theme stores all its configuration in the Pengu Loader DataStore. You can change settings through the in-client settings panel:
-
-1. Open the League Client
-2. Go to **Settings** (gear icon)
-3. Scroll down to the **Elaina Theme** section
-4. You'll find tabs for: **Theme Settings**, **Plugins Settings**, **Backup & Restore**, and **About Us**
-
-## Available Plugins
-
-| Plugin | Description |
-|--------|-------------|
-${plugins
-            .filter(p => p.exports.length > 0)
-            .map(p => {
-                const exp = p.exports[0];
-                const desc = exp.doc?.tags?.wiki
-                    || exp.doc?.tags?.description
-                    || exp.doc?.description
-                    || p.fileDoc?.tags?.description
-                    || '_No description yet_';
-                return `| [${toTitleCase(exp.name)}](Plugin-${exp.name}) | ${desc.split('\n')[0]} |`;
-            })
-            .join('\n')}
-
----
-
-> This wiki is auto-generated from source code documentation. To improve it, add JSDoc comments to the source files and push to the main branch.
-`;
-}
-
-function generatePluginsPage(plugins, settingsMeta) {
-    let md = `# Plugins
-
-Elaina Theme comes with several plugins that extend the League Client functionality.
-
-## How to Enable Plugins
-
-1. Open the League Client settings
-2. Navigate to **Elaina Theme** → **Plugin Settings**
-3. Toggle the plugins you want to enable
-
-## Plugin List
-
-`;
-
-    for (const plugin of plugins) {
-        if (plugin.exports.length === 0) continue;
-        const exp = plugin.exports[0];
-        const name = toTitleCase(exp.name);
-        const desc = exp.doc?.tags?.wiki
-            || exp.doc?.tags?.description
-            || exp.doc?.description
-            || plugin.fileDoc?.tags?.description
-            || '_No description yet_';
-
-        const author = exp.doc?.tags?.author
-            || plugin.fileDoc?.tags?.author
-            || 'Unknown';
-
-        md += `### [${name}](Plugin-${exp.name})\n\n`;
-        md += `${desc.split('\n')[0]}\n\n`;
-        md += `- **Author**: ${author}\n`;
-        if (plugin.dataStoreKeys.length > 0) {
-            const visibleKeys = plugin.dataStoreKeys.filter(k => !settingsMeta.settings?.[k]?.hidden);
-            if (visibleKeys.length > 0) {
-                md += `- **Settings**: ${visibleKeys.map(k => `\`${k}\``).join(', ')}\n`;
-            }
-        }
-        md += '\n---\n\n';
-    }
-
-    return md;
-}
-
-function generatePluginPage(plugin, defaults, settingsMeta, locale) {
-    if (plugin.exports.length === 0) return null;
-    const exp = plugin.exports[0];
-    const name = toTitleCase(exp.name);
-
-    const desc = exp.doc?.tags?.wiki
-        || exp.doc?.tags?.description
-        || exp.doc?.description
-        || plugin.fileDoc?.tags?.description
-        || '_No description available. Add a `@wiki` or `@description` tag to the class JSDoc._';
-
-    const author = exp.doc?.tags?.author || plugin.fileDoc?.tags?.author || null;
-    const modifier = exp.doc?.tags?.modifier || plugin.fileDoc?.tags?.modifier || null;
-    const usage = exp.doc?.tags?.usage || null;
-
-    let md = `# ${name}\n\n`;
-    md += `${desc}\n\n`;
-
-    // Usage section
-    if (usage) {
-        md += `## How to Use\n\n${usage}\n\n`;
-    } else {
-        md += `## How to Use\n\n`;
-        md += `1. Open the League Client settings\n`;
-        md += `2. Navigate to **Elaina Theme** → **Plugin Settings**\n`;
-        md += `3. Enable or configure **${name}**\n\n`;
-    }
-
-    // Settings table
-    const visibleDataStoreKeys = plugin.dataStoreKeys.filter(k => !settingsMeta.settings?.[k]?.hidden);
-    if (visibleDataStoreKeys.length > 0) {
-        md += `## Settings\n\n`;
-        md += `| Setting | Default | Description |\n`;
-        md += `|---------|---------|-------------|\n`;
-
-        for (const key of visibleDataStoreKeys) {
-            const defaultVal = defaults[key];
-            const meta = settingsMeta.settings?.[key];
-            const localeName = locale[key.replace(/-/g, '_')] || locale[key] || null;
-            const description = meta?.description || localeName || '_Add description in `docs/settings-meta.json`_';
-            const displayDefault = defaultVal === undefined ? '_N/A_'
-                : typeof defaultVal === 'string' ? `\`"${defaultVal}"\``
-                    : Array.isArray(defaultVal) ? `_[list]_`
-                        : `\`${defaultVal}\``;
-
-            md += `| \`${key}\` | ${displayDefault} | ${description} |\n`;
-        }
-        md += '\n';
-    }
-
-    // Credits
-    if (author || modifier) {
-        md += `## Credits\n\n`;
-        if (author) md += `- **Author**: ${author}\n`;
-        if (modifier) md += `- **Modified by**: ${modifier}\n`;
-        md += '\n';
-    }
-
-    md += `---\n\n`;
-    md += `> Source: [\`${plugin.fileName}\`](../blob/main/src/src/plugins/${plugin.fileName})\n`;
-
-    return md;
-}
-
-function generateSettingsReference(defaults, settingsMeta, locale) {
-    let md = `# Settings Reference
-
-Complete list of all Elaina Theme settings. Change these in the League Client under **Settings** → **Elaina Theme**.
-
-`;
-
-    // Group settings by category from meta, or infer from defaults file comments
-    const categories = settingsMeta.categories || {};
-    const settingsInfo = settingsMeta.settings || {};
-
-    // Build category groups
-    const grouped = {};
-    const uncategorized = [];
-
-    for (const [key, defaultVal] of Object.entries(defaults)) {
-        const meta = settingsInfo[key];
-        if (meta?.hidden) continue;
-        const category = meta?.category || 'uncategorized';
-        if (category === 'uncategorized') {
-            uncategorized.push({ key, defaultVal, meta });
-        } else {
-            if (!grouped[category]) grouped[category] = [];
-            grouped[category].push({ key, defaultVal, meta });
-        }
-    }
-
-    // Render categorized settings
-    for (const [catKey, items] of Object.entries(grouped)) {
-        const catInfo = categories[catKey] || { name: toTitleCase(catKey) };
-        md += `## ${catInfo.name}\n\n`;
-        if (catInfo.description) md += `${catInfo.description}\n\n`;
-        md += `| Setting | Default | Type | Description |\n`;
-        md += `|---------|---------|------|-------------|\n`;
-
-        for (const { key, defaultVal, meta } of items) {
-            const type = meta?.type || inferType(defaultVal);
-            const localeName = locale[key.replace(/-/g, '_')] || locale[key] || null;
-            const description = meta?.description || localeName || '_TODO_';
-            const displayDefault = formatDefault(defaultVal);
-            md += `| \`${key}\` | ${displayDefault} | ${type} | ${description} |\n`;
-        }
-        md += '\n';
-    }
-
-    // Render uncategorized
-    if (uncategorized.length > 0) {
-        md += `## Other Settings\n\n`;
-        md += `| Setting | Default | Type | Description |\n`;
-        md += `|---------|---------|------|-------------|\n`;
-        for (const { key, defaultVal, meta } of uncategorized) {
-            const type = meta?.type || inferType(defaultVal);
-            const localeName = locale[key.replace(/-/g, '_')] || locale[key] || null;
-            const description = meta?.description || localeName || '_TODO_';
-            const displayDefault = formatDefault(defaultVal);
-            md += `| \`${key}\` | ${displayDefault} | ${type} | ${description} |\n`;
-        }
-        md += '\n';
-    }
-
-    md += `---\n\n`;
-    md += `> This page is auto-generated. Descriptions are sourced from \`docs/settings-meta.json\`.\n`;
-    md += `> To improve descriptions, edit that file and push to the main branch.\n`;
-
-    return md;
-}
-
-function generateThemeCustomizationPage(defaults) {
-    return `# Theme Customization
-
-## Wallpapers
-
-Elaina Theme supports custom wallpapers on the League Client home screen. Supported formats:
-- **Video**: \`.mp4\`, \`.webm\`, \`.mkv\`, \`.mov\`, \`.avi\`, \`.wmv\`, \`.3gp\`, \`.m4v\`
-- **Image**: \`.png\`, \`.jpg\`, \`.jpeg\`, \`.gif\`, \`.bmp\`, \`.webp\`, \`.ico\`
-
-### Adding Wallpapers
-1. Go to **Settings** → **Elaina Theme** → **Theme Settings**
-2. Use the wallpaper management section to add wallpaper filenames
-3. Place the actual wallpaper files in the theme's \`assets/backgrounds/wallpapers/\` folder
-
-### Wallpaper Slideshow
-- **Setting**: \`wallpaper-slideshow\` (default: \`false\`)
-- **Slide interval**: \`wallpaper-change-slide-time\` (default: \`10000\` ms)
-
-## Audio
-
-Custom background audio for the client.
-- **Supported formats**: \`.mp3\`, \`.flac\`, \`.ogg\`, \`.wav\`, \`.aac\`
-- **Volume**: \`audio-volume\` (default: \`0.15\`)
-- **Loop**: \`audio-loop\` (default: \`false\`)
-- **Mute in-game**: \`turnoff-audio-ingame\` (default: \`true\`)
-- **Disable entirely**: \`disable-theme-audio\` (default: \`false\`)
-
-## Fonts
-
-Custom fonts for the League Client interface.
-- **Supported formats**: \`.ttf\`, \`.otf\`, \`.woff\`, \`.woff2\`
-- **Enable**: \`Custom-Font\` (default: \`true\`)
-- **Current font**: \`CurrentFont\` (default: \`"elaina-herculanum_roman.ttf"\`)
-
-### Default Font List
-${(defaults['Font-list'] || []).map(f => `- \`${f}\``).join('\n')}
-
-## Banners
-
-Custom regalia banners for your profile.
-- **Enable**: \`Custom-Regalia-Banner\` (default: \`true\`)
-- **Current banner**: \`CurrentBanner\` (default: \`"faker_2.png"\`)
-
-### Default Banner List
-${(defaults['Banner-list'] || []).map(b => `- \`${b}\``).join('\n')}
-
-## Custom Icons & UI Elements
-
-| Feature | Setting | Default |
-|---------|---------|---------|
-| Custom Avatar | \`Custom-Avatar\` | \`true\` |
-| Custom Icon | \`Custom-Icon\` | \`true\` |
-| Custom Loading Icon | \`Custom-Loading-Icon\` | \`true\` |
-| Custom Border | \`Custom-Border\` | \`true\` |
-| Custom RP Icon | \`Custom-RP-Icon\` | \`true\` |
-| Custom BE Icon | \`Custom-BE-Icon\` | \`true\` |
-| Custom Rank Icon | \`Custom-Rank-Icon\` | \`true\` |
-| Custom Emblem | \`Custom-Emblem\` | \`true\` |
-| Custom Clash Banner | \`Custom-Clash-banner\` | \`true\` |
-| Custom Gamemode Icon | \`Custom-Gamemode-Icon\` | \`true\` |
-| Custom Trophy | \`Custom-Trophy\` | \`true\` |
-| Custom Ticker | \`Custom-Ticker\` | \`true\` |
-| Custom Cursor | \`Custom-Cursor\` | \`false\` |
-| Rune Backgrounds | \`Runes-BG\` | \`true\` |
-
-## UI Tweaks
-
-| Feature | Setting | Default |
-|---------|---------|---------|
-| Sidebar Transparent | \`sidebar-transparent\` | \`false\` |
-| Lobby Transparent Filter | \`lobby-transparent-filter\` | \`true\` |
-| Settings Dialogs Transparent | \`settings-dialogs-transparent\` | \`false\` |
-| Hide Profile Background | \`hide-profile-background\` | \`true\` |
-| Hide Champion Splash Art | \`hide-champions-splash-art\` | \`false\` |
-| Hide Vertical Lines | \`hide-vertical-lines\` | \`true\` |
-| Custom Nickname Color | \`change-nickname-color\` | \`true\` |
-| Nickname Color | \`nickname-color\` | \`"#f2c1d0"\` |
-
----
-
-> Place custom assets in the \`assets/\` folder within the theme's plugin directory.
-`;
-}
-
-function generateFAQPage() {
-    return `# FAQ & Troubleshooting
-
-## Frequently Asked Questions
-
-### How do I install Elaina Theme?
-1. Install [Pengu Loader](https://pengu.lol)
-2. Download Elaina Theme from the [releases page](https://github.com/Elaina69/Elaina-theme/releases)
-3. Place the theme files in your Pengu Loader plugins directory
-4. Restart the League Client
-
-### Where do I put custom wallpapers/audio/fonts?
-Place them in the corresponding subdirectory of the theme's \`assets/\` folder:
-- Wallpapers: \`assets/backgrounds/wallpapers/\`
-- Audio: \`assets/backgrounds/audio/\`
-- Fonts: \`assets/fonts/\`
-- Banners: \`assets/icon/regalia-banners/\`
-
-### How do I access theme settings?
-Open the League Client → **Settings** (gear icon) → scroll down to **Elaina Theme**
-
-### My settings aren't saving / theme isn't loading
-1. Make sure Pengu Loader is properly installed
-2. Check that the theme folder structure is correct
-3. Try restarting the League Client
-4. If using backup/restore, check your internet connection
-
-### How do I back up my settings?
-1. Go to **Settings** → **Elaina Theme** → **Backup & Restore**
-2. Enable \`backup-datastore\`
-3. Your settings will be automatically backed up when you close the client
-
-### How do I enable developer mode?
-Click the plugin logo in Plugins Settings 20 times to reveal the developer mode toggle.
-
----
-
-> Don't see your question? [Open an issue](https://github.com/Elaina69/Elaina-theme/issues) or ask on [Discord](https://discord.gg/elainatheme).
-`;
-}
-
-function generateSidebar(plugins) {
-    let md = `**[Home](Home)**\n\n`;
-    md += `**Getting Started**\n`;
-    md += `- [Theme Customization](Theme-Customization)\n`;
-    md += `- [Settings Reference](Settings-Reference)\n`;
-    md += `- [FAQ & Troubleshooting](FAQ)\n\n`;
-    md += `**[Plugins](Plugins)**\n`;
-
-    for (const plugin of plugins) {
-        if (plugin.exports.length === 0) continue;
-        const exp = plugin.exports[0];
-        md += `- [${toTitleCase(exp.name)}](Plugin-${exp.name})\n`;
-    }
-
-    return md;
-}
-
-// ─── Utility ──────────────────────────────────────────────────────────────────
 
 function inferType(value) {
     if (value === null || value === undefined) return 'unknown';
@@ -559,130 +57,313 @@ function inferType(value) {
 }
 
 function formatDefault(value) {
-    if (value === undefined) return '_N/A_';
-    if (typeof value === 'string') return value === '' ? '_empty_' : `\`"${value}"\``;
-    if (Array.isArray(value)) return `_[${value.length} items]_`;
-    return `\`${value}\``;
+    if (value === undefined) return '_not set in defaults_';
+    if (typeof value === 'string') return value === '' ? '_empty_' : `\`${escapePipes(`"${value}"`)}\``;
+    if (Array.isArray(value)) return value.length === 0 ? '_empty list_' : `_${value.length} items_`;
+    if (typeof value === 'object') return '_object_';
+    return `\`${String(value)}\``;
 }
 
-// ─── Validation (--check mode) ────────────────────────────────────────────────
+function escapePipes(value) {
+    return String(value).replace(/\|/g, '\\|').replace(/\n/g, '<br>');
+}
 
-function validateDocs(plugins, defaults, settingsMeta) {
-    let issueCount = 0;
+function settingLabel(key, locale) {
+    return locale[key] || locale[key.replace(/-/g, '_')] || key;
+}
 
-    // Check plugin documentation
-    for (const plugin of plugins) {
-        if (plugin.exports.length === 0) continue;
-        for (const exp of plugin.exports) {
-            if (!exp.doc) {
-                warnings.push(`[MISSING DOC] ${plugin.fileName}: exported ${exp.name} has no JSDoc`);
-                issueCount++;
-            } else if (!exp.doc.tags.wiki && !exp.doc.tags.description && !exp.doc.description) {
-                warnings.push(`[NO DESCRIPTION] ${plugin.fileName}: ${exp.name} has JSDoc but no @wiki or @description`);
-                issueCount++;
-            }
+function settingRow(key, defaults, settingsMeta, locale) {
+    const value = defaults[key];
+    const meta = settingsMeta.settings?.[key];
+    const type = meta?.type || inferType(value);
+    const description = meta?.description || settingLabel(key, locale) || '_Missing description_';
+    return `| \`${escapePipes(key)}\` | ${escapePipes(settingLabel(key, locale))} | ${formatDefault(value)} | ${escapePipes(type)} | ${escapePipes(description)} |`;
+}
+
+function renderSettingTable(keys, defaults, settingsMeta, locale) {
+    const rows = keys.map((key) => settingRow(key, defaults, settingsMeta, locale));
+    return [
+        '| Setting key | UI label | Default | Type | Function |',
+        '|-------------|----------|---------|------|----------|',
+        ...rows,
+    ].join('\n');
+}
+
+function renderSettingGroups(groups, defaults, settingsMeta, locale) {
+    return groups.map((group) => {
+        const description = group.description ? `${group.description}\n\n` : '';
+        return `### ${group.title}\n\n${description}${renderSettingTable(group.keys, defaults, settingsMeta, locale)}`;
+    }).join('\n\n');
+}
+
+function renderAssetTable(assets) {
+    return [
+        '| Asset | Folder | Supported formats | Data list | Function |',
+        '|-------|--------|-------------------|-----------|----------|',
+        ...assets.map((asset) => `| ${asset.name} | \`${asset.folder}\` | ${asset.formats.map((format) => `\`${format}\``).join(', ')} | \`${asset.listKey}\` | ${escapePipes(asset.description)} |`),
+    ].join('\n');
+}
+
+function renderBulletList(items) {
+    return items.map((item) => `- ${item}`).join('\n');
+}
+
+function renderNumberedList(items) {
+    return items.map((item, index) => `${index + 1}. ${item}`).join('\n');
+}
+
+function renderLinkList(items) {
+    return items.map((item) => `- [${item.title}](${item.file.replace(/\.md$/, '')})`).join('\n');
+}
+
+function renderPageFooter() {
+    return [
+        '',
+        '---',
+        '',
+        '> This page is generated from `docs/wiki-content.json`, `docs/settings-meta.json`, and `src/src/config/datastoreDefault.js`.',
+        '> Edit those files to update the wiki content.',
+        '',
+    ].join('\n');
+}
+
+function generateHomePage(content, defaults) {
+    const visibleSettings = Object.entries(defaults).filter(([key]) => !content.internalSettingKeys?.includes(key));
+    return `# 1. Home
+
+${content.home.introduction}
+
+## Wiki sections
+
+${renderLinkList(content.navigation.filter((item) => item.file !== 'Home.md'))}
+
+## What Elaina Theme changes
+
+${renderBulletList(content.home.features)}
+
+## Current configuration model
+
+${renderBulletList(content.home.configurationModel)}
+
+## Generated reference
+
+- Settings loaded from \`datastoreDefault.js\`: ${Object.keys(defaults).length}
+- Visible documented settings: ${visibleSettings.length}
+- Main settings tabs in client: Theme Settings, Plugins Settings, Backup & Restore, About Us
+${renderPageFooter()}`;
+}
+
+function generateInstallationPage(content) {
+    const install = content.installation;
+    return `# 2. Installation Instructions
+
+${install.introduction}
+
+## Requirements
+
+${renderBulletList(install.requirements)}
+
+## Folder layout
+
+${renderBulletList(install.folderLayout)}
+
+## Pengu Loader before 1.2.0
+
+${install.legacy.summary}
+
+${renderNumberedList(install.legacy.steps)}
+
+### Important notes for older Pengu builds
+
+${renderBulletList(install.legacy.notes)}
+
+## Pengu Loader 1.2.0 and newer (PluginFS)
+
+${install.pluginFs.summary}
+
+${renderNumberedList(install.pluginFs.steps)}
+
+### What PluginFS changes
+
+${renderBulletList(install.pluginFs.notes)}
+
+## After installation
+
+${renderNumberedList(install.afterInstall)}
+${renderPageFooter()}`;
+}
+
+function generateThemeCustomizationPage(content, defaults, settingsMeta, locale) {
+    const theme = content.themeCustomization;
+    return `# 3. Theme Customization
+
+${theme.introduction}
+
+## 3.1. Add Wallpaper/Audio
+
+${theme.assets.introduction}
+
+${renderAssetTable(theme.assets.items)}
+
+### Pengu Loader before 1.2.0
+
+${renderNumberedList(theme.assets.legacySteps)}
+
+### Pengu Loader 1.2.0 and newer (PluginFS)
+
+${renderNumberedList(theme.assets.pluginFsSteps)}
+
+### Asset rules
+
+${renderBulletList(theme.assets.rules)}
+
+## 3.2. Theme Settings
+
+${theme.themeSettingsIntroduction}
+
+${renderSettingGroups(theme.themeSettingGroups, defaults, settingsMeta, locale)}
+
+## 3.3. Plugins Settings
+
+${theme.pluginSettingsIntroduction}
+
+${renderSettingGroups(theme.pluginSettingGroups, defaults, settingsMeta, locale)}
+${renderPageFooter()}`;
+}
+
+function generateBackupRestorePage(content, defaults, settingsMeta, locale) {
+    const backup = content.backupRestore;
+    return `# 4. Backup/Restore
+
+${backup.introduction}
+
+## Storage modes
+
+${renderBulletList(backup.storageModes)}
+
+## Related settings
+
+${renderSettingTable(backup.settingKeys, defaults, settingsMeta, locale)}
+
+## Manual backup
+
+${renderNumberedList(backup.manualBackup)}
+
+## Manual restore
+
+${renderNumberedList(backup.manualRestore)}
+
+## Cloud backup
+
+${renderNumberedList(backup.cloudBackup)}
+
+## Cloud restore/delete
+
+${renderNumberedList(backup.cloudRestore)}
+
+## Notes
+
+${renderBulletList(backup.notes)}
+${renderPageFooter()}`;
+}
+
+function generateFaqPage(content) {
+    return `# 5. FAQ & Troubleshooting
+
+${content.faq.introduction}
+
+${content.faq.items.map((item) => `## ${item.question}\n\n${renderBulletList(item.answer)}`).join('\n\n')}
+${renderPageFooter()}`;
+}
+
+function generateSidebar(content) {
+    return content.navigation.map((item) => `- [${item.title}](${item.file.replace(/\.md$/, '')})`).join('\n') + '\n';
+}
+
+function validateContent(content, defaults, settingsMeta) {
+    const defaultKeys = new Set(Object.keys(defaults));
+    const metaKeys = new Set(Object.keys(settingsMeta.settings || {}));
+    const runtimeKeys = new Set(content.runtimeSettingKeys || []);
+    const referencedKeys = new Set();
+
+    const collectKeys = (groups = []) => {
+        for (const group of groups) {
+            for (const key of group.keys || []) referencedKeys.add(key);
+        }
+    };
+
+    collectKeys(content.themeCustomization?.themeSettingGroups);
+    collectKeys(content.themeCustomization?.pluginSettingGroups);
+    for (const key of content.backupRestore?.settingKeys || []) referencedKeys.add(key);
+
+    for (const key of referencedKeys) {
+        if (!defaultKeys.has(key) && !runtimeKeys.has(key)) {
+            warnings.push(`[WIKI CONTENT] Referenced setting "${key}" is not in datastoreDefault.js`);
+        }
+        if (!metaKeys.has(key)) {
+            warnings.push(`[WIKI CONTENT] Referenced setting "${key}" is missing from docs/settings-meta.json`);
         }
     }
 
-    // Check settings-meta.json coverage
-    const documentedSettings = new Set(Object.keys(settingsMeta.settings || {}));
-    const allSettings = Object.keys(defaults);
-    const undocumented = allSettings.filter(k => !documentedSettings.has(k));
-
-    if (undocumented.length > 0) {
-        warnings.push(`[SETTINGS] ${undocumented.length}/${allSettings.length} settings missing from docs/settings-meta.json:`);
-        for (const key of undocumented.slice(0, 10)) {
-            warnings.push(`  - "${key}"`);
+    for (const key of defaultKeys) {
+        if (!metaKeys.has(key)) {
+            warnings.push(`[SETTINGS META] "${key}" exists in datastoreDefault.js but is missing from docs/settings-meta.json`);
         }
-        if (undocumented.length > 10) {
-            warnings.push(`  ... and ${undocumented.length - 10} more`);
-        }
-        issueCount += undocumented.length;
     }
 
-    return issueCount;
+    const pageFiles = new Set(content.navigation?.map((item) => item.file));
+    const requiredPages = ['Home.md', 'Installation-instructions.md', 'Theme-customization.md', 'Backup-Restore.md', 'FAQ-Troubleshooting.md'];
+    for (const page of requiredPages) {
+        if (!pageFiles.has(page)) errors.push(`[NAVIGATION] Missing ${page} from docs/wiki-content.json navigation`);
+    }
 }
-
-// ─── Main ─────────────────────────────────────────────────────────────────────
 
 async function main() {
-    console.log('📖 Elaina Theme Wiki Generator\n');
+    console.log('Generating Elaina Theme wiki');
 
-    // Load data
-    console.log('Loading data sources...');
-    const defaults = await loadDefaults();
-    const locale = await loadLocale();
-    const settingsMeta = loadSettingsMeta();
-    const plugins = loadPluginFiles();
+    const defaults = await loadJsDefault(DEFAULTS_FILE, {}, 'datastoreDefault.js');
+    const locale = await loadJsDefault(LOCALE_FILE, {}, 'default locale');
+    const settingsMeta = loadJson(SETTINGS_META_FILE, { categories: {}, settings: {} }, 'settings-meta.json');
+    const content = loadJson(WIKI_CONTENT_FILE, {}, 'wiki-content.json');
 
-    console.log(`  Found ${plugins.length} plugin files`);
-    console.log(`  Found ${Object.keys(defaults).length} settings`);
-    console.log(`  Found ${Object.keys(locale).length} locale strings`);
-    console.log(`  Found ${Object.keys(settingsMeta.settings || {}).length} documented settings\n`);
-
-    // Validate
-    const issueCount = validateDocs(plugins, defaults, settingsMeta);
+    validateContent(content, defaults, settingsMeta);
 
     if (CHECK_MODE) {
-        console.log('─── Validation Results ───\n');
-        if (warnings.length > 0) {
-            for (const w of warnings) console.log(`  ⚠ ${w}`);
-        }
-        if (errors.length > 0) {
-            for (const e of errors) console.log(`  ✖ ${e}`);
-        }
-        console.log(`\n${issueCount} documentation issue(s) found.`);
-
-        if (errors.length > 0) {
-            process.exit(1);
-        }
-        // Warnings don't fail the check — they're informational for gradual adoption
+        for (const warning of warnings) console.log(`WARN: ${warning}`);
+        for (const error of errors) console.log(`ERROR: ${error}`);
+        console.log(`Checked ${Object.keys(defaults).length} settings and ${content.navigation?.length || 0} wiki pages.`);
+        if (errors.length > 0) process.exit(1);
         process.exit(0);
     }
 
-    // Generate wiki pages
-    console.log('Generating wiki pages...');
+    if (errors.length > 0) {
+        for (const error of errors) console.error(`ERROR: ${error}`);
+        process.exit(1);
+    }
+
     fs.mkdirSync(WIKI_DIR, { recursive: true });
 
     const pages = {
-        'Home.md': generateHomePage(plugins, defaults),
-        'Plugins.md': generatePluginsPage(plugins, settingsMeta),
-        'Settings-Reference.md': generateSettingsReference(defaults, settingsMeta, locale),
-        'Theme-Customization.md': generateThemeCustomizationPage(defaults),
-        'FAQ.md': generateFAQPage(),
-        '_Sidebar.md': generateSidebar(plugins),
+        'Home.md': generateHomePage(content, defaults),
+        'Installation-instructions.md': generateInstallationPage(content),
+        'Theme-customization.md': generateThemeCustomizationPage(content, defaults, settingsMeta, locale),
+        'Backup-Restore.md': generateBackupRestorePage(content, defaults, settingsMeta, locale),
+        'FAQ-Troubleshooting.md': generateFaqPage(content),
+        '_Sidebar.md': generateSidebar(content),
     };
 
-    // Generate individual plugin pages
-    for (const plugin of plugins) {
-        const page = generatePluginPage(plugin, defaults, settingsMeta, locale);
-        if (page) {
-            const exp = plugin.exports[0];
-            pages[`Plugin-${exp.name}.md`] = page;
-        }
+    for (const [filename, markdown] of Object.entries(pages)) {
+        fs.writeFileSync(path.join(WIKI_DIR, filename), markdown, 'utf-8');
     }
 
-    // Write pages
-    let written = 0;
-    for (const [filename, content] of Object.entries(pages)) {
-        const filePath = path.join(WIKI_DIR, filename);
-        fs.writeFileSync(filePath, content, 'utf-8');
-        written++;
-    }
-
-    console.log(`  ✔ Written ${written} wiki pages to wiki/\n`);
-
-    // Show warnings
+    console.log(`Written ${Object.keys(pages).length} wiki pages to ${path.relative(ROOT, WIKI_DIR)}`);
     if (warnings.length > 0) {
-        console.log('── Documentation Improvement Suggestions ──\n');
-        for (const w of warnings) console.log(`  ⚠ ${w}`);
-        console.log(`\nAdd JSDoc @wiki tags to plugin classes and fill docs/settings-meta.json to improve the wiki.\n`);
+        console.log('\nDocumentation warnings:');
+        for (const warning of warnings) console.log(`WARN: ${warning}`);
     }
-
-    console.log('Done! Wiki pages are in the wiki/ directory.');
 }
 
-main().catch(e => {
-    console.error('Fatal error:', e);
+main().catch((err) => {
+    console.error(err);
     process.exit(1);
 });

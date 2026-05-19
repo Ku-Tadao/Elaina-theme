@@ -1,0 +1,324 @@
+{
+    "navigation": [
+        {
+            "title": "1. Home",
+            "file": "Home.md"
+        },
+        {
+            "title": "2. Installation instructions",
+            "file": "Installation-instructions.md"
+        },
+        {
+            "title": "3. Theme customization",
+            "file": "Theme-customization.md"
+        },
+        {
+            "title": "4. Backup/Restore",
+            "file": "Backup-Restore.md"
+        },
+        {
+            "title": "5. FAQ & Troubleshooting",
+            "file": "FAQ-Troubleshooting.md"
+        }
+    ],
+    "home": {
+        "introduction": "Elaina Theme is a Pengu Loader theme for the League Client. It changes the client visuals, adds custom assets, provides wallpaper/audio controls, and includes optional quality-of-life plugins.",
+        "features": [
+            "Custom homepage wallpaper with image/video support.",
+            "Custom background audio with volume, loop, mute, and in-game pause controls.",
+            "Custom font, profile banner, avatar, border, currency icons, rank icons, rune backgrounds, and other client UI assets.",
+            "Interface toggles for transparency, hidden client sections, game tab visibility, profile layout, and nickname styling.",
+            "Optional plugins for queue automation, auto accept, loot helper, invite all friends, profile spoofing, custom status, custom BE/RP, and developer tools.",
+            "Manual JSON backup/restore and optional cloud backup/restore."
+        ],
+        "configurationModel": [
+            "On Pengu Loader 1.2.0 and newer, ElainaData stores settings in `./data/ElainaData.json` through PluginFS when `context.fs` is available.",
+            "On older Pengu Loader builds, ElainaData falls back to Pengu DataStore under the `ElainaTheme` key.",
+            "The in-client settings are available from League Client Settings -> Elaina Theme.",
+            "Most visual toggles need a client reload or restart before every affected screen is fully refreshed."
+        ]
+    },
+    "installation": {
+        "introduction": "Use the instructions that match your Pengu Loader version. The theme supports both older DataStore-only Pengu builds and Pengu Loader 1.2.0+ builds with PluginFS.",
+        "requirements": [
+            "League Client installed and able to launch normally.",
+            "Pengu Loader installed.",
+            "An Elaina Theme release zip or a local build output from this repository.",
+            "A writable Pengu Loader plugins folder."
+        ],
+        "folderLayout": [
+            "The theme folder should be placed inside the Pengu Loader plugins directory.",
+            "The folder must contain the built `index.js`, `assets`, `config`, `locales`, and related theme files.",
+            "Do not move files out of the theme folder after installation; relative asset paths depend on that layout."
+        ],
+        "legacy": {
+            "summary": "Pengu Loader before 1.2.0 does not expose PluginFS to the plugin context. Elaina Theme still works, but settings are saved in Pengu DataStore and asset lists must be updated manually from the settings UI.",
+            "steps": [
+                "Install Pengu Loader and open its plugins folder.",
+                "Copy the built Elaina Theme folder into the plugins folder.",
+                "Start or restart the League Client.",
+                "Open League Client Settings -> Elaina Theme.",
+                "For custom wallpaper, audio, banner, or font files, place the files in the matching asset folder and add each filename in Theme Settings -> Asset library.",
+                "Reload or restart the client after changing settings that require reload."
+            ],
+            "notes": [
+                "Settings are stored in Pengu DataStore, not in `./data/ElainaData.json`.",
+                "The Asset library section is visible because the theme cannot scan the local asset folders automatically.",
+                "When adding files manually, type the filename exactly, including extension.",
+                "Manual backup exports a JSON file and is the safest way to move settings between installs."
+            ]
+        },
+        "pluginFs": {
+            "summary": "Pengu Loader 1.2.0 and newer provides PluginFS through `context.fs`. Elaina Theme uses it to persist settings in a JSON file and to scan asset folders automatically.",
+            "steps": [
+                "Install or update to Pengu Loader 1.2.0 or newer.",
+                "Copy the built Elaina Theme folder into the Pengu Loader plugins folder.",
+                "Start or restart the League Client.",
+                "Open League Client Settings -> Elaina Theme and verify that the theme tabs are visible.",
+                "Place wallpapers, audio, banners, and fonts into the matching asset folders.",
+                "Wait for the theme to refresh lists automatically, or reload the client after adding many files."
+            ],
+            "notes": [
+                "Settings are stored at `./data/ElainaData.json` inside the theme PluginFS scope.",
+                "Existing Pengu DataStore values are migrated into the file-backed ElainaData cache when possible.",
+                "Asset folder scanning updates `Wallpaper-list`, `Audio-list`, `Banner-list`, and `Font-list`.",
+                "The manual Asset library input is hidden when PluginFS is available."
+            ]
+        },
+        "afterInstall": [
+            "Open League Client Settings.",
+            "Scroll to Elaina Theme.",
+            "Review Theme Settings, Plugins Settings, and Backup & Restore.",
+            "Reload or restart the client when the UI asks for it."
+        ]
+    },
+    "themeCustomization": {
+        "introduction": "Theme customization is split into asset management, visual/theme settings, and optional plugin settings.",
+        "assets": {
+            "introduction": "Custom assets must be placed in the correct folder. Pengu Loader 1.2.0+ can scan these folders through PluginFS; older Pengu builds require manual filename registration.",
+            "items": [
+                {
+                    "name": "Wallpaper",
+                    "folder": "assets/backgrounds/wallpapers",
+                    "formats": [".png", ".jpg", ".jpeg", ".gif", ".bmp", ".webp", ".ico", ".mp4", ".webm", ".mkv", ".mov", ".avi", ".wmv", ".3gp", ".m4v"],
+                    "listKey": "Wallpaper-list",
+                    "description": "Home page background image or video."
+                },
+                {
+                    "name": "Audio",
+                    "folder": "assets/backgrounds/audio",
+                    "formats": [".mp3", ".flac", ".ogg", ".wav", ".aac"],
+                    "listKey": "Audio-list",
+                    "description": "Theme background music or ambient audio."
+                },
+                {
+                    "name": "Banner",
+                    "folder": "assets/icon/regalia-banners",
+                    "formats": [".png", ".jpg", ".jpeg", ".gif", ".bmp", ".webp", ".ico"],
+                    "listKey": "Banner-list",
+                    "description": "Profile regalia banner image."
+                },
+                {
+                    "name": "Font",
+                    "folder": "assets/fonts",
+                    "formats": [".ttf", ".otf", ".woff", ".woff2"],
+                    "listKey": "Font-list",
+                    "description": "Custom client font."
+                }
+            ],
+            "legacySteps": [
+                "Copy the file into the matching folder.",
+                "Open League Client Settings -> Elaina Theme -> Theme Settings -> Asset library.",
+                "Enter the exact filename in the correct field, for example `my-wallpaper.webm`.",
+                "Use Add/Delete to update the stored list.",
+                "Reload the client if the current page does not refresh immediately."
+            ],
+            "pluginFsSteps": [
+                "Copy the file into the matching folder.",
+                "Keep the League Client open or restart it.",
+                "The theme scans the asset folders and updates the matching list automatically.",
+                "Use the wallpaper/audio controls on the homepage, or choose font/banner from Theme Settings."
+            ],
+            "rules": [
+                "Use only the supported extensions listed in the table.",
+                "Keep filenames unique inside each asset folder.",
+                "Avoid very large videos if the client becomes slow.",
+                "If a file does not appear, verify the folder, extension, and exact filename."
+            ]
+        },
+        "themeSettingsIntroduction": "Theme Settings control the visual theme, asset behavior, homepage media, profile identity visuals, interface layout, and game tab visibility.",
+        "themeSettingGroups": [
+            {
+                "title": "General",
+                "description": "Base theme behavior and language.",
+                "keys": ["Elaina-Plugins", "Theme-language", "prevent-manual-update", "holiday-message", "Merry-Christmas", "NSFW-Content"]
+            },
+            {
+                "title": "Wallpaper and audio",
+                "description": "Homepage background, media playback, slideshow, and window effects.",
+                "keys": ["manual-wallpaper-name", "manual-audio-name", "wallpaper-volume", "WallpaperAudio-timeUpdate", "Playback-speed", "wallpaper-slideshow", "wallpaper-change-slide-time", "disable-theme-wallpaper", "window-effect-name", "window-effect-color-base", "window-effect-alpha", "window-effect-color", "window-effect-material", "audio-volume", "audio-loop", "turnoff-audio-ingame", "disable-theme-audio", "pause-audio", "pause-wallpaper", "mute-audio"]
+            },
+            {
+                "title": "Custom assets",
+                "description": "Enable or disable bundled/custom asset replacement.",
+                "keys": ["sync-user-icons", "Custom-Icon", "Custom-Loading-Icon", "Custom-Avatar", "Custom-Border", "Custom-Regalia-Banner", "CurrentBanner", "manual-banner-name", "Banner-list", "Custom-Hover-card-backdrop", "Custom-RP-Icon", "Custom-BE-Icon", "Custom-Rank-Icon", "Custom-Emblem", "Custom-Clash-banner", "Custom-Trophy", "Custom-Gamemode-Icon", "Custom-Ticker", "Custom-Cursor", "Runes-BG", "custom-champs-image", "animate-loading"]
+            },
+            {
+                "title": "Interface and layout",
+                "description": "Client layout visibility and transparency controls.",
+                "keys": ["hide-homepage-navbar", "old-prev/next-button", "enable-hide-top-navbar-friendlist-button", "sidebar-transparent", "lobby-transparent-filter", "settings-dialogs-transparent", "hide-profile-background", "hide-champions-splash-art", "hide-vertical-lines", "custom-navbar-css", "navbar-content"]
+            },
+            {
+                "title": "Profile and identity",
+                "description": "Local visual changes for the player's profile and identity text.",
+                "keys": ["custom-rp", "RP-data", "custom-be", "BE", "custom-summoner-lv", "custom-summoner-lv-number", "custom-rank-name", "Rank-line1", "Rank-line2", "Custom-Font", "CurrentFont", "manual-font-name", "Font-list", "change-nickname-color", "nickname-color", "nickname-opacity", "nickname-color-with-opacity", "hide-theme-usage-time"]
+            },
+            {
+                "title": "Game tabs",
+                "description": "Hide or show queue/game sections in the play page.",
+                "keys": ["hide-summoner-rift-5v5", "hide-aram", "hide-arena", "hide-custom-game-section", "hide-tft", "hide-tft-match-history", "hide-tft-news", "hide-tft-rotational-shop", "hide-tft-troves", "hide-tft-battle-pass", "hide-tft-home"]
+            }
+        ],
+        "pluginSettingsIntroduction": "Plugins Settings controls optional client behavior. Some plugin settings apply immediately; queue/profile features commonly require reload or restart.",
+        "pluginSettingGroups": [
+            {
+                "title": "Core plugins",
+                "description": "General plugin toggles and commonly used client helpers.",
+                "keys": ["Old-League-Loader-Settings", "loot-helper", "auto_accept_button", "auto_accept", "auto_accept_delay", "dodge-button", "Enable-Invite-Fr"]
+            },
+            {
+                "title": "Queue automation",
+                "description": "Automatic lobby creation and match search behavior.",
+                "keys": ["Auto-Find-Queue", "Gamemode", "Create-Delay", "Find-Delay", "aram-only"]
+            },
+            {
+                "title": "Profile and identity plugins",
+                "description": "Local profile hover card, rank, challenge, status, and name display changes.",
+                "keys": ["Custom-profile-hover", "Custom-mastery-score", "Mastery-Score", "Custom-rank", "Ranked Queue ID", "Ranked Tier ID", "Ranked Division ID", "Custom-challenge-crystal", "Challenge-Points", "challengeCrystalLevel", "Custom-Status", "Custom-Status-Local", "status-delay", "Name-Spoofer", "Spoof-name"]
+            },
+            {
+                "title": "Developer tools",
+                "description": "Debug and developer-only controls. Keep these disabled unless you are debugging the theme.",
+                "keys": ["Debug-mode", "Dev-mode", "Active-dev-button", "Dev-button"]
+            }
+        ]
+    },
+    "backupRestore": {
+        "introduction": "Backup/Restore lets you export settings to a local JSON file, restore from a JSON file, or use the theme cloud backup service.",
+        "storageModes": [
+            "Pengu Loader before 1.2.0: settings are stored in Pengu DataStore under `ElainaTheme`.",
+            "Pengu Loader 1.2.0+: settings are stored through PluginFS in `./data/ElainaData.json` when `context.fs` is available.",
+            "Manual backup exports the current ElainaData values regardless of the active storage mode.",
+            "Cloud backup uses the current summoner ID and Elaina Theme API token."
+        ],
+        "settingKeys": ["backup-datastore", "System-Info", "last-backup-time"],
+        "manualBackup": [
+            "Open League Client Settings -> Elaina Theme -> Backup & Restore.",
+            "Click Backup.",
+            "Save the generated `ElainaTheme-<summonerId>.json` file.",
+            "Keep the JSON file somewhere safe before reinstalling or updating the theme."
+        ],
+        "manualRestore": [
+            "Open League Client Settings -> Elaina Theme -> Backup & Restore.",
+            "Click Restore in the manual backup/restore section.",
+            "Select a valid JSON backup file.",
+            "Wait for the restore toast to complete.",
+            "The client restarts automatically after restore."
+        ],
+        "cloudBackup": [
+            "Enable `backup-datastore` in Backup & Restore.",
+            "The theme checks whether cloud data exists for your summoner ID.",
+            "When backup is enabled, the theme can write datastore values to the Elaina Theme cloud service.",
+            "Use manual backup as a fallback if the cloud service is unavailable."
+        ],
+        "cloudRestore": [
+            "Open Backup & Restore.",
+            "If cloud data exists, Restore and Delete file buttons become visible.",
+            "Click Restore to load cloud data into ElainaData.",
+            "Click Delete file to remove the cloud backup.",
+            "Restart the client after restore if a screen does not update immediately."
+        ],
+        "notes": [
+            "Cloud backup requires internet access and the Elaina Theme API service to be available.",
+            "Developer mode may show extra system information in the backup panel.",
+            "Do not edit a backup JSON file unless you know the setting keys and value types.",
+            "If restore fails, check the console and try manual restore with a known valid JSON backup."
+        ]
+    },
+    "faq": {
+        "introduction": "Common problems and the quickest checks for each one.",
+        "items": [
+            {
+                "question": "The theme does not appear in League Client settings.",
+                "answer": [
+                    "Verify that the built theme folder is inside the Pengu Loader plugins directory.",
+                    "Verify that Pengu Loader is running and enabled for the League Client.",
+                    "Restart the League Client.",
+                    "Check the console for theme import or syntax errors."
+                ]
+            },
+            {
+                "question": "My wallpaper or audio file does not show up.",
+                "answer": [
+                    "For Pengu Loader 1.2.0+, verify the file is in the correct asset folder and has a supported extension.",
+                    "For older Pengu builds, add the exact filename manually in Theme Settings -> Asset library.",
+                    "Reload the client if the asset list was changed while the client was already open.",
+                    "Avoid unsupported extensions or filenames that differ only by case."
+                ]
+            },
+            {
+                "question": "Settings are not saving.",
+                "answer": [
+                    "On Pengu Loader 1.2.0+, check whether PluginFS can write `./data/ElainaData.json`.",
+                    "On older Pengu builds, settings are stored in Pengu DataStore.",
+                    "Try changing one simple setting, reload the client, and check whether it persists.",
+                    "Export a manual backup before deleting or resetting data."
+                ]
+            },
+            {
+                "question": "Auto Accept accepts too fast or accepts after I declined.",
+                "answer": [
+                    "Check `auto_accept_delay`; the value is in milliseconds and is capped by the plugin.",
+                    "The current implementation cancels the pending accept when ReadyCheck ends or when your ready-check response becomes Declined.",
+                    "If it still happens, disable Auto Accept button, reload the client, then re-enable it."
+                ]
+            },
+            {
+                "question": "The client becomes slow after enabling wallpapers.",
+                "answer": [
+                    "Use smaller videos or image wallpapers.",
+                    "Disable theme wallpaper or reduce video complexity.",
+                    "Disable animated loading and other heavy visual replacements.",
+                    "Reload the client after changing large assets."
+                ]
+            },
+            {
+                "question": "Cloud backup says the server is unavailable.",
+                "answer": [
+                    "Check your internet connection.",
+                    "Try again later; the cloud service may be sleeping or temporarily unavailable.",
+                    "Use manual backup/restore when cloud backup is unavailable."
+                ]
+            },
+            {
+                "question": "How do I reset the theme?",
+                "answer": [
+                    "Use the theme restore/default flow if available.",
+                    "Export a manual backup first if you want to keep a copy.",
+                    "On PluginFS builds, removing the theme data file resets file-backed settings.",
+                    "On older builds, clearing the Pengu DataStore entry for `ElainaTheme` resets stored settings."
+                ]
+            },
+            {
+                "question": "Should I enable Developer mode?",
+                "answer": [
+                    "Keep Developer mode disabled unless you are debugging or contributing to the theme.",
+                    "Developer mode exposes debug tools and extra system information.",
+                    "Some developer-only behavior can make the theme noisier or less stable for normal use."
+                ]
+            }
+        ]
+    },
+    "runtimeSettingKeys": ["WallpaperAudio-timeUpdate", "Playback-speed"],
+    "internalSettingKeys": ["queueList", "frGroupName", "friendslist", "grouplist", "ElainaTheme-Token", "Summoner-ID", "settingsChangenumber"]
+}

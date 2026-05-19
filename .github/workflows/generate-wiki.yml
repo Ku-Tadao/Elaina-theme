@@ -7,6 +7,7 @@ on:
       - 'src/**'
       - 'docs/**'
       - 'scripts/generate-wiki.mjs'
+      - '.github/workflows/generate-wiki.yml'
   workflow_dispatch:
 
 permissions:
@@ -62,7 +63,10 @@ jobs:
             cd -
           fi
 
-          # Copy generated wiki pages (overwrite existing auto-generated ones)
+          # Replace generated wiki pages so removed/renamed pages do not linger.
+          find "$WIKI_DIR_TMP" -maxdepth 1 -type f -name '*.md' -delete
+
+          # Copy generated wiki pages.
           cp wiki/*.md "$WIKI_DIR_TMP/"
 
           # Commit and push
