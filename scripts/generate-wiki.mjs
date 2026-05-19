@@ -112,6 +112,26 @@ function renderNumberedList(items) {
     return items.map((item, index) => `${index + 1}. ${item}`).join('\n');
 }
 
+function renderInstallationQuickGuide(quickGuide) {
+    if (!quickGuide) return '';
+
+    const steps = quickGuide.steps.map((step, index) => {
+        const images = (step.images || [])
+            .map((image) => `<img alt="${image.alt || 'image'}" src="${image.src}" />`)
+            .join('\n\n');
+        const body = step.body ? `\n\n${step.body}` : '';
+        const imageBlock = images ? `\n\n${images}` : '';
+
+        return `${index + 1}. ${step.title}${body}${imageBlock}`;
+    }).join('\n\n');
+
+    const tree = quickGuide.tree
+        ? `\n\n### Expected folder structure\n\n${quickGuide.treeIntro || ''}\n\n\`\`\`text\n${quickGuide.tree}\n\`\`\``
+        : '';
+
+    return `## Main Installation Guide\n\n**${quickGuide.warning}**\n\n***\n\n${steps}${tree}\n`;
+}
+
 function renderLinkList(items) {
     return items.map((item) => `- [${item.title}](${item.file.replace(/\.md$/, '')})`).join('\n');
 }
@@ -121,8 +141,8 @@ function renderPageFooter() {
         '',
         '---',
         '',
-        '> This page is generated from `docs/wiki-content.json`, `docs/settings-meta.json`, and `src/src/config/datastoreDefault.js`.',
-        '> Edit those files to update the wiki content.',
+        // '> This page is generated from `docs/wiki-content.json`, `docs/settings-meta.json`, and `src/src/config/datastoreDefault.js`.',
+        // '> Edit those files to update the wiki content.',
         '',
     ].join('\n');
 }
@@ -162,6 +182,8 @@ ${install.introduction}
 ## Requirements
 
 ${renderBulletList(install.requirements)}
+
+${renderInstallationQuickGuide(install.quickGuide)}
 
 ## Folder layout
 

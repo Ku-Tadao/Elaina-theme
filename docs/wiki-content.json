@@ -46,6 +46,65 @@
             "An Elaina Theme release zip or a local build output from this repository.",
             "A writable Pengu Loader plugins folder."
         ],
+        "quickGuide": {
+            "warning": "Do exactly the guide if you don't know what you gonna do",
+            "steps": [
+                {
+                    "title": "Active Pengu Loader",
+                    "images": [
+                        {
+                            "alt": "Active Pengu Loader",
+                            "src": "https://user-images.githubusercontent.com/94338907/232275600-d2917ec3-62a8-4f16-8411-6750ccf2c43b.png"
+                        }
+                    ]
+                },
+                {
+                    "title": "Download theme [here](https://github.com/Elaina69/Elaina-theme/releases)",
+                    "images": [
+                        {
+                            "alt": "Download theme release",
+                            "src": "https://github.com/user-attachments/assets/4a642bb8-28e7-49fb-bbdb-c3d848ed2c80"
+                        }
+                    ]
+                },
+                {
+                    "title": "Extract theme (Choose \"Extract to...\")",
+                    "images": [
+                        {
+                            "alt": "Extract theme",
+                            "src": "https://github.com/user-attachments/assets/fffaff79-0a7e-481a-8874-54845ff8fcec"
+                        }
+                    ]
+                },
+                {
+                    "title": "Open Plugin folder",
+                    "images": [
+                        {
+                            "alt": "Open Plugin folder from Pengu Loader",
+                            "src": "https://github.com/Elaina69/Elaina-V4/assets/94338907/b357078e-f868-4c23-a5fa-2c85d25d51a2"
+                        },
+                        {
+                            "alt": "Pengu Loader plugins folder",
+                            "src": "https://github.com/Elaina69/Elaina-V4/assets/94338907/19214594-91de-4f10-a33f-d88fc0175731"
+                        }
+                    ]
+                },
+                {
+                    "title": "Copy extracted folder to Pengu Loader `plugins` folder",
+                    "images": [
+                        {
+                            "alt": "Copy Elaina Theme folder to plugins folder",
+                            "src": "https://github.com/Elaina69/Elaina-V2/assets/94338907/08caceba-e092-4808-a2af-3a05b3b36e71"
+                        }
+                    ]
+                },
+                {
+                    "title": "Done"
+                }
+            ],
+            "treeIntro": "So...It must be like this",
+            "tree": ".\n├── plugins/                                # Pengu plugins folder\n│   └── Elaina-theme/                       # Ur theme here\n│       ├── assets/\n│       ├── config/\n│       ├── locales/\n│       └── index.js\n├── ...\n\n└──"
+        },
         "folderLayout": [
             "The theme folder should be placed inside the Pengu Loader plugins directory.",
             "The folder must contain the built `index.js`, `assets`, `config`, `locales`, and related theme files.",
