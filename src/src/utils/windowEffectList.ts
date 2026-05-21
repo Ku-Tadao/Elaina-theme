@@ -1,0 +1,38 @@
+import exp from "constants";
+
+const windowEffectList = {
+    "window-effect-name": [
+        { name: "transparent", id: "transparent" },
+        { name: "blurbehind", id: "blurbehind" },
+        { name: "acrylic", id: "acrylic" },
+        { name: "unified", id: "unified" },
+        { name: "mica", id: "mica" },
+        { name: "vibrancy", id: "vibrancy" },
+    ],
+    "window-effect-material": [
+        { name: "none", id: "none" },
+        { name: "auto", id: "auto" },
+        { name: "mica", id: "mica" },
+        { name: "acrylic", id: "acrylic" },
+        { name: "tabbed", id: "tabbed" },
+        { name: "appearance-based", id: "appearance-based" },
+        { name: "light", id: "light" },
+        { name: "dark", id: "dark" },
+        { name: "titlebar", id: "titlebar" },
+        { name: "selection", id: "selection" },
+        { name: "menu", id: "menu" },
+        { name: "popover", id: "popover" },
+        { name: "sidebar", id: "sidebar" },
+        { name: "header", id: "header" },
+        { name: "sheet", id: "sheet" },
+        { name: "window", id: "window" },
+        { name: "hud-window", id: "hud-window" },
+        { name: "fullscreen-ui", id: "fullscreen-ui" },
+        { name: "tooltip", id: "tooltip" },
+        { name: "content-background", id: "content-background" },
+        { name: "under-window-background", id: "under-window-background" },
+        { name: "under-page-background", id: "under-page-background" },
+    ],
+}
+
+export { windowEffectList };

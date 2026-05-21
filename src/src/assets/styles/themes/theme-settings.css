@@ -106,6 +106,18 @@
 	margin-bottom: 0px !important;
 }
 
+#custom-font-mode-row {
+	margin-left: 25px !important;
+	display: flex;
+	gap: 15px;
+	margin-bottom: 0px !important;
+}
+
+#custom-font-local-row,
+#custom-font-google-row {
+	margin-left: 25px !important;
+}
+
 #Info {
 	display: flex;
 }

@@ -1,4 +1,5 @@
 import { log, error } from './themeLog';
+import { fileRegex } from './fileRegex';
 import { del_webm_buttons, create_webm_buttons } from '../theme/customUI/customHomepage';
 
 class FileSystem {
@@ -84,13 +85,6 @@ class FileSystem {
         const banner = await this.ls('./assets/icon/regalia-banners') ?? [];
         const font = await this.ls('./assets/fonts') ?? [];
 
-        const FILE_REGEX = {
-            Wallpaper: /\.(png|jpg|jpeg|gif|bmp|webp|ico|mp4|webm|mkv|mov|avi|wmv|3gp|m4v)$/,
-            Audio: /\.(mp3|flac|ogg|wav|aac)$/,
-            Font: /\.(ttf|otf|woff|woff2)$/,
-            Banner: /\.(png|jpg|jpeg|gif|bmp|webp|ico)$/,
-        };
-
         const dataLists = {
             Wallpaper: wallpaper,
             Audio: audio,
@@ -98,8 +92,8 @@ class FileSystem {
             Font: font,
         };
 
-        const filteredLists = Object.keys(FILE_REGEX).reduce((acc, key) => {
-            acc[key] = dataLists[key].filter(file => FILE_REGEX[key].test(file));
+        const filteredLists = Object.keys(fileRegex).reduce((acc, key) => {
+            acc[key] = dataLists[key].filter(file => fileRegex  [key].test(file));
             return acc;
         }, {} as Record<string, string[]>);
 

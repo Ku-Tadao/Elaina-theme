@@ -66,6 +66,9 @@ export default {
 	"Rank-line1"                    : "Apprentice",
 	"Rank-line2"                    : "Witch",
 	"Custom-Font"                   : true,
+	"Custom-Font-Local"             : true,
+	"Custom-Font-Google"            : false,
+	"Google-Font-Url"               : "https://fonts.googleapis.com/css2?family=Roboto&display=swap",
 	"CurrentFont"                   : "elaina-herculanum_roman.ttf",
 	"Font-list": [
 		"aegirseaborn.ttf",

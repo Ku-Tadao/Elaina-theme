@@ -325,6 +325,21 @@
             "description": "Enable custom font for the client UI.",
             "type": "boolean"
         },
+        "Custom-Font-Local": {
+            "category": "theme-visual",
+            "description": "Use a font file from the local theme assets/fonts folder.",
+            "type": "boolean"
+        },
+        "Custom-Font-Google": {
+            "category": "theme-visual",
+            "description": "Use a Google Font CSS URL instead of a local font file.",
+            "type": "boolean"
+        },
+        "Google-Font-Url": {
+            "category": "theme-visual",
+            "description": "Google Fonts CSS URL. Only https://fonts.googleapis.com/css and /css2 links are accepted.",
+            "type": "string"
+        },
         "CurrentFont": {
             "category": "theme-visual",
             "description": "The currently selected font filename.",

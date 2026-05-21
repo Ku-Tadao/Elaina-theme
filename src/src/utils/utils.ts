@@ -17,7 +17,7 @@ import { subscribe_endpoint } from './_subscribe_endpoint';
 import { routineAddCallback as _routineAddCallback } from './_routineAddCallback';
 import { mutationObserverAddCallback as _mutationObserverAddCallback } from './_mutationObserverAddCallback';
 import { freezeProperties } from './_freezeProperties';
-import { sanitizeColor, sanitizeFileName, escapeHtml } from './_sanitize';
+import { sanitizeColor, sanitizeFileName, escapeHtml, escapeCssString, getSafeGoogleFont } from './_sanitize';
 
 // State variables
 let pvp_net_id: any,
@@ -108,6 +108,8 @@ class Utils {
     sanitizeColor = sanitizeColor;
     sanitizeFileName = sanitizeFileName;
     escapeHtml = escapeHtml;
+    escapeCssString = escapeCssString;
+    getSafeGoogleFont = getSafeGoogleFont;
 }
 
 const utils = new Utils();

@@ -162,7 +162,8 @@
                 "Copy the file into the matching folder.",
                 "Keep the League Client open or restart it.",
                 "The theme scans the asset folders and updates the matching list automatically.",
-                "Use the wallpaper/audio controls on the homepage, or choose font/banner from Theme Settings."
+                "Use the wallpaper/audio controls on the homepage, or choose font/banner from Theme Settings.",
+                "Custom Font supports either a local file from `assets/fonts` or a Google Fonts CSS link. Google Fonts links must use `https://fonts.googleapis.com/css` or `https://fonts.googleapis.com/css2`."
             ],
             "rules": [
                 "Use only the supported extensions listed in the table.",
@@ -196,7 +197,7 @@
             {
                 "title": "Profile and identity",
                 "description": "Local visual changes for the player's profile and identity text.",
-                "keys": ["custom-rp", "RP-data", "custom-be", "BE", "custom-summoner-lv", "custom-summoner-lv-number", "custom-rank-name", "Rank-line1", "Rank-line2", "Custom-Font", "CurrentFont", "manual-font-name", "Font-list", "change-nickname-color", "nickname-color", "nickname-opacity", "nickname-color-with-opacity", "hide-theme-usage-time"]
+                "keys": ["custom-rp", "RP-data", "custom-be", "BE", "custom-summoner-lv", "custom-summoner-lv-number", "custom-rank-name", "Rank-line1", "Rank-line2", "Custom-Font", "Custom-Font-Local", "Custom-Font-Google", "Google-Font-Url", "CurrentFont", "manual-font-name", "Font-list", "change-nickname-color", "nickname-color", "nickname-opacity", "nickname-color-with-opacity", "hide-theme-usage-time"]
             },
             {
                 "title": "Game tabs",
