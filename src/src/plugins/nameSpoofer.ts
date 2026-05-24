@@ -11,14 +11,10 @@ const SELECTORS = `
     .lol-leagues-list-item.me.current.ember-view .rank-standing-row-component,
     .match-details-team-list .player-history-mode,
     .member-name,
-    .name,
     .name-text,
-    .parties-player-name,
-    .player-name,
     .prompted-voting-candidate-name,
     .scoreboard-row-player-name,
     .style-profile-search-trail-summoner-name,
-    .style-profile-summoner-name,
     .message-name,
     .system-message,
     .invite-info-name,
@@ -31,7 +27,9 @@ const SELECTORS = `
     .hover-card-game-name,
     .hover-card-game-tag,
     .create-panel-summoner-name,
-    .create-panel-game-name
+    .create-panel-game-name,
+    .player-name__game-name,
+    .player-name__force-locale-text-direction
 `;
 
 /**
