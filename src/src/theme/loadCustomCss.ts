@@ -169,6 +169,26 @@ class AddCss {
 	};
 
 	customFont = () => {
+		document.getElementById("Custom-font")?.remove();
+
+		if (!ElainaData.get("Custom-Font")) {
+			return;
+		}
+
+		if (ElainaData.get("Custom-Font-Google")) {
+			const googleFont = utils.getSafeGoogleFont(ElainaData.get("Google-Font-Url"));
+			if (!googleFont) return;
+
+			utils.addStyleNodeWithID("Custom-font", /*css*/`
+				@import url("${utils.escapeCssString(googleFont.url.toString())}");
+				:root {
+					--font-display: "${utils.escapeCssString(googleFont.family)}", 'LoL Display', 'Elaina', 'Times New Roman', Times, Baskerville, Georgia, serif !important;
+					--font-body: "${utils.escapeCssString(googleFont.family)}", 'LoL Body', 'Elaina', Arial, 'Helvetica Neue', Helvetica, sans-serif !important;
+				}
+			`)
+			return;
+		}
+
 		utils.addFont(`${datapath}assets/fonts/${ElainaData.get("CurrentFont")}`,"Custom-font","Custom")
 	}
 
@@ -184,12 +204,11 @@ class AddCss {
 		`)
 	}
 }
+export const addCss = new AddCss()
 
 /** Loads theme CSS stylesheets, custom fonts, cursor, and nickname color overrides. */
 export class LoadCss {
 	main = () => {
-		const addCss = new AddCss()
-
 		addCss.mainThemeCss()
 		addCss.componentsCss()
 		addCss.cssVar()

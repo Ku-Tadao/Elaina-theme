@@ -1,5 +1,5 @@
-import { UI } from "./settingsUI.ts"
-import { error } from "../../utils/themeLog.ts"
+import { UI } from "../settingsUI.ts"
+import { error } from "../../../utils/themeLog.ts"
 
 export async function aboutustab(panel: Element) {
     // Hiện icon loading trong khi đang tải dữ liệu

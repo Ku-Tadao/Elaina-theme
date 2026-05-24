@@ -1,0 +1,24 @@
+import { UI } from "../settingsUI.ts"
+import { restartAfterChange } from "../../settings.ts"
+
+export async function pluginsInfoSection(): Promise<HTMLElement[]> {
+    return [
+        UI.createRow("Info", [
+            UI.createRow("Info-div", [
+                UI.createLink(
+                    'ElainaV4',
+                    'https://github.com/Elaina69/Elaina-V4',
+                    () => {},
+                    "theme-link"
+                ),
+                UI.createLabel(
+                    `*${await getString("note")}: ${await getString("note-1")}`, ""
+                ),
+            ]),
+            UI.createImage(true, "logo.png", "plugins-settings-logo")
+        ]),
+        UI.createLabel(
+            `${await getString("plugins-settings")}`, "", "theme-settings-section-title"
+        ),
+    ]
+}

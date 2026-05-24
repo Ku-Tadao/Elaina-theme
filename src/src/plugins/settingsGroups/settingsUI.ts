@@ -1,6 +1,4 @@
 import { datapath } from "../settings.ts"
-import utils from "../../utils/utils.ts";
-import { log } from "../../utils/themeLog.ts";
 
 class ui {
     /**
@@ -21,6 +19,26 @@ class ui {
 
         return loadingDiv
     }
+
+    /**
+     * Tạo một section trong giao diện cài đặt
+     * @param id Id của section
+     * @param title Tiêu đề của section
+     * @param children Các phần tử con sẽ được thêm vào section này
+     * @param show Điều kiện để hiển thị các phần tử con (False = không hiển thị)
+     */
+    createSection = (id: string, title: string, children: HTMLElement[], show = true) => {
+        const content = this.createRow(`${id}-content`, children);
+        content.classList.add("theme-settings-section-content");
+
+        const section = this.createRow(id, [
+            this.createLabel(title, "", "theme-settings-section-title"),
+            content,
+        ], show);
+        section.classList.add("theme-settings-section");
+
+        return section;
+    };
 
     /**
      * Tạo một div trống
@@ -75,78 +93,6 @@ class ui {
     }
 
     /**
-     * Tạo một hàng UI cho phép người dùng thêm hoặc xóa các file tùy chỉnh
-     * @param type Loại file, có thể là "wallpaper", "audio", "banner" hoặc "font"
-     * @param dataKey Datastore key chứa danh sách các file
-     * @param inputKey Datastore key chứa tên file nhập vào
-     * @param regex Biểu thức chính quy kiểm tra định dạng file
-     * @returns
-     */
-    createFileListRow = async (
-        type: string,
-        dataKey: string,
-        inputKey: string,
-        regex: RegExp,
-    ) => {
-        const messageEl = () => document.querySelector("#add-background-manual-message") as HTMLElement | null;
-        const labelId = `theme-settings-${type}-list`;
-        const forbiddenFileNameChars = /[\\/:*?"<>|]/
-
-        const updateLabel = async () => {
-            const label = document.querySelector(`#${labelId}`) as HTMLElement | null;
-            if (label) {
-                label.innerText = `${await getString(type)}: \n[${ElainaData.get(dataKey).join(', ')}]`;
-            }
-        };
-
-        const showMessage = async (msgKey: string, color: string) => {
-            const text = messageEl();
-            if (text) {
-                text.textContent = await getString(msgKey);
-                text.style.color = color;
-            }
-        };
-
-        return [
-            this.createLabel(await getString(type) + `: \n[${ElainaData.get(dataKey).join(', ')}]`, labelId),
-            this.createRow(`manual-${type}`, [
-                this.createSearchBox(inputKey),
-                this.createButton(await getString("add"), `add-${type}`, async () => {
-                    const currentList: string[] = ElainaData.get(dataKey);
-                    const newItem: string = ElainaData.get(inputKey);
-
-                    if (forbiddenFileNameChars.test(newItem)) {
-                        await showMessage(`invalid-${type}-format`, "red");
-                    } else if (!regex.test(newItem)) {
-                        await showMessage(`invalid-${type}-format`, "red");
-                    } else if (currentList.includes(newItem)) {
-                        await showMessage(`${type}-already-added`, "red");
-                    } else {
-                        currentList.push(newItem);
-                        ElainaData.set(dataKey, currentList);
-                        await showMessage(`${type}-added`, "green");
-                    }
-                    await updateLabel();
-                }),
-                this.createButton(await getString("delete"), `delete-${type}`, async () => {
-                    const currentList: string[] = ElainaData.get(dataKey);
-                    const deleteItem: string = ElainaData.get(inputKey);
-                    const index = currentList.indexOf(deleteItem);
-
-                    if (index !== -1) {
-                        currentList.splice(index, 1);
-                        ElainaData.set(dataKey, currentList);
-                        await showMessage(`${type}-deleted`, "green");
-                    } else {
-                        await showMessage(`${type}-not-exist`, "red");
-                    }
-                    await updateLabel();
-                }),
-            ]),
-        ];
-    }
-
-    /**
      * Tạo một label hoặc text 
      * @param text Nội dung của label
      * @param id Id của label
@@ -170,11 +116,11 @@ class ui {
 
     /**
      * Tạo một thẻ img
+     * @param localImage Sử dụng ảnh local hay online, mặc định là true
      * @param image Tên của ảnh hoặc đường dẫn đến ảnh, phụ thuộc vào biến localImage
      * @param cls Class của thẻ img
      * @param id Id của thẻ img, mặc định là ""
      * @param style Style của thẻ img, mặc định là ""
-     * @param localImage Sử dụng ảnh local hay online, mặc định là true 
      */
     createImage = (localImage: boolean = true, image: string, cls: string, id = "", style = "") => {
         const img = document.createElement('img')
@@ -322,39 +268,6 @@ class ui {
     }
 
     /**
-     * Sử dụng createInputElement để tạo một text box có thể chỉnh được tốc độ của wallpaper
-     * @param Datastore Tên của Datastore, kiểu string
-     */
-    createSpeedInput = (Datastore: string) => {
-        const { origin, searchbox } = this.createInputElement(
-            Datastore, 
-            "margin-bottom: 12px; width: 190px;", 
-            async () => {
-                let input: any = {
-                    get value() {
-                        return searchbox.value
-                    },
-                }
-
-                let speedCheck: any = document.getElementById("speed-check")
-                if (input.value >= 6.25 && input.value <= 300) {
-                    ElainaData.set(Datastore, input.value)
-                    speedCheck.textContent = ""
-                    speedCheck.style.color = ""
-                }
-                else {
-                    speedCheck.textContent = await getString("speed-check-deny")
-                    speedCheck.style.color = "red"
-                }
-
-                let bg: any = document.getElementById('elaina-bg')
-                bg.playbackRate = ElainaData.get("Playback-speed")/100
-            }
-        )
-        return origin
-    }
-
-    /**
      * Tạo 1 checkbox
      * @param text Nội dung của checkbox
      * @param id Id của parent chứa checkbox
@@ -418,13 +331,12 @@ class ui {
     }
 
     /**
-     * Tạo 1 thanh kéo thay đổi âm lượng của theme
-     * @param text Nội dung của slider
-     * @param value Giá trị của slider
-     * @param target Id của thẻ audio sẽ thay đổi volume
-     * @param setValue Tên của Datastore sẽ lưu giá trị của slider
+     * Tạo 1 thanh kéo (slider) đa năng
+     * @param text Nội dung hiển thị
+     * @param value Giá trị ban đầu (0-100)
+     * @param onChange Hàm gọi khi giá trị thay đổi, nhận value (0-100)
      */
-    Slider = (text: string, value: number, target, setValue) => {
+    createSlider = (text: string, value: number, onChange?: (value: number) => void) => {
         const div         = document.createElement("div")
         const title       = document.createElement("div")
         const row         = document.createElement('div')
@@ -432,20 +344,17 @@ class ui {
         const slider      = document.createElement("div")
         const sliderbase  = document.createElement("div")
     
-        let audio: any = document.getElementById(`${target}`)
-    
         row.setAttribute("class", "lol-settings-sound-row-slider")
         title.setAttribute("class", "lol-settings-sound-title")
     
         origin.setAttribute("class", "lol-settings-slider")
-        origin.setAttribute("value", `${value * 100}`)
-        origin.addEventListener("change", ()=>{
-            audio.volume = origin.value / 100;
-            ElainaData.set(`${setValue}`, origin.value / 100)
+        origin.setAttribute("value", `${value}`)
+        origin.addEventListener("change", () => {
             title.textContent = `${text}: ${origin.value}`
+            onChange?.(Number(origin.value))
         })
     
-        title.textContent = `${text}: ${value * 100}`
+        title.textContent = `${text}: ${value}`
     
         slider.setAttribute("class", "lol-uikit-slider-wrapper horizontal")
         sliderbase.setAttribute("class", "lol-uikit-slider-base")
@@ -460,107 +369,54 @@ class ui {
     }
 
     /**
-     * Tạo một dropdown
-     * @param DataList Danh sách dữ liệu để tạo dropdown, sẽ có dạng {Object: [{object: string, object: string,...},...]}
-     * @param Datastore tên cua Datastore, kiểu string
-     * @param text Nội dung của dropdown
-     * @param name Tên của thuộc tính trong mỗi object sẽ hiển thị trong dropdown, lấy trong DataList
-     * @param id Id của mỗi option trong dropdown, lấy trong DataList
-     * @param dropdownId Id của dropdown
-     * @returns 
+     * Tạo một dropdown đa năng
+     * @param items Danh sách các option, mỗi option có label (hiển thị) và value (giá trị)
+     * @param selectedValue Giá trị được chọn hiện tại
+     * @param opts Tùy chọn: title, id, datastoreKey, onChange
      */
-    Dropdown = (DataList: Object, Datastore: string, text: string, name: string, id: string, dropdownId?: string, onChange: any = () => {}) => {
+    createDropdown = (
+        items: { label: string, value: any }[],
+        selectedValue: any,
+        opts: {
+            title?: string,
+            id?: string,
+            datastoreKey?: string,
+            onChange?: (item: { label: string, value: any }) => void,
+        } = {}
+    ) => {
         const origin = document.createElement("div")
         origin.classList.add("Dropdown-div")
-        origin.id = dropdownId || ""
-        origin.setAttribute("lastDatastore", JSON.stringify(ElainaData.get(Datastore)))
-
-        const title = this.createLabel(text, "")
-
-        const dropdown = document.createElement("lol-uikit-framed-dropdown")
-        dropdown.classList.add("lol-settings-general-dropdown")
-
-        origin.append(title,dropdown)
-
-        for (let i = 0; i < DataList[Datastore].length; i++) {
-            const opt = DataList[Datastore][i]
-            const el = document.createElement("lol-uikit-dropdown-option")
-            el.setAttribute("slot", "lol-uikit-dropdown-option")
-            el.innerText = opt[name]
-            el.id = opt[id]
-            el.onclick = () => {
-                ElainaData.set(Datastore, opt[id])
-                onChange(opt)
-            }
-            if (ElainaData.get(Datastore) == opt[id]) {
-                el.setAttribute("selected", "true")
-            }
-            dropdown.appendChild(el)
+        if (opts.id) origin.id = opts.id
+        if (opts.datastoreKey) {
+            origin.setAttribute("lastDatastore", JSON.stringify(ElainaData.get(opts.datastoreKey)))
         }
-        return origin
-    }
 
-    /**
-     * Tạo một dropdown cho các font chữ tùy chỉnh
-     */
-    DropdownCustomFont = () => {
-        const origin = document.createElement("div")
-        origin.classList.add("Dropdown-div")
+        if (opts.title) {
+            const title = this.createLabel(opts.title, "")
+            origin.append(title)
+        }
 
         const dropdown = document.createElement("lol-uikit-framed-dropdown")
         dropdown.classList.add("lol-settings-general-dropdown")
-
         origin.append(dropdown)
-        
-        for (let i = 0; i < ElainaData.get("Font-list").length; i++) {
-            const opt = ElainaData.get("Font-list")[i]
 
+        for (const item of items) {
             const el = document.createElement("lol-uikit-dropdown-option")
             el.setAttribute("slot", "lol-uikit-dropdown-option")
-            el.innerText = opt
+            el.innerText = item.label
             el.onclick = () => {
-                ElainaData.set("CurrentFont", opt)
-
-                if (ElainaData.get("Custom-Font")) {
-                    document.querySelector("#Custom-font")?.remove()
-                    utils.addFont(ElainaData.get("Font-folder") + ElainaData.get("CurrentFont"), "Custom-font", "Custom")
-
-                    log("Font changed to: " + ElainaData.get("CurrentFont"))
+                if (opts.datastoreKey) {
+                    ElainaData.set(opts.datastoreKey, item.value)
                 }
+                opts.onChange?.(item)
             }
-
-            if (ElainaData.get("CurrentFont") == opt) {
+            // eslint-disable-next-line eqeqeq
+            if (selectedValue == item.value) {
                 el.setAttribute("selected", "true")
             }
             dropdown.appendChild(el)
         }
-        return origin
-    }
 
-    /**
-     * Tạo một dropdown cho các banner tùy chỉnh
-     */
-    DropdownCustomBanner = () => {
-        const origin = document.createElement("div")
-        origin.classList.add("Dropdown-div")
-
-        const dropdown = document.createElement("lol-uikit-framed-dropdown")
-        dropdown.classList.add("lol-settings-general-dropdown")
-
-        origin.append(dropdown)
-        for (let i = 0; i < ElainaData.get("Banner-list").length; i++) {
-            const opt = ElainaData.get("Banner-list")[i]
-            const el = document.createElement("lol-uikit-dropdown-option")
-            el.setAttribute("slot", "lol-uikit-dropdown-option")
-            el.innerText = opt
-            el.onclick = () => {
-                ElainaData.set("CurrentBanner", opt)
-            }
-            if (ElainaData.get("CurrentBanner") == opt) {
-                el.setAttribute("selected", "true")
-            }
-            dropdown.appendChild(el)
-        }
         return origin
     }
 
@@ -601,7 +457,7 @@ class ui {
      * Tạo một thanh trượt để điều chỉnh độ mờ của một phần tử
      * @param id Id của thanh trượt
      * @param text Nội dung của thanh trượt
-     * @param opacityHexData động mờ của phần tử dưới dạng HEX, kiểu string
+     * @param opacityHexData độ mờ của phần tử dưới dạng HEX, kiểu string
      * @param onChange Hàm sẽ gọi khi người dùng thay đổi giá trị của thanh trượt
      */
     opacitySlider = (id: string, text: string, opacityHexData: string, onChange: any) => {
@@ -633,41 +489,6 @@ class ui {
         slider.appendChild(sliderbase)
     
         return div
-    }
-
-    /**
-     * Tạo một dropdown cho các kiểu gradient
-     * @param target Id của thẻ sẽ thay đổi kiểu gradient
-     */
-    gradientsCss = (target) => {
-        const origin = document.createElement("div")
-        origin.classList.add("Dropdown-div")
-
-        const dropdown = document.createElement("lol-uikit-framed-dropdown")
-        dropdown.classList.add("lol-settings-general-dropdown")
-
-        const gradients = ["Liner gradients", "Radial gradients", "Conic gradients"]
-
-        origin.append(dropdown)
-        for (let i = 0; i < gradients.length; i++) {
-            const opt = gradients[i]
-            const el = document.createElement("lol-uikit-dropdown-option")
-            el.setAttribute("slot", "lol-uikit-dropdown-option")
-            el.innerText = opt
-            el.onclick = () => {
-                ElainaData.set(target, opt)
-                try {
-                    document.querySelector(target).remove()
-                    utils.addStyleNodeWithID(target, "")
-                }
-                catch{}
-            }
-            if (ElainaData.get("CurrentFont") == opt) {
-                el.setAttribute("selected", "true")
-            }
-            dropdown.appendChild(el)
-        }
-        return origin
     }
 }
 

@@ -1,12 +1,14 @@
 import * as upl from "pengu-upl"
-import structure from "./settingsGroups/settingsStructure.ts"
-import { settingsUtils } from "../utils/settingsUtils.ts"
-import { themeSettings } from "./settingsGroups/themeSettings.ts"
-import { pluginsSettings } from "./settingsGroups/themePluginsSettings.ts"
-import { backuprestoretab } from "./settingsGroups/themeBackupRestore.ts"
-import { aboutustab } from "./settingsGroups/themeAboutUs.ts"
 import { log, error } from "../utils/themeLog.ts";
 import { getThemeName } from '../otherThings.ts'
+
+import structure from "./settingsGroups/settingsStructure.ts"
+import { settingsUtils } from "../utils/settingsUtils.ts"
+
+import { themeSettings } from "./settingsGroups/themeSettings/themeSettings.ts"
+import { pluginsSettings } from "./settingsGroups/pluginsSettings/pluginsSettings.ts"
+import { backuprestoretab } from "./settingsGroups/backupRestore/backupRestore.ts"
+import { aboutustab } from "./settingsGroups/aboutUs/aboutUs.ts"
 
 const datapath = `//plugins/${getThemeName()}/`
 
