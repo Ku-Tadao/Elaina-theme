@@ -6,3 +6,9 @@
 	height: 240px !important;
 	margin-top: 40px !important;
 }
+
+div[id^=index_loading_div]:before {
+	background-image: var(--ElainaStatic) !important;
+	width: 240px !important;
+	height: 240px !important;
+}

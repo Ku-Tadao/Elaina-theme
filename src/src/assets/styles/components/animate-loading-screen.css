@@ -14,3 +14,9 @@
 	height: 86px !important;
 	margin-top: 28px !important;
 }
+
+div[id^=index_loading_div]:before {
+	background-image: var(--ElainaFly) !important;
+	width: 475px !important;
+	height: 475px !important;
+}
