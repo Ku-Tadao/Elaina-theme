@@ -2,12 +2,187 @@ import utils from '../../utils/utils.ts'
 import * as upl from 'pengu-upl';
 import { getThemeName } from "../../otherThings"
 import { log, warn, error } from '../../utils/themeLog.ts';
-import { friendIconList } from '../../plugins/syncUserIcons.ts';
+import { friendIconList, resolveSyncedUserTargetByDisplayName } from '../../plugins/syncUserIcons.ts';
 
 const icdata = (await import(`//plugins/${getThemeName()}/config/icons.js`)).default;
 
 const datapath = `//plugins/${getThemeName()}/`
 const iconFolder  = `${datapath}assets/icon/`
+
+type SyncedIconType = "avatar" | "border" | "banner" | "emblem" | "hoverCardBackdrop";
+type ApplyResult = boolean | Promise<boolean>;
+
+const activeRegaliaWatchers = new WeakMap<Element, Set<string>>();
+const activeSocialRosterWatchers = new WeakMap<Element, MutationObserver>();
+const activeChatHeaderWatchers = new WeakMap<Element, MutationObserver>();
+const activeIdentityTooltipWatchers = new WeakMap<Element, MutationObserver>();
+const chatNameTargetCache = new Map<string, UserIconTarget | null>();
+let lastIdentityTooltipTarget: UserIconTarget | null = null;
+let lastIdentityTooltipTargetAt = 0;
+let identityTooltipHoverListenerStarted = false;
+
+function findSyncedUserIcon(summonerId: any, type: SyncedIconType): string | null {
+	const entry = friendIconList.find(x => String(x.summonerID) === String(summonerId));
+	return entry?.icon?.[type] || null;
+}
+
+async function ensureSyncedElementIcons(element: any, reason: string): Promise<void> {
+	const summonerId = Number(element?.getAttribute("summoner-id"));
+	if (!Number.isFinite(summonerId) || summonerId <= 0) return;
+	if (String(summonerId) === String(ElainaData.get("Summoner-ID"))) return;
+	if (friendIconList.some(x => String(x.summonerID) === String(summonerId))) return;
+
+	await window.syncUserIcons?.ensureUserIcons({
+		summonerId,
+		puuid: element.getAttribute("puuid") || element.getAttribute("voice-puuid") || ""
+	}, reason);
+}
+
+function findSyncedUserTargetFromElement(element: Element | null): UserIconTarget | null {
+	if (!element) return null;
+
+	const summonerId = Number(element.getAttribute("summoner-id"));
+	if (Number.isFinite(summonerId) && summonerId > 0) {
+		return {
+			summonerId,
+			puuid: element.getAttribute("puuid") || element.getAttribute("voice-puuid") || ""
+		};
+	}
+
+	const puuid = element.getAttribute("puuid") || element.getAttribute("voice-puuid") || "";
+	if (puuid) {
+		const entry = friendIconList.find(item => item.puuid === puuid);
+		if (entry?.summonerID) {
+			return {
+				summonerId: Number(entry.summonerID),
+				puuid
+			};
+		}
+
+		if (puuid === ElainaData.get("PUUID")) {
+			const ownSummonerId = Number(ElainaData.get("Summoner-ID"));
+			if (Number.isFinite(ownSummonerId) && ownSummonerId > 0) {
+				return {
+					summonerId: ownSummonerId,
+					puuid
+				};
+			}
+		}
+	}
+
+	return null;
+}
+
+function getOwnAvatarUrl(): string {
+	return `${iconFolder}${icdata["Avatar"]}`;
+}
+
+function getNestedShadowRoots(element: Element): ShadowRoot[] {
+	const roots: ShadowRoot[] = [];
+
+	const visitRoot = (root: ParentNode) => {
+		const nodes = Array.from(root.querySelectorAll("*"));
+		for (const node of nodes) {
+			const shadowRoot = (node as HTMLElement).shadowRoot;
+			if (shadowRoot && !roots.includes(shadowRoot)) {
+				roots.push(shadowRoot);
+				visitRoot(shadowRoot);
+			}
+		}
+	};
+
+	if ((element as HTMLElement).shadowRoot) {
+		roots.push((element as HTMLElement).shadowRoot as ShadowRoot);
+		visitRoot((element as HTMLElement).shadowRoot as ShadowRoot);
+	}
+
+	return roots;
+}
+
+function watchRegaliaElement(element: Element, key: string, apply: () => ApplyResult): void {
+	if (!element) return;
+
+	let activeKeys = activeRegaliaWatchers.get(element);
+	if (!activeKeys) {
+		activeKeys = new Set();
+		activeRegaliaWatchers.set(element, activeKeys);
+	}
+	if (activeKeys.has(key)) return;
+	activeKeys.add(key);
+
+	const startedAt = Date.now();
+	const observers: MutationObserver[] = [];
+	const observedRoots = new Set<ShadowRoot>();
+	let attempts = 0;
+	let stopped = false;
+	let debounceTimer: number | null = null;
+	let quietTimer: number | null = null;
+
+	const stop = () => {
+		if (stopped) return;
+		stopped = true;
+		if (debounceTimer !== null) window.clearTimeout(debounceTimer);
+		if (quietTimer !== null) window.clearTimeout(quietTimer);
+		observers.forEach(observer => observer.disconnect());
+		activeKeys?.delete(key);
+	};
+
+	const scheduleStopAfterQuiet = () => {
+		if (quietTimer !== null) window.clearTimeout(quietTimer);
+		const elapsed = Date.now() - startedAt;
+		const waitMs = Math.max(700, 2500 - elapsed);
+		quietTimer = window.setTimeout(stop, waitMs);
+	};
+
+	const observeRoots = () => {
+		for (const root of getNestedShadowRoots(element)) {
+			if (observedRoots.has(root)) continue;
+			observedRoots.add(root);
+
+			const observer = new MutationObserver(scheduleRun);
+			observer.observe(root, { attributes: true, childList: true, subtree: true });
+			observers.push(observer);
+		}
+	};
+
+	const run = async () => {
+		if (stopped || !element.isConnected) {
+			stop();
+			return;
+		}
+
+		attempts++;
+		observeRoots();
+
+		let applied = false;
+		try {
+			applied = await apply();
+		} catch (err) {
+			if (ElainaData.get("Dev-mode")) warn(`Regalia ${key} apply failed:`, err);
+		}
+
+		observeRoots();
+
+		if (applied) scheduleStopAfterQuiet();
+		if (Date.now() - startedAt >= 4000 || attempts >= 20) stop();
+	};
+
+	function scheduleRun() {
+		if (stopped) return;
+		if (quietTimer !== null) {
+			window.clearTimeout(quietTimer);
+			quietTimer = null;
+		}
+		if (debounceTimer !== null) window.clearTimeout(debounceTimer);
+		debounceTimer = window.setTimeout(run, 50);
+	}
+
+	const hostObserver = new MutationObserver(scheduleRun);
+	hostObserver.observe(element, { attributes: true, childList: true, subtree: false });
+	observers.push(hostObserver);
+
+	void run();
+}
 
 class CustomTickerIcon {
 	tickerCss(element: any, defaults: Object) {
@@ -31,27 +206,61 @@ class CustomTickerIcon {
 }
 
 class CustomAvatar {
-	changeAvatar = (iconElement: HTMLImageElement) => {
-		iconElement.style.backgroundImage = "var(--Avatar)"
-		utils.freezeProperties(iconElement.style, ['backgroundImage'])
+	private startIdentityTooltipHoverTracking(): void {
+		if (identityTooltipHoverListenerStarted) return;
+		identityTooltipHoverListenerStarted = true;
+
+		document.addEventListener("pointerover", (event: PointerEvent) => {
+			const path = event.composedPath();
+			for (const pathItem of path) {
+				if (!(pathItem instanceof Element)) continue;
+
+				const target = findSyncedUserTargetFromElement(pathItem);
+				if (!target) continue;
+
+				lastIdentityTooltipTarget = target;
+				lastIdentityTooltipTargetAt = Date.now();
+				return;
+			}
+		}, true);
 	}
 
-	changeFriendAvatar = (element: any, iconElement: HTMLImageElement) => {
+	private applyAvatarBackground(iconElement: HTMLElement | null, backgroundImage: string): boolean {
+		if (!iconElement) return false;
+		iconElement.style.backgroundImage = backgroundImage;
+		utils.freezeProperties(iconElement.style, ['backgroundImage']);
+		return true;
+	}
+
+	private getRegaliaSummonerIcon(element: any): HTMLElement | null {
+		if (element?.shadowRoot?.querySelector(".lol-regalia-summoner-icon")) {
+			return element.shadowRoot.querySelector(".lol-regalia-summoner-icon");
+		}
+
+		return element
+			?.shadowRoot
+			?.querySelector("lol-regalia-crest-v2-element")
+			?.shadowRoot
+			?.querySelector(".lol-regalia-summoner-icon") || null;
+	}
+
+	changeAvatar = (iconElement: HTMLImageElement): boolean => {
+		return this.applyAvatarBackground(iconElement, "var(--Avatar)");
+	}
+
+	changeFriendAvatar = async (element: any, iconElement: HTMLImageElement): Promise<boolean> => {
 		let summonerID = element.getAttribute("summoner-id")
 
 		if (summonerID === null || summonerID === undefined || summonerID === "") {
-			warn("Not found summoner ID for element, trying to find with puuid or voice-puuid...")
 			element.setAttribute("summoner-id", friendIconList.find(x => x.puuid == element.getAttribute("puuid"))?.summonerID || friendIconList.find(x => x.puuid == element.getAttribute("voice-puuid"))?.summonerID || null)
 		}
-		else {
-			log("Found summoner ID for element: ", summonerID)
+
+		await ensureSyncedElementIcons(element, "avatar");
+		const avatar = findSyncedUserIcon(element.getAttribute("summoner-id"), "avatar");
+		if (avatar) {
+			return this.applyAvatarBackground(iconElement, `url(${avatar})`);
 		}
-			
-		if (friendIconList.find(x => x.summonerID == element.getAttribute("summoner-id")) && 
-			friendIconList.find(x => x.summonerID == element.getAttribute("summoner-id"))?.icon.avatar != null) {
-			iconElement.style.backgroundImage = `url(${friendIconList.find(x => x.summonerID == element.getAttribute("summoner-id"))?.icon.avatar})`
-			utils.freezeProperties(iconElement.style, ['backgroundImage'])
-		}
+		return false;
 	}
 
 	changeConversationChatAvatar = async (element: any) => {
@@ -59,71 +268,256 @@ class CustomAvatar {
 		let chatInfo = await (await fetch(`/lol-chat/v1/conversations/${chatDataID}`)).json()
 		let summonerID = (await (await fetch(`/lol-summoner/v1/summoners/?name=${chatInfo.gameName}%23${chatInfo.gameTag}`)).json()).summonerId
 
-		if (friendIconList.find(x => x.summonerID == summonerID) && friendIconList.find(x => x.summonerID == summonerID)?.icon.avatar != null) {
+		await window.syncUserIcons?.ensureUserIcons({ summonerId: Number(summonerID), puuid: "" }, "conversation-chat");
+		const avatar = findSyncedUserIcon(summonerID, "avatar");
+		if (avatar) {
 			let icon = element.querySelector(".icon-image")
-			icon.src = `${friendIconList.find(x => x.summonerID == summonerID)?.icon.avatar}`
+			icon.src = `${avatar}`
 			utils.freezeProperties(icon, ['src'])
 		}
 	}
 
-	applyCustomAvatar = async (parentElement: any, iconElement: any) => {
-		if (parentElement.getAttribute("summoner-id") == ElainaData.get("Summoner-ID") ||
-			parentElement.getAttribute("puuid") == ElainaData.get("PUUID") ||
-			parentElement.getAttribute("voice-puuid") == ElainaData.get("PUUID")) {
-			this.changeAvatar(iconElement)
-			await utils.stop(1000)
-			this.changeAvatar(iconElement)
-		}
-		else {
-			this.changeFriendAvatar(parentElement, iconElement)
-			await utils.stop(1000)
-			this.changeFriendAvatar(parentElement, iconElement)
+	private getChatHeaderNameTarget(headerElement: Element): { gameName: string; tagLine: string } | null {
+		const playerName = headerElement.querySelector("lol-uikit-player-name[game-name][tag-line]") as HTMLElement | null;
+		const gameName = playerName?.getAttribute("game-name") || "";
+		const tagLine = playerName?.getAttribute("tag-line") || "";
+		if (!gameName || !tagLine) return null;
+		return { gameName, tagLine };
+	}
+
+	private async resolveChatHeaderTarget(headerElement: Element): Promise<UserIconTarget | null> {
+		const nameTarget = this.getChatHeaderNameTarget(headerElement);
+		if (!nameTarget) return null;
+
+		const cacheKey = `${nameTarget.gameName}#${nameTarget.tagLine}`.toLocaleLowerCase();
+		if (chatNameTargetCache.has(cacheKey)) return chatNameTargetCache.get(cacheKey) || null;
+
+		try {
+			const encodedName = encodeURIComponent(`${nameTarget.gameName}#${nameTarget.tagLine}`);
+			const summoner = await fetch(`/lol-summoner/v1/summoners/?name=${encodedName}`).then(res => res.ok ? res.json() : null);
+			const summonerId = Number(summoner?.summonerId);
+			if (!Number.isFinite(summonerId) || summonerId <= 0) {
+				chatNameTargetCache.set(cacheKey, null);
+				return null;
+			}
+
+			const target = {
+				summonerId,
+				puuid: typeof summoner?.puuid === "string" ? summoner.puuid : ""
+			};
+			chatNameTargetCache.set(cacheKey, target);
+			return target;
+		} catch {
+			return null;
 		}
 	}
 
+	applyChatHeaderAvatar = async (headerElement: Element): Promise<boolean> => {
+		const target = await this.resolveChatHeaderTarget(headerElement);
+		if (!target) return false;
+
+		await window.syncUserIcons?.ensureUserIcons(target, "chat-header");
+		const avatar = findSyncedUserIcon(target.summonerId, "avatar");
+		const icon = headerElement.querySelector("lol-social-avatar.avatar .icon-image") as HTMLImageElement | null;
+		if (!avatar || !icon) return false;
+
+		icon.src = avatar;
+		return true;
+	}
+
+	watchChatHeaderAvatar = (headerElement: Element) => {
+		if (!headerElement || activeChatHeaderWatchers.has(headerElement)) return;
+
+		let debounceTimer: number | null = null;
+		const apply = () => {
+			if (debounceTimer !== null) window.clearTimeout(debounceTimer);
+			debounceTimer = window.setTimeout(async () => {
+				if (!headerElement.isConnected) {
+					observer.disconnect();
+					activeChatHeaderWatchers.delete(headerElement);
+					return;
+				}
+				await this.applyChatHeaderAvatar(headerElement);
+			}, 50);
+		};
+
+		const observer = new MutationObserver(apply);
+		observer.observe(headerElement, {
+			attributes: true,
+			childList: true,
+			characterData: true,
+			subtree: true
+		});
+		activeChatHeaderWatchers.set(headerElement, observer);
+		void this.applyChatHeaderAvatar(headerElement);
+	}
+
+	private getTooltipAvatarImage(tooltipRoot: Element): HTMLImageElement | null {
+		const avatarIcon = tooltipRoot.querySelector(".icon-identity-tooltip-component lol-social-avatar-icon") as HTMLElement | null;
+		return avatarIcon?.shadowRoot?.querySelector("img") as HTMLImageElement | null;
+	}
+
+	private getIdentityTooltipTarget(): UserIconTarget | null {
+		if (!lastIdentityTooltipTarget || Date.now() - lastIdentityTooltipTargetAt > 5000) return null;
+		return lastIdentityTooltipTarget;
+	}
+
+	applyIdentityTooltipAvatar = async (tooltipRoot: Element): Promise<boolean> => {
+		const target = this.getIdentityTooltipTarget();
+		if (!target) return false;
+
+		const icon = this.getTooltipAvatarImage(tooltipRoot);
+		if (!icon) return false;
+
+		let avatar: string | null = null;
+		if (String(target.summonerId) === String(ElainaData.get("Summoner-ID"))) {
+			avatar = getOwnAvatarUrl();
+		} else {
+			await window.syncUserIcons?.ensureUserIcons(target, "identity-tooltip-avatar");
+			avatar = findSyncedUserIcon(target.summonerId, "avatar");
+		}
+
+		if (!avatar) return false;
+
+		icon.src = avatar;
+		return true;
+	}
+
+	watchIdentityTooltipAvatar = (tooltipRoot: Element) => {
+		if (!tooltipRoot || activeIdentityTooltipWatchers.has(tooltipRoot)) return;
+
+		let debounceTimer: number | null = null;
+		const apply = () => {
+			if (debounceTimer !== null) window.clearTimeout(debounceTimer);
+			debounceTimer = window.setTimeout(async () => {
+				if (!tooltipRoot.isConnected) {
+					observer.disconnect();
+					activeIdentityTooltipWatchers.delete(tooltipRoot);
+					return;
+				}
+				await this.applyIdentityTooltipAvatar(tooltipRoot);
+			}, 40);
+		};
+
+		const observer = new MutationObserver(apply);
+		observer.observe(tooltipRoot, {
+			attributes: true,
+			childList: true,
+			characterData: true,
+			subtree: true
+		});
+		activeIdentityTooltipWatchers.set(tooltipRoot, observer);
+		apply();
+	}
+
+	applySocialRosterAvatar = async (memberElement: Element): Promise<boolean> => {
+		const memberName = memberElement.querySelector(".member-name")?.textContent || "";
+		const target = resolveSyncedUserTargetByDisplayName(memberName);
+		if (!target) return false;
+
+		await window.syncUserIcons?.ensureUserIcons(target, "social-roster-member");
+		const avatar = findSyncedUserIcon(target.summonerId, "avatar");
+		const icon = memberElement.querySelector(".lol-social-avatar .icon-image") as HTMLImageElement | null;
+		if (!avatar || !icon) return false;
+
+		icon.src = avatar;
+		return true;
+	}
+
+	watchSocialRosterMember = (memberElement: Element) => {
+		if (!memberElement || activeSocialRosterWatchers.has(memberElement)) return;
+
+		let debounceTimer: number | null = null;
+		const apply = () => {
+			if (debounceTimer !== null) window.clearTimeout(debounceTimer);
+			debounceTimer = window.setTimeout(async () => {
+				if (!memberElement.isConnected) {
+					observer.disconnect();
+					activeSocialRosterWatchers.delete(memberElement);
+					return;
+				}
+				await this.applySocialRosterAvatar(memberElement);
+			}, 50);
+		};
+
+		const observer = new MutationObserver(apply);
+		observer.observe(memberElement, {
+			attributes: true,
+			childList: true,
+			characterData: true,
+			subtree: true
+		});
+		activeSocialRosterWatchers.set(memberElement, observer);
+		void this.applySocialRosterAvatar(memberElement);
+	}
+
+	applyCustomAvatar = async (parentElement: any): Promise<boolean> => {
+		const iconElement = this.getRegaliaSummonerIcon(parentElement);
+		if (!parentElement || !iconElement) return false;
+
+		if (parentElement.getAttribute("summoner-id") == ElainaData.get("Summoner-ID") ||
+			parentElement.getAttribute("puuid") == ElainaData.get("PUUID") ||
+			parentElement.getAttribute("voice-puuid") == ElainaData.get("PUUID")) {
+			return this.changeAvatar(iconElement as HTMLImageElement)
+		}
+		else {
+			return await this.changeFriendAvatar(parentElement, iconElement as HTMLImageElement)
+		}
+	}
+
+	watchCustomAvatar = (element: any) => {
+		watchRegaliaElement(element, "avatar", () => this.applyCustomAvatar(element));
+	}
+
 	async main() {
+		this.startIdentityTooltipHoverTracking();
+
 		// Hover card avatar
 		upl.observer.subscribeToElementCreation(".hover-card-info-container",(element: any)=>{
 			element.style.background = "#1a1c21"
 		})
 
 		upl.observer.subscribeToElementCreation(`lol-regalia-hovercard-v2-element`, async (element: any)=>{
-			await this.applyCustomAvatar(element, element.shadowRoot.querySelector("lol-regalia-crest-v2-element").shadowRoot.querySelector(".lol-regalia-summoner-icon"))
+			this.watchCustomAvatar(element)
 		})
 
 		// Identity customizer avatar
 		upl.observer.subscribeToElementCreation("lol-regalia-identity-customizer-element", async (element: any)=>{
-			await this.applyCustomAvatar(element, element.shadowRoot.querySelector("lol-regalia-crest-v2-element").shadowRoot.querySelector(".lol-regalia-summoner-icon"))
+			this.watchCustomAvatar(element)
 		})
 
 		// Parties avatar
 		upl.observer.subscribeToElementCreation("lol-regalia-parties-v2-element", async (element: any)=>{
-			await this.applyCustomAvatar(element, element.shadowRoot.querySelector("lol-regalia-crest-v2-element").shadowRoot.querySelector(".lol-regalia-summoner-icon"))
+			this.watchCustomAvatar(element)
 		})
 
 		// Arena parties avatar
 		upl.observer.subscribeToElementCreation(".player-slot__crest-wrapper > lol-regalia-crest-v2-element", async (element: any)=>{
-			await this.applyCustomAvatar(element, element.shadowRoot.querySelector(".lol-regalia-summoner-icon"))
+			this.watchCustomAvatar(element)
 		})
 
 		// Profile avatar
-		let profileAvatarInterval: number | null = null
 		upl.observer.subscribeToElementCreation('lol-regalia-profile-v2-element', async (element: any) => {
-			profileAvatarInterval = window.setInterval(async () => {
-				await this.applyCustomAvatar(element, element.shadowRoot.querySelector("lol-regalia-crest-v2-element").shadowRoot.querySelector(".lol-regalia-summoner-icon"))
-			}, 100)
-		})
-
-		upl.observer.subscribeToElementDeletion('lol-regalia-profile-v2-element', (element: any) => {
-			if (profileAvatarInterval) {
-				window.clearInterval(profileAvatarInterval)
-				log("cleared profile avatar interval!")
-			}
+			this.watchCustomAvatar(element)
 		})
 
 		// Conversation chat avatar
 		upl.observer.subscribeToElementCreation('.conversation.chat', async (element: any) => {
 			await this.changeConversationChatAvatar(element)
+		})
+
+		upl.observer.subscribeToElementCreation('header.chat-header', (element: any) => {
+			this.watchChatHeaderAvatar(element)
+		})
+
+		upl.observer.subscribeToElementCreation("#lol-uikit-tooltip-root", (element: any) => {
+			this.watchIdentityTooltipAvatar(element)
+		})
+
+		// Social sidebar roster avatar. These rows do not expose summoner-id/puuid,
+		// so the friend name from /lol-chat/v1/friends is used as the fallback anchor.
+		upl.observer.subscribeToElementCreation('.lol-social-roster-member', (element: any) => {
+			this.watchSocialRosterMember(element)
 		})
 
 		// Conversation chat header avatar
@@ -133,211 +527,221 @@ class CustomAvatar {
 export const customAvatar = new CustomAvatar()
 
 class CustomBorder {
-	changeBorder = (element: any) => {
+	private getBorderTargets(element: any): any | null {
 		let regaliaCrest = element.shadowRoot.querySelector("lol-regalia-crest-v2-element")
-		let leverBorder = regaliaCrest.shadowRoot.querySelector("lol-uikit-themed-level-ring-v2").shadowRoot.querySelector("div")
+		if (!regaliaCrest?.shadowRoot) return null;
+
+		let levelRing = regaliaCrest.shadowRoot.querySelector("lol-uikit-themed-level-ring-v2")
+		let leverBorder = levelRing?.shadowRoot?.querySelector("div")
 		let rankBorder = regaliaCrest.shadowRoot.querySelector(".lol-regalia-ranked-border-container")
 		let rankNumber = regaliaCrest.shadowRoot.querySelector(".lol-regalia-rank-division-wrapper")
 		let rankBorderAnimate = regaliaCrest.shadowRoot.querySelector("uikit-video")
 		let rankBorderWingAnimate = regaliaCrest.shadowRoot.querySelector("lol-uikit-lottie[class='regalia-crest-wing']")
 
-		leverBorder.style.cssText = `
-			background-image: var(--Border);
+		if (!leverBorder || !rankBorder || !rankNumber || !rankBorderAnimate || !rankBorderWingAnimate) return null;
+		return { leverBorder, rankBorder, rankNumber, rankBorderAnimate, rankBorderWingAnimate };
+	}
+
+	private applyBorderTargets(targets: any, backgroundImage: string): boolean {
+		if (!targets) return false;
+
+		targets.leverBorder.style.cssText = `
+			background-image: ${backgroundImage};
 			display: block;
 		`
-		utils.freezeProperties(leverBorder.style, ['backgroundImage', 'display'])
+		utils.freezeProperties(targets.leverBorder.style, ['backgroundImage', 'display'])
 
-		rankBorder.style.display = "none"
-		rankNumber.style.display = "none"
-		rankBorderAnimate.style.display = "none"
-		rankBorderWingAnimate.style.display = "none"
+		targets.rankBorder.style.display = "none"
+		targets.rankNumber.style.display = "none"
+		targets.rankBorderAnimate.style.display = "none"
+		targets.rankBorderWingAnimate.style.display = "none"
+		return true;
 	}
 
-	changeFriendBorder = (element: any) => {
-		if (friendIconList.find(x => x.summonerID == element.getAttribute("summoner-id")) && friendIconList.find(x => x.summonerID == element.getAttribute("summoner-id"))?.icon.border != null) {
-			let regaliaCrest = element.shadowRoot.querySelector("lol-regalia-crest-v2-element")
-			let leverBorder = regaliaCrest.shadowRoot.querySelector("lol-uikit-themed-level-ring-v2").shadowRoot.querySelector("div")
-			let rankBorder = regaliaCrest.shadowRoot.querySelector(".lol-regalia-ranked-border-container")
-			let rankNumber = regaliaCrest.shadowRoot.querySelector(".lol-regalia-rank-division-wrapper")
-			let rankBorderAnimate = regaliaCrest.shadowRoot.querySelector("uikit-video")
-			let rankBorderWingAnimate = regaliaCrest.shadowRoot.querySelector("lol-uikit-lottie[class='regalia-crest-wing']")
+	changeBorder = (element: any): boolean => {
+		return this.applyBorderTargets(this.getBorderTargets(element), "var(--Border)");
+	}
 
-			leverBorder.style.cssText = `
-				background-image: url(${friendIconList.find(x => x.summonerID == element.getAttribute("summoner-id"))?.icon.border});
-				display: block;
-			`
-			utils.freezeProperties(leverBorder.style, ['backgroundImage', 'display'])
-			rankBorder.style.display = "none"
-			rankNumber.style.display = "none"
-			rankBorderAnimate.style.display = "none"
-			rankBorderWingAnimate.style.display = "none"
+	changeFriendBorder = async (element: any): Promise<boolean> => {
+		await ensureSyncedElementIcons(element, "border");
+		const border = findSyncedUserIcon(element.getAttribute("summoner-id"), "border");
+		if (border) {
+			return this.applyBorderTargets(this.getBorderTargets(element), `url(${border})`);
 		}
+		return false;
 	}
 
-	applyCustomBorder = async (element: any) => {
+	applyCustomBorder = async (element: any): Promise<boolean> => {
 		if (element.getAttribute("summoner-id") == ElainaData.get("Summoner-ID")) {
-			this.changeBorder(element)
-			await utils.stop(1000)
-			this.changeBorder(element)
+			return this.changeBorder(element)
 		}
 		else {
-			this.changeFriendBorder(element)
-			await utils.stop(1000)
-			this.changeFriendBorder(element)
+			return await this.changeFriendBorder(element)
 		}
+	}
+
+	watchCustomBorder = (element: any) => {
+		watchRegaliaElement(element, "border", () => this.applyCustomBorder(element));
 	}
 
 	async main() {
 		// Hover card border
 		upl.observer.subscribeToElementCreation(`lol-regalia-hovercard-v2-element`, async (element: any)=>{
-			await this.applyCustomBorder(element)
+			this.watchCustomBorder(element)
 		})
 
 		// Parties border
 		upl.observer.subscribeToElementCreation("lol-regalia-parties-v2-element", async (element: any)=>{
-			await this.applyCustomBorder(element)
+			this.watchCustomBorder(element)
 		})
 
 		// Profile border
-		let profileBorderInterval: number | null = null
 		upl.observer.subscribeToElementCreation('lol-regalia-profile-v2-element', async (element: any) => {
-			profileBorderInterval = window.setInterval(async () => {
-				await this.applyCustomBorder(element)
-			}, 100)
-		})
-
-		upl.observer.subscribeToElementDeletion('lol-regalia-profile-v2-element', (element: any) => {
-			if (profileBorderInterval) {
-				window.clearInterval(profileBorderInterval)
-				log("cleared profile border interval!")
-			}
+			this.watchCustomBorder(element)
 		})
 
 		// Identity customizer border
 		upl.observer.subscribeToElementCreation("lol-regalia-identity-customizer-element", async (element: any)=>{
-			await this.applyCustomBorder(element)
+			this.watchCustomBorder(element)
 		})
 	}
 }
 
 class CustomBanner {
-	changeBanner = (banner: HTMLImageElement) => {
-		banner.src = `${iconFolder}Regalia-Banners/${ElainaData.get("CurrentBanner")}`
-		utils.freezeProperties(banner,["src"])
+	private getBannerImage(element: any): HTMLImageElement | null {
+		return element
+			?.shadowRoot
+			?.querySelector("lol-regalia-banner-v2-element")
+			?.shadowRoot
+			?.querySelector(".regalia-banner-asset-static-image") || null;
 	}
 
-	changeFriendBanner = (element: any, banner: HTMLImageElement) => {
-		if (friendIconList.find(x => x.summonerID == element.getAttribute("summoner-id")) && friendIconList.find(x => x.summonerID == element.getAttribute("summoner-id"))?.icon.banner != null) {
-			banner.src = `${friendIconList.find(x => x.summonerID == element.getAttribute("summoner-id"))?.icon.banner}`
-			utils.freezeProperties(banner,["src"])
-		}
+	changeBanner = (banner: HTMLImageElement | null): boolean => {
+		if (!banner) return false;
+		banner.src = `${iconFolder}Regalia-Banners/${ElainaData.get("CurrentBanner")}`
+		utils.freezeProperties(banner,["src"])
+		return true;
 	}
-	applyCustomBanner = async (element: any) => {
-		let banner = element.shadowRoot.querySelector("lol-regalia-banner-v2-element").shadowRoot.querySelector(".regalia-banner-asset-static-image")
+
+	changeFriendBanner = async (element: any, banner: HTMLImageElement | null): Promise<boolean> => {
+		if (!banner) return false;
+		await ensureSyncedElementIcons(element, "banner");
+		const syncedBanner = findSyncedUserIcon(element.getAttribute("summoner-id"), "banner");
+		if (syncedBanner) {
+			banner.src = `${syncedBanner}`
+			utils.freezeProperties(banner,["src"])
+			return true;
+		}
+		return false;
+	}
+	applyCustomBanner = async (element: any): Promise<boolean> => {
+		let banner = this.getBannerImage(element)
 		if (element.getAttribute("summoner-id") == ElainaData.get("Summoner-ID")) {
-			this.changeBanner(banner)
-			await utils.stop(1000)
-			this.changeBanner(banner)
+			return this.changeBanner(banner)
 		}
 		else {
-			this.changeFriendBanner(element, banner)
-			await utils.stop(1000)
-			this.changeFriendBanner(element, banner)
+			return await this.changeFriendBanner(element, banner)
 		}
+	}
+
+	watchCustomBanner = (element: any) => {
+		watchRegaliaElement(element, "banner", () => this.applyCustomBanner(element));
 	}
 
 	async main() {
 		// Parties banner
 		upl.observer.subscribeToElementCreation("lol-regalia-parties-v2-element", async (element: any)=>{
-			await this.applyCustomBanner(element)
+			this.watchCustomBanner(element)
 		})
 
 		// Identity customizer banner
 		upl.observer.subscribeToElementCreation("lol-regalia-identity-customizer-element", async (element: any)=>{
-			await this.applyCustomBanner(element)
+			this.watchCustomBanner(element)
 		})
 
 		// Profile banner
-		let profileBannerInterval: number | null = null
 		upl.observer.subscribeToElementCreation("lol-regalia-profile-v2-element", async (element: any)=>{
-			profileBannerInterval = window.setInterval(async () => {
-				await this.applyCustomBanner(element)
-			}, 100)
-		})
-
-		upl.observer.subscribeToElementDeletion("lol-regalia-profile-v2-element", (element: any)=>{
-			if (profileBannerInterval) {
-				window.clearInterval(profileBannerInterval)
-				log("cleared profile banner interval!")
-			}
+			this.watchCustomBanner(element)
 		})
 	}
 }
 
 class CustomHoverCardBackdrop {
-	changeHoverCardBackdrop = () => {
+	changeHoverCardBackdrop = (): boolean => {
 		let hoverCardBackdrop = document.querySelector("#hover-card-backdrop") as HTMLElement;
 		if (hoverCardBackdrop) {
 			hoverCardBackdrop.style.backgroundImage = "var(--Hover-card-backdrop)";
-
-			utils.stop(100)
-			if (hoverCardBackdrop.style.backgroundImage != "var(--Hover-card-backdrop)") this.changeHoverCardBackdrop()
+			return true;
 		}
+		return false;
 	}
 
-	changeFriendHoverCardBackdrop = (hovercard: any) => {
-		if (friendIconList.find(x => x.summonerID == hovercard.getAttribute("summoner-id")) && friendIconList.find(x => x.summonerID == hovercard.getAttribute("summoner-id"))?.icon.hoverCardBackdrop != null) {
+	changeFriendHoverCardBackdrop = async (hovercard: any): Promise<boolean> => {
+		if (!hovercard) return false;
+		await ensureSyncedElementIcons(hovercard, "hover-card-backdrop");
+		const backdrop = findSyncedUserIcon(hovercard.getAttribute("summoner-id"), "hoverCardBackdrop");
+		if (backdrop) {
 			let hoverCardBackdrop = document.querySelector("#hover-card-backdrop") as HTMLElement;
 			if (hoverCardBackdrop) {
-				hoverCardBackdrop.style.backgroundImage = `url(${friendIconList.find(x => x.summonerID == hovercard.getAttribute("summoner-id"))?.icon.hoverCardBackdrop})`;
+				hoverCardBackdrop.style.backgroundImage = `url(${backdrop})`;
+				return true;
 			}
 		}
+		return false;
 	}
 
-	changeFriendProfileBackground = (element: any) => {
-		log(element.getAttribute("summoner-id"))
-
-		if (friendIconList.find(x => x.summonerID == element.getAttribute("summoner-id")) && friendIconList.find(x => x.summonerID == element.getAttribute("summoner-id"))?.icon.hoverCardBackdrop != null) {
+	changeFriendProfileBackground = async (element: any): Promise<boolean> => {
+		await ensureSyncedElementIcons(element, "profile-background");
+		const backdrop = findSyncedUserIcon(element.getAttribute("summoner-id"), "hoverCardBackdrop");
+		if (backdrop) {
 			let profileBackground = document.querySelectorAll(".style-profile-masked-image .lol-uikit-background-switcher-image")
+			if (profileBackground.length === 0) return false;
 			profileBackground.forEach((bg: any) => {
-				bg.src = `${friendIconList.find(x => x.summonerID == element.getAttribute("summoner-id"))?.icon.hoverCardBackdrop}`
+				bg.src = `${backdrop}`
 				bg.style.height = "100%";
 				utils.freezeProperties(bg, ["src", "style.height"])
 			})
+			return true;
 		}
+		return false;
 	}
 
-	applyCustomHoverCardBackdrop = async (element: any) => {
-		await utils.stop(300)
+	applyCustomHoverCardBackdrop = async (element: any): Promise<boolean> => {
 		let hovercard = element.querySelector("lol-regalia-hovercard-v2-element");
+		if (!hovercard) return false;
 		
 		if (hovercard.getAttribute("summoner-id") == ElainaData.get("Summoner-ID")) {
-			this.changeHoverCardBackdrop()
+			return this.changeHoverCardBackdrop()
 		}
 		else {
-			this.changeFriendHoverCardBackdrop(hovercard)
-			await utils.stop(1000)
-			this.changeFriendHoverCardBackdrop(hovercard)
+			return await this.changeFriendHoverCardBackdrop(hovercard)
 		}
 	}
 
-	applyCustomBackgroundFriendProfile = async (element: any) => {
+	applyCustomBackgroundFriendProfile = async (element: any): Promise<boolean> => {
 		if (element.getAttribute("summoner-id") != ElainaData.get("Summoner-ID")) {
-			this.changeFriendProfileBackground(element)
-			await utils.stop(1000)
-			this.changeFriendProfileBackground(element)
+			return await this.changeFriendProfileBackground(element)
 		}
+		return false;
+	}
+
+	watchCustomHoverCardBackdrop = (element: any) => {
+		watchRegaliaElement(element, "hover-card-backdrop", () => this.applyCustomHoverCardBackdrop(element));
+	}
+
+	watchCustomBackgroundFriendProfile = (element: any) => {
+		watchRegaliaElement(element, "profile-background", () => this.applyCustomBackgroundFriendProfile(element));
 	}
 
 	async main() {
 		// Hover card
 		upl.observer.subscribeToElementCreation("#lol-uikit-tooltip-root", async (element: any)=>{
-			await this.applyCustomHoverCardBackdrop(element)
+			this.watchCustomHoverCardBackdrop(element)
 		})
 
 		// Profile background
 		upl.observer.subscribeToElementCreation("lol-regalia-profile-v2-element", async (element: any)=>{
-			await this.applyCustomBackgroundFriendProfile(element)
+			this.watchCustomBackgroundFriendProfile(element)
 		})
 	}
 }

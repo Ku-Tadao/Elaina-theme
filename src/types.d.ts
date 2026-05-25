@@ -93,7 +93,9 @@ interface elainathemeApi {
     getImageHash: (userId: number, type: string) => Promise<string | null>;
     getImageHashes: (userId: number, types: string[]) => Promise<Record<string, string | null> | null>;
     deleteImage: (token: string, userId: number, type: string) => Promise<void>;
+    getUsersImage: (userList: UserIconTarget[]) => Promise<FriendIconEntry[]>;
     getFriendsImage: (friendList: { summonerId: number, puuid: string }[]) => Promise<{ summonerID: number, puuid: string, icon: { avatar: string, border: string, banner: string, emblem: string, hoverCardBackdrop: string } }[]>;
+    syncUsersIcons: (userList: UserIconTarget[], localHashes: Record<string, string>) => Promise<{ summonerID: number, puuid: string, icons: Record<string, { data: string, hash: string } | null> }[] | null>;
     syncFriendsIcons: (friendList: { summonerId: number, puuid: string }[], localHashes: Record<string, string>) => Promise<{ summonerID: number, puuid: string, icons: Record<string, { data: string, hash: string } | null> }[] | null>;
 }
 
@@ -103,6 +105,8 @@ interface syncUserIcons {
     getIconFolder: () => string
     getIconData: () => Record<string, string>
     getFriendsIcons: () => Promise<void>
+    requestUserIconSync: (targets: UserIconTarget[], reason?: string) => Promise<void>
+    ensureUserIcons: (target: UserIconTarget, reason?: string) => Promise<void>
     syncIconsWithHashCheck: () => Promise<void>
     main: () => Promise<void>
 }
@@ -127,6 +131,11 @@ interface FriendIconEntry {
     summonerID: number;
     puuid: string;
     icon: Record<IconType, string | null>;
+}
+
+interface UserIconTarget {
+    summonerId: number;
+    puuid?: string;
 }
 
 interface SyncIconUpdate {
