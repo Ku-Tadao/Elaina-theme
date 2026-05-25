@@ -25,7 +25,7 @@ async function CheckBackupFile() {
     const vram = document.querySelector("#backupSystemInfo > #systemInfo-Vram") as HTMLElement
 
     try {
-        checkText.textContent = `${await getString("Loading")}...`
+        checkText.textContent = `${await getString("backup-restore.loading")}...`
         checkText.style.color = "#a09b8c"
 
         let checkFile: any = await window.elainathemeApi.readBackup(ElainaData.get("ElainaTheme-Token"), ElainaData.get("Summoner-ID"))
@@ -34,19 +34,19 @@ async function CheckBackupFile() {
             restoreButton.style.visibility = "visible"
             deleteButton.style.visibility = "visible"
             checkText.style.color = "green"
-            checkText.textContent = `${await getString("Check-Backup.success")}`
+            checkText.textContent = `${await getString("backup-restore.check-backup-success")}`
             backupInfo.style.visibility = "visible"
 
             let backupData = typeof checkFile.data === 'string' ? JSON.parse(checkFile.data) : checkFile.data
-            lastbackup.textContent = `${await getString("last-backup")}: ${backupData["last-backup-time"]}`
+            lastbackup.textContent = `${await getString("backup-restore.last-backup")}: ${backupData["last-backup-time"]}`
             if (ElainaData.get("Dev-mode")) {
                 try {
-                    os.textContent = `${await getString("OS")}: ${backupData["System-Info"]["OSVersion"]}`
-                    cpu.textContent = `${await getString("CPU")}: ${backupData["System-Info"]["CPUName"]}`
-                    core.textContent = `${await getString("Core")}: ${backupData["System-Info"]["CoreCount"]}`
-                    mem.textContent = `${await getString("RAM")}: ${Math.round(backupData["System-Info"]["PhysicalMemory"] / (1024 ** 3))} GB`
-                    gpu.textContent = `${await getString("GPU")}: ${backupData["System-Info"]["GPUName"]}`
-                    vram.textContent = `${await getString("Vram")}: ${Math.round(backupData["System-Info"]["GPUMemory"] / (1024 ** 3))} GB`
+                    os.textContent = `${await getString("backup-restore.os")}: ${backupData["System-Info"]["OSVersion"]}`
+                    cpu.textContent = `${await getString("backup-restore.cpu")}: ${backupData["System-Info"]["CPUName"]}`
+                    core.textContent = `${await getString("backup-restore.core")}: ${backupData["System-Info"]["CoreCount"]}`
+                    mem.textContent = `${await getString("backup-restore.ram")}: ${Math.round(backupData["System-Info"]["PhysicalMemory"] / (1024 ** 3))} GB`
+                    gpu.textContent = `${await getString("backup-restore.gpu")}: ${backupData["System-Info"]["GPUName"]}`
+                    vram.textContent = `${await getString("backup-restore.vram")}: ${Math.round(backupData["System-Info"]["GPUMemory"] / (1024 ** 3))} GB`
                 }
                 catch (err: any) {
                     warn("Error while getting system data:", err)
@@ -58,7 +58,7 @@ async function CheckBackupFile() {
             restoreButton.style.visibility = "hidden"
             deleteButton.style.visibility = "hidden"
             checkText.style.color = "yellow"
-            checkText.textContent = `${await getString("Check-Backup.error")}`
+            checkText.textContent = `${await getString("backup-restore.check-backup-error")}`
             backupInfo.style.visibility = "hidden"
         }
     }
@@ -67,7 +67,7 @@ async function CheckBackupFile() {
         restoreButton.style.visibility = "hidden"
         deleteButton.style.visibility = "hidden"
         checkText.style.color = "red"
-        checkText.textContent = `${await getString("Check-Backup.serverError")}`
+        checkText.textContent = `${await getString("backup-restore.check-backup-servererror")}`
         backupInfo.style.visibility = "hidden"
     }
 }
@@ -78,16 +78,16 @@ export async function cloudBackupSection(): Promise<{ elements: HTMLElement[], p
 
     const elements: HTMLElement[] = [
         UI.createCheckBox(
-            `${await getString("backup-datastore")}`,'bakdata', 'bakdatabox', async ()=>{
+            `${await getString("backup-restore.backup-datastore")}`,'bakdata', 'bakdatabox', async ()=>{
                 if (ElainaData.get("backup-datastore")) {
                     await CheckBackupFile()
                 }
             }, true, "backup-datastore"
         ),
-        UI.createLabel(`${await getString("Loading")}...`, "datastore-cloud-checking"),
+        UI.createLabel(`${await getString("backup-restore.loading")}...`, "datastore-cloud-checking"),
         document.createElement('br'),
         UI.createRow("restoreAndDeleteData", [
-            UI.createButton(`${await getString("Restore-Data")}`, "restore-data-button", () => {
+            UI.createButton(`${await getString("backup-restore.restore-data")}`, "restore-data-button", () => {
                 let restoreData = new Promise<void>(async (resolve, reject) => {
                     try { 
                         let cloud: any = await window.elainathemeApi.readBackup(ElainaData.get("ElainaTheme-Token"), summonerID)
@@ -109,7 +109,7 @@ export async function cloudBackupSection(): Promise<{ elements: HTMLElement[], p
                     error: 'Error while restoring data, check console for more info!'
                 })
             }),
-            UI.createButton(`${await getString("Delete-Data")}`, "delete-data-button",async () => {
+            UI.createButton(`${await getString("backup-restore.delete-data")}`, "delete-data-button",async () => {
                 try {
                     await window.elainathemeApi.deleteBackup(ElainaData.get("ElainaTheme-Token"), summonerID)
                     log("Datastore file deleted from cloud")
@@ -122,7 +122,7 @@ export async function cloudBackupSection(): Promise<{ elements: HTMLElement[], p
             }),
         ], true),
         UI.createRow("backupInfo", [
-            UI.createLabel(await getString("backupInfo"), ""),
+            UI.createLabel(await getString("backup-restore.backupinfo"), ""),
             UI.createRow("backupSystemInfo", [
                 UI.createLabel("", "systemInfo-LastBackup"),
                 UI.createLabel("", "systemInfo-Os"),

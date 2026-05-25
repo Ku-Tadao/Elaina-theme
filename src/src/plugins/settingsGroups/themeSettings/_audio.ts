@@ -7,9 +7,9 @@ import {
 export async function audioSection(): Promise<HTMLElement> {
     const br = () => document.createElement("br")
 
-    return UI.createSection("theme-settings-audio", await getString("settings-section-audio"), [
+    return UI.createSection("theme-settings-audio", await getString("theme-settings.settings-section-audio"), [
         UI.createSlider(
-            await getString("music-volume"), ElainaData.get("audio-volume") * 100,
+            await getString("theme-settings.music-volume"), ElainaData.get("audio-volume") * 100,
             (value) => {
                 const audio: any = document.getElementById("bg-audio")
                 if (audio) audio.volume = value / 100
@@ -17,12 +17,12 @@ export async function audioSection(): Promise<HTMLElement> {
             }
         ),
         UI.createCheckBox(
-            `${await getString("turnoff-audio-ingame")}`, 'offaudio', 'offaudiobox',
+            `${await getString("theme-settings.turnoff-audio-ingame")}`, 'offaudio', 'offaudiobox',
             () => { }, true, "turnoff-audio-ingame"
         ),
         br(),
         UI.createCheckBox(
-            `${await getString("disable-theme-audio")}`, "disablethemeaudio", "disablethemeaudiobox", () => {
+            `${await getString("theme-settings.disable-theme-audio")}`, "disablethemeaudio", "disablethemeaudiobox", () => {
                 let audioController: HTMLElement | null = document.querySelector(".webm-bottom-buttons-container")
                 let audio: HTMLAudioElement | null = document.getElementById("bg-audio") as HTMLAudioElement | null
 

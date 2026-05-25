@@ -1,5 +1,5 @@
-import * as observe from "../../elaina-theme-data/src/utils/observer.js"
-import { log } from "../../elaina-theme-data/src/utils/themeLog.js";
+import * as upl from "pengu-upl"
+import { log } from "../utils/themeLog.ts";
 
 let autoQueue = false
 
@@ -38,8 +38,6 @@ async function matchMaking() {
 
 /**
  * Automatically re-queues for a new game after the end-of-game screen.
- * @wiki Automatically re-queues for a new game after the end-of-game screen. Supports configurable delay, ARAM-only mode, and a selectable game mode. Shows a countdown toast notification before starting the queue.
- * @author Elaina Da Catto
  * @usage
  * 1. Open League Client settings
  * 2. Navigate to **Elaina Theme** → **Plugin Settings**
@@ -115,7 +113,7 @@ export function AutoQueue(context) {
 }
 
 // Refrest queue list everytime go to homepage
-observe.subscribeToElementCreation(".rcp-fe-lol-activity-center", (element) => {
+upl.observer.subscribeToElementCreation(".rcp-fe-lol-activity-center", (element) => {
     if (element) {
         getQueueList()
         log("Queue list refreshed.")

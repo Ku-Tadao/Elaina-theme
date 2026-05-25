@@ -2,7 +2,7 @@ import { UI } from "../settingsUI.ts"
 
 export async function nsfwSection(): Promise<HTMLElement> {
     return UI.createCheckBox(
-        `${await getString("NSFW-Content")}`, 'nsfw', 'nsfwbox',
+        `${await getString("theme-settings.nsfw-content")}`, 'nsfw', 'nsfwbox',
         () => { }, true, "NSFW-Content"
     )
 }

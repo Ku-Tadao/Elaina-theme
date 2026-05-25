@@ -3,7 +3,7 @@ import { restartAfterChange } from "../../settings.ts"
 
 export async function infoSection(): Promise<HTMLElement[]> {
     const themeLanguageOptions = [
-        { label: await getString("theme-language-client"), value: "client" },
+        { label: await getString("theme-settings.theme-language-client"), value: "client" },
         { label: "English", value: "default" },
         { label: "Tiếng Việt", value: "vi-VN" },
         { label: "Русский", value: "ru-RU" },
@@ -20,13 +20,13 @@ export async function infoSection(): Promise<HTMLElement[]> {
                     "theme-link"
                 ),
                 UI.createLabel(
-                    `*${await getString("note")}: ${await getString("note-1")}`, ""
+                    `*${await getString("settings.note")}: ${await getString("settings.note-1")}`, ""
                 ),
             ]),
             UI.createImage(true, "logo.png", "theme-settings-logo")
         ]),
         UI.createCheckBox(
-            `${await getString("AllowTrackingData")}`, 'trackData', 'trackDatabox', () => {
+            `${await getString("theme-settings.allowtrackingdata")}`, 'trackData', 'trackDatabox', () => {
                 restartAfterChange('trackData', "AllowTrackingData")
             }, true, "AllowTrackingData"
         ),
@@ -34,7 +34,7 @@ export async function infoSection(): Promise<HTMLElement[]> {
             themeLanguageOptions,
             ElainaData.get("Theme-language"),
             {
-                title: await getString("theme-language"),
+                title: await getString("theme-settings.theme-language"),
                 id: "theme-language-dropdown",
                 datastoreKey: "Theme-language",
                 onChange: () => {

@@ -133,7 +133,7 @@ async function restartAfterChange(el: string, data: string) {
 
         b.classList.add("lol-settings-close-button")
         b.style.cssText = "width: 150px;"
-        b.textContent = await getString("restart-client")
+        b.textContent = await getString("settings.restart-client")
         b.id = "restartAfterChange"
 
         b.addEventListener("click",() => {

@@ -67,7 +67,7 @@ export async function customFontSection(): Promise<HTMLElement[]> {
         createFontDropdown(),
     ]);
     const googleFontRow = UI.createRow("custom-font-google-row", [
-        UI.createLabel(await getString("google-font-url"), ""),
+        UI.createLabel(await getString("theme-settings.google-font-url"), ""),
         googleFontInput.origin,
     ]);
 
@@ -79,7 +79,7 @@ export async function customFontSection(): Promise<HTMLElement[]> {
 
     return [
         UI.createCheckBox(
-            await getString("custom-font"), "cusfont", "cusfontbox",
+            await getString("theme-settings.custom-font"), "cusfont", "cusfontbox",
             async () => {
                 addCss.customFont();
             }, true, "Custom-Font"
@@ -87,7 +87,7 @@ export async function customFontSection(): Promise<HTMLElement[]> {
         br(),
         UI.createRow("custom-font-mode-row", [
             UI.createCheckBox(
-                await getString("custom-font-local"), "cusfontlocal", "cusfontlocalbox",
+                await getString("theme-settings.custom-font-local"), "cusfontlocal", "cusfontlocalbox",
                 async () => {
                     syncExclusiveFontMode("local");
                     updateVisibility();
@@ -95,7 +95,7 @@ export async function customFontSection(): Promise<HTMLElement[]> {
                 }, true, "Custom-Font-Local"
             ),
             UI.createCheckBox(
-                await getString("custom-font-google"), "cusfontgoogle", "cusfontgooglebox",
+                await getString("theme-settings.custom-font-google"), "cusfontgoogle", "cusfontgooglebox",
                 async () => {
                     syncExclusiveFontMode("google");
                     updateVisibility();

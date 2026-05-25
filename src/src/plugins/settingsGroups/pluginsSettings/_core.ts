@@ -4,9 +4,9 @@ import { restartAfterChange } from "../../settings.ts"
 export async function coreSection(): Promise<HTMLElement> {
     const br = () => document.createElement("br")
 
-    return UI.createSection("plugins-settings-core", await getString("settings-section-plugin-core"), [
+    return UI.createSection("plugins-settings-core", await getString("plugins-settings.settings-section-plugin-core"), [
         UI.createCheckBox(
-            `${await getString("old-ll-settings")}`, 'oldll', 'oldllbox',
+            `${await getString("plugins-settings.old-ll-settings")}`, 'oldll', 'oldllbox',
             () => {
                 restartAfterChange('oldll', "Old-League-Loader-Settings")
             }, true, "Old-League-Loader-Settings"
@@ -14,14 +14,14 @@ export async function coreSection(): Promise<HTMLElement> {
         br(),
         UI.createRow("loothelp", [
             UI.createCheckBox(
-                `${await getString("loot-helper")}`, 'lh', 'lhbox',
+                `${await getString("plugins-settings.loot-helper")}`, 'lh', 'lhbox',
                 () => {
                     restartAfterChange('lh', "loot-helper")
                 }, true, "loot-helper"
             )
         ]),
         UI.createCheckBox(
-            `${await getString("auto_accept_button")}`, 'autoacceptbutton', 'autoacceptbuttonbox',
+            `${await getString("plugins-settings.auto-accept-button")}`, 'autoacceptbutton', 'autoacceptbuttonbox',
             () => {
                 if (!ElainaData.get("auto_accept_button")) {
                     document.getElementById("autoAcceptQueueButton")?.remove()
@@ -31,7 +31,7 @@ export async function coreSection(): Promise<HTMLElement> {
         ),
         br(),
         UI.createCheckBox(
-            `${await getString("Enable-Invite-Fr")}`, 'invfr', 'invfrbox',
+            `${await getString("plugins-settings.enable-invite-fr")}`, 'invfr', 'invfrbox',
             () => {
                 restartAfterChange("invfr", "Enable-Invite-Fr")
             }, true, "Enable-Invite-Fr"

@@ -2,12 +2,14 @@ import { warn, log } from "./utils/themeLog.js";
 import { getThemeName } from "./otherThings.js";
 import { ElainaData } from "./utils/themeDataStore.js";
 
+type LocaleModule = Record<string, string>;
+
 /**
  * Imports a locale file for the specified language code.
  * @param langCode The language code to import the locale for.
  * @returns The imported locale object.
  */
-async function importLocale(langCode: string): Promise<Object> {
+async function importLocale(langCode: string): Promise<LocaleModule> {
     const module = await import(`//plugins/${getThemeName()}/locales/${langCode}.js`);
     return module.default;
 }
@@ -53,7 +55,7 @@ async function haveLocaleFile(langCode: string): Promise<boolean> {
  * @returns 
  */
 async function checkTranslationKey(lang: string, key: string): Promise<string> {
-    let localeModule: Object
+    let localeModule: LocaleModule
 
     if (await haveLocaleFile(lang)) {
         localeModule = await importLocale(lang) 

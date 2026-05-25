@@ -47,7 +47,7 @@ export class DodgeButton {
         div.setAttribute("id", "dodgeButton");
     
         const button = document.createElement("lol-uikit-flat-button");
-        button.innerHTML = await getString("dodge")
+        button.innerHTML = await getString("common.dodge")
         
         div.appendChild(button);
         parentDiv.appendChild(div);
@@ -70,7 +70,7 @@ export class DodgeButton {
         
     
         const button = document.createElement("lol-uikit-flat-button");
-        button.innerHTML = await getString("exit")
+        button.innerHTML = await getString("common.exit")
         
         div.appendChild(button);
         parentDiv.appendChild(div);

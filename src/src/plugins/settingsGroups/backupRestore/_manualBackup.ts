@@ -7,11 +7,11 @@ export async function manualBackupSection(): Promise<HTMLElement[]> {
     const summonerID = await utils.getSummonerID()
 
     return [
-        UI.createLabel(await getString("Manual-Backup-Restore"), ""),
+        UI.createLabel(await getString("backup-restore.manual-backup-restore"), ""),
         document.createElement('br'),
         UI.createRow("manualRestoreBackupSystemInfo", [
             UI.createRow("manualRestoreBackup", [
-                UI.createButton(await getString("Backup-Data"), "ManualBackup", async () => {
+                UI.createButton(await getString("backup-restore.backup-data"), "ManualBackup", async () => {
                     let datastore_list = (await import(`//plugins/${window.getThemeName()}/config/datastoreDefault.js`)).default
 
                     ElainaData.set("last-backup-time", new Date())
@@ -34,7 +34,7 @@ export async function manualBackupSection(): Promise<HTMLElement[]> {
                 }),
                 document.createElement('br'),
                 UI.createRow("RestoreRow", [
-                    UI.createButton(await getString("Restore-Data"),"ManualRestore", () => {
+                    UI.createButton(await getString("backup-restore.restore-data"),"ManualRestore", () => {
                         document.getElementById("manualRestoreInput")?.click()
                     }),
                     UI.createLabel("", "restoreFileInfo")
@@ -47,7 +47,7 @@ export async function manualBackupSection(): Promise<HTMLElement[]> {
                         const reader = new FileReader();
                     
                         reader.onload = async (e: any) => {
-                            text.textContent = await getString("Manual-restore-inProgress")
+                            text.textContent = await getString("backup-restore.manual-restore-inprogress")
                             text.style.color = "#e4c2b3"
                             
                             try {
@@ -73,7 +73,7 @@ export async function manualBackupSection(): Promise<HTMLElement[]> {
                                 })
                             } 
                             catch {
-                                text.textContent = await getString("Invalid-JSON")
+                                text.textContent = await getString("backup-restore.invalid-json")
                                 text.style.color = "red"
                             }
                         };
@@ -81,7 +81,7 @@ export async function manualBackupSection(): Promise<HTMLElement[]> {
                         reader.readAsText(file);
                     } 
                     else {
-                        text.textContent = await getString("JSON-file-only")
+                        text.textContent = await getString("backup-restore.json-file-only")
                         text.style.color = "red"
                     }
                 }),
@@ -89,22 +89,22 @@ export async function manualBackupSection(): Promise<HTMLElement[]> {
             ]),
             UI.createRow("currentSystemInfo", [
                 UI.createLabel(ElainaData.get("Dev-mode") 
-                    ?`${await getString("OS")}: ${ElainaData.get("System-Info")["OSVersion"]}`
+                    ?`${await getString("backup-restore.os")}: ${ElainaData.get("System-Info")["OSVersion"]}`
                     : "", "systemInfo-Os"),
                 UI.createLabel(ElainaData.get("Dev-mode")
-                    ? `${await getString("CPU")}: ${ElainaData.get("System-Info")["CPUName"]}`
+                    ? `${await getString("backup-restore.cpu")}: ${ElainaData.get("System-Info")["CPUName"]}`
                     : "", "systemInfo-Cpu"),
                 UI.createLabel(ElainaData.get("Dev-mode")
-                    ? `${await getString("Core")}: ${ElainaData.get("System-Info")["CoreCount"]}`
+                    ? `${await getString("backup-restore.core")}: ${ElainaData.get("System-Info")["CoreCount"]}`
                     : "", "systemInfo-Core"),
                 UI.createLabel(ElainaData.get("Dev-mode")
-                    ? `${await getString("RAM")}: ${Math.round(ElainaData.get("System-Info")["PhysicalMemory"] / (1024 ** 3))} GB` 
+                    ? `${await getString("backup-restore.ram")}: ${Math.round(ElainaData.get("System-Info")["PhysicalMemory"] / (1024 ** 3))} GB` 
                     : "", "systemInfo-Mem"),
                 UI.createLabel(ElainaData.get("Dev-mode")
-                    ? `${await getString("GPU")}: ${ElainaData.get("System-Info")["GPUName"]}`
+                    ? `${await getString("backup-restore.gpu")}: ${ElainaData.get("System-Info")["GPUName"]}`
                     : "", "systemInfo-Gpu"),
                 UI.createLabel(ElainaData.get("Dev-mode")
-                    ? `${await getString("Vram")}: ${Math.round(ElainaData.get("System-Info")["GPUMemory"] / (1024 ** 3))} GB`
+                    ? `${await getString("backup-restore.vram")}: ${Math.round(ElainaData.get("System-Info")["GPUMemory"] / (1024 ** 3))} GB`
                     : "", "systemInfo-Vram"),
             ]),
         ]),

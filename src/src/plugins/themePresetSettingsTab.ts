@@ -23,11 +23,11 @@ function openAssets() {window.openPluginsFolder(`${getThemeName()}/assets`)}
  */
 export class ThemePresetSettings {
 	createThemeMenu = async (root: HTMLElement) =>  {
-		const l_reload_client = await getString('reload-client')
-		const l_open_assets = await getString('l.open_assets')
-		const l_open_configs = await getString('l.open_configs')
-		const l_theme_releases = await getString('l.theme_releases')
-		const l_open_settings = await getString('l.open_settings')
+		const l_reload_client = await getString('settings.reload-client')
+		const l_open_assets = await getString('preset-settings.open-assets')
+		const l_open_configs = await getString('preset-settings.open-configs')
+		const l_theme_releases = await getString('preset-settings.theme-releases')
+		const l_open_settings = await getString('preset-settings.open-settings')
 
 		class LoaderMenu extends Component {
 			visible: boolean = false; frame: HTMLElement | null = null; opener: HTMLElement | null = null

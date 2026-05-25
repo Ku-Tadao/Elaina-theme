@@ -4,16 +4,16 @@ import { restartAfterChange } from "../../settings.ts"
 export async function developerSection(): Promise<HTMLElement> {
     const br = () => document.createElement("br")
 
-    return UI.createSection("plugins-settings-developer", await getString("settings-section-plugin-developer"), [
+    return UI.createSection("plugins-settings-developer", await getString("plugins-settings.settings-section-plugin-developer"), [
         UI.createCheckBox(
-            `${await getString("Debug-mode")}`, 'debug', 'debugbox',
+            `${await getString("plugins-settings.debug-mode")}`, 'debug', 'debugbox',
             () => {
                 restartAfterChange('debug', "Debug-mode")
             }, ElainaData.get("Dev-button"), "Debug-mode"
         ),
         br(),
         UI.createCheckBox(
-            `${await getString("Developer-Mode")}`, 'devbutton', 'devbuttonbox', () => {
+            `${await getString("plugins-settings.developer-mode")}`, 'devbutton', 'devbuttonbox', () => {
                 restartAfterChange('devbutton', "Dev-mode")
 
                 if (!ElainaData.get("Dev-mode")) {}

@@ -11,6 +11,12 @@ interface UpdateData {
 
 type UpdateAction = "changelog" | "changelog-new" | "force-update" | "none"
 
+const updateTypeLocaleKeys: Record<UpdateData["update-type"], string> = {
+	Auto: "common.auto-update",
+	Manual: "common.manual-update",
+	New: "common.new-update",
+}
+
 /** Checks the CDN for theme updates and handles changelog display and forced updates. */
 export class CheckUpdate {
 	private cdnUpdate: UpdateData | null = null
@@ -139,8 +145,8 @@ export class CheckUpdate {
 	showChangelogDialog = async (cdn: UpdateData, showDownload: boolean): Promise<void> => {
 		const manager = await this.waitForManager()
 
-		const closeText = await getString('l.close')
-		const downloadText = await getString('l.download')
+		const closeText = await getString('preset-settings.close')
+		const downloadText = await getString('preset-settings.download')
 
 		const changelogHtml = cdn.text
 			.map(t => `<p class="Elaina-Update">${this.escapeHtml(t)}</p>`)
@@ -154,7 +160,7 @@ export class CheckUpdate {
 					<lol-uikit-dialog-frame class="dialog-frame" orientation="bottom" close-button="false">
 						<div class="dialog-content">
 							<lol-uikit-content-block class="app-controls-exit-dialog" type="dialog-small" style="width: 500px;" id="elaina-update-text">
-								<h5>Elaina_V4 - ${await getString(this.escapeHtml(cdn["update-type"])+"-Update")} ${this.escapeHtml(cdn.version)}</h5>
+								<h5>Elaina_V4 - ${await getString(updateTypeLocaleKeys[cdn["update-type"]])} ${this.escapeHtml(cdn.version)}</h5>
 								<hr class="heading-spacer" />
 								${changelogHtml}
 							</lol-uikit-content-block>
@@ -195,8 +201,8 @@ export class CheckUpdate {
 	showForceUpdateDialog = async (cdn: UpdateData): Promise<void> => {
 		const manager = await this.waitForManager()
 
-		const downloadText = await getString('l.download')
-		const preventText = await getString('prevent-manual-update')
+		const downloadText = await getString('preset-settings.download')
+		const preventText = await getString('theme-settings.prevent-manual-update')
 
 		const root = document.createElement('div')
 		root.innerHTML = `
@@ -206,11 +212,11 @@ export class CheckUpdate {
 					<lol-uikit-dialog-frame class="dialog-frame" orientation="bottom" close-button="false">
 						<div class="dialog-content">
 							<lol-uikit-content-block class="app-controls-exit-dialog" type="dialog-small" style="width: 520px;">
-								<h5>Elaina_V4 - ${await getString(this.escapeHtml(cdn["update-type"])+"-Update")} </h5>
+								<h5>Elaina_V4 - ${await getString(updateTypeLocaleKeys[cdn["update-type"]])} </h5>
 								<hr class="heading-spacer" />
 								<hr class="heading-spacer" />
-								<p class="Elaina-Update" style="text-align: center">${await getString('update-available-1')}</p>
-								<p class="Elaina-Update" style="text-align: center">${await getString('update-available-2')}</p>
+								<p class="Elaina-Update" style="text-align: center">${await getString('common.update-available-1')}</p>
+								<p class="Elaina-Update" style="text-align: center">${await getString('common.update-available-2')}</p>
 								<hr class="heading-spacer" />
 								<p class="Elaina-Update" style="text-align: center">Meow ~~~</p>
 								<div id="force-update-checkbox"></div>

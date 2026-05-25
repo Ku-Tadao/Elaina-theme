@@ -2,94 +2,94 @@ const rankList = async () => {
     return {
         "Ranked Queue ID": [{
                 "id": 0,
-                "name": `${await getString("Ranked Solo 5vs5")}`,
+                "name": `${await getString("rank.ranked-solo-5vs5")}`,
                 "Option": "RANKED_SOLO_5x5",
             },
             {
                 "id": 1,
-                "name": `${await getString("Ranked Flex Summoner's Rift")}`,
+                "name": `${await getString("rank.ranked-flex-summoners-rift")}`,
                 "Option": "RANKED_FLEX_SR",
             },
             {
                 "id": 2,
-                "name": `${await getString("Ranked Flex TT")}`,
+                "name": `${await getString("rank.ranked-flex-tt")}`,
                 "Option": "RANKED_FLEX_TT",
             },
             {
                 "id": 3,
-                "name": `${await getString("Ranked TFT")}`,
+                "name": `${await getString("rank.ranked-tft")}`,
                 "Option": "RANKED_TFT",
             },
             {
                 "id": 4,
-                "name": `${await getString("Ranked TFT TURBO")}`,
+                "name": `${await getString("rank.ranked-tft-turbo")}`,
                 "Option": "RANKED_TFT_TURBO",
             },
             {
                 "id": 5,
-                "name": `${await getString("Ranked TFT DOUBLE UP")}`,
+                "name": `${await getString("rank.ranked-tft-double-up")}`,
                 "Option": "RANKED_TFT_DOUBLE_UP",
             },
             {
                 "id": 6,
-                "name": `${await getString("Ranked TFT PAIRS")}`,
+                "name": `${await getString("rank.ranked-tft-pairs")}`,
                 "Option": "RANKED_TFT_PAIRS",
             },
             {
                 "id": 7,
-                "name": `${await getString("Arena")}`,
+                "name": `${await getString("rank.arena")}`,
                 "Option": "CHERRY"
             }
         ],
 
         "Ranked Tier ID": [{
                 "id": 0,
-                "name": `${await getString("Iron")}`,
+                "name": `${await getString("rank.iron")}`,
                 "Option": "IRON",
             },
             {
                 "id": 1,
-                "name": `${await getString("Bronze")}`,
+                "name": `${await getString("rank.bronze")}`,
                 "Option": "BRONZE",
             },
             {
                 "id": 2,
-                "name": `${await getString("Silver")}`,
+                "name": `${await getString("rank.silver")}`,
                 "Option": "SILVER",
             },
             {
                 "id": 3,
-                "name": `${await getString("Gold")}`,
+                "name": `${await getString("rank.gold")}`,
                 "Option": "GOLD",
             },
             {
                 "id": 4,
-                "name": `${await getString("Platinum")}`,
+                "name": `${await getString("rank.platinum")}`,
                 "Option": "PLATINUM",
             },
             {
                 "id": 5,
-                "name": `${await getString("Diamond")}`,
+                "name": `${await getString("rank.diamond")}`,
                 "Option": "DIAMOND",
             },
             {
                 "id": 6,
-                "name": `${await getString("Emerald")}`,
+                "name": `${await getString("rank.emerald")}`,
                 "Option": "EMERALD",
             },
             {
                 "id": 7,
-                "name": `${await getString("Master")}`,
+                "name": `${await getString("rank.master")}`,
                 "Option": "MASTER",
             },
             {
                 "id": 8,
-                "name": `${await getString("Grand-Master")}`,
+                "name": `${await getString("rank.grand-master")}`,
                 "Option": "GRANDMASTER",
             },
             {
                 "id": 9,
-                "name": `${await getString("Challenger")}`,
+                "name": `${await getString("rank.challenger")}`,
                 "Option": "CHALLENGER"
             }
         ],

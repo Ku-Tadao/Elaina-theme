@@ -12,13 +12,13 @@ export async function pluginsInfoSection(): Promise<HTMLElement[]> {
                     "theme-link"
                 ),
                 UI.createLabel(
-                    `*${await getString("note")}: ${await getString("note-1")}`, ""
+                    `*${await getString("settings.note")}: ${await getString("settings.note-1")}`, ""
                 ),
             ]),
             UI.createImage(true, "logo.png", "plugins-settings-logo")
         ]),
         UI.createLabel(
-            `${await getString("plugins-settings")}`, "", "theme-settings-section-title"
+            `${await getString("plugins-settings.plugins-settings")}`, "", "theme-settings-section-title"
         ),
     ]
 }

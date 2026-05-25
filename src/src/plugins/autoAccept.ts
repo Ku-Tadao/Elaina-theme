@@ -165,10 +165,10 @@ export class AutoAccept {
 		newOption.setAttribute("onclick", "window.autoAcceptQueueButtonSelect()")
 	
 		Option2.classList.add("auto-accept-button-text")
-		Option2.innerHTML = await getString("auto_accept")
+		Option2.innerHTML = await getString("auto-accept.auto-accept")
 
 		delayInput.id = "autoAcceptDelayInput"
-		delayInput.title = await getString("auto_accept_delay")
+		delayInput.title = await getString("auto-accept.auto-accept-delay")
 		delayInput.style.cssText = "width: 82px; margin-left: 8px;"
 		delayInputElement.type = "number"
 		delayInputElement.min = "0"

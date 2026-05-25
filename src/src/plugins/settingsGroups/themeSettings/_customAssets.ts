@@ -16,15 +16,15 @@ export async function customAssetsSection(): Promise<HTMLElement> {
         })
     }
 
-    return UI.createSection("theme-settings-custom-assets", await getString("settings-section-custom-assets"), [
+    return UI.createSection("theme-settings-custom-assets", await getString("theme-settings.settings-section-custom-assets"), [
         UI.createCheckBox(
-            await getString("sync-user-icons"), 'syncusericons', 'syncusericonsbox', () => {
+            await getString("theme-settings.sync-user-icons"), 'syncusericons', 'syncusericonsbox', () => {
                 restartAfterChange('syncusericons', "sync-user-icons")
             }, true, "sync-user-icons"
         ),
         br(),
         UI.createCheckBox(
-            `${await getString("custom-icon")}`, 'cusicon', 'cusiconbox',
+            `${await getString("theme-settings.custom-icon")}`, 'cusicon', 'cusiconbox',
             () => {
                 restartAfterChange('cusicon', "Custom-Icon")
             }, true, "Custom-Icon"
@@ -32,28 +32,28 @@ export async function customAssetsSection(): Promise<HTMLElement> {
         UI.createRowHideable("Custom-icon-list", [
             br(),
             UI.createCheckBox(
-                `${await getString("Custom-Loading-Icon")}`, 'cusloadicon', 'cusloadiconbox',
+                `${await getString("theme-settings.custom-loading-icon")}`, 'cusloadicon', 'cusloadiconbox',
                 () => {
                     restartAfterChange('cusloadicon', "Custom-Loading-Icon")
                 }, true, "Custom-Loading-Icon"
             ),
             br(),
             UI.createCheckBox(
-                `${await getString("custom-avatar")}`, 'cusav', 'cusavbox',
+                `${await getString("theme-settings.custom-avatar")}`, 'cusav', 'cusavbox',
                 () => {
                     restartAfterChange('cusav', "Custom-Avatar")
                 }, true, "Custom-Avatar"
             ),
             br(),
             UI.createCheckBox(
-                `${await getString("Custom-Border")}`, 'cusbor', 'cusborbox',
+                `${await getString("theme-settings.custom-border")}`, 'cusbor', 'cusborbox',
                 () => {
                     restartAfterChange('cusbor', "Custom-Border")
                 }, true, "Custom-Border"
             ),
             br(),
             UI.createCheckBox(
-                `${await getString("Custom-Regalia-Banner")}`, 'cusregabnr', 'cusregabnrbox',
+                `${await getString("theme-settings.custom-regalia-banner")}`, 'cusregabnr', 'cusregabnrbox',
                 () => {
                     restartAfterChange('cusregabnr', "Custom-Regalia-Banner")
                 }, true, "Custom-Regalia-Banner"
@@ -63,63 +63,63 @@ export async function customAssetsSection(): Promise<HTMLElement> {
                 createBannerDropdown()
             ]),
             UI.createCheckBox(
-                `${await getString("Custom-Hover-card-backdrop")}`, 'cushvbdrop', 'cushvbdropbox',
+                `${await getString("theme-settings.custom-hover-card-backdrop")}`, 'cushvbdrop', 'cushvbdropbox',
                 () => {
                     restartAfterChange('cushvbdrop', "Custom-Hover-card-backdrop")
                 }, true, "Custom-Hover-card-backdrop"
             ),
             br(),
             UI.createCheckBox(
-                `${await getString("Custom-RP-Icon")}`, 'cusrpi', 'cusrpibox',
+                `${await getString("theme-settings.custom-rp-icon")}`, 'cusrpi', 'cusrpibox',
                 () => {
                     restartAfterChange('cusrpi', "Custom-RP-Icon")
                 }, true, "Custom-RP-Icon"
             ),
             br(),
             UI.createCheckBox(
-                `${await getString("Custom-BE-Icon")}`, 'cusbei', 'cusbeibox',
+                `${await getString("theme-settings.custom-be-icon")}`, 'cusbei', 'cusbeibox',
                 () => {
                     restartAfterChange('cusbei', "Custom-BE-Icon")
                 }, true, "Custom-BE-Icon"
             ),
             br(),
             UI.createCheckBox(
-                `${await getString("Custom-Rank-Icon")}`, 'cusranki', 'cusrankibox',
+                `${await getString("theme-settings.custom-rank-icon")}`, 'cusranki', 'cusrankibox',
                 () => {
                     restartAfterChange('cusranki', "Custom-Rank-Icon")
                 }, true, "Custom-Rank-Icon"
             ),
             br(),
             UI.createCheckBox(
-                `${await getString("Custom-Emblem")}`, 'cusemi', 'cusemibox',
+                `${await getString("theme-settings.custom-emblem")}`, 'cusemi', 'cusemibox',
                 () => {
                     restartAfterChange('cusemi', "Custom-Emblem")
                 }, true, "Custom-Emblem"
             ),
             br(),
             UI.createCheckBox(
-                `${await getString("Custom-Clash-banner")}`, 'cusclassb', 'cusclassbbox',
+                `${await getString("theme-settings.custom-clash-banner")}`, 'cusclassb', 'cusclassbbox',
                 () => {
                     restartAfterChange('cusclassb', "Custom-Clash-banner")
                 }, true, "Custom-Clash-banner"
             ),
             br(),
             UI.createCheckBox(
-                `${await getString("Custom-Trophy")}`, 'custrophy', 'custrophybox',
+                `${await getString("theme-settings.custom-trophy")}`, 'custrophy', 'custrophybox',
                 () => {
                     restartAfterChange('custrophy', "Custom-Trophy")
                 }, true, "Custom-Trophy"
             ),
             br(),
             UI.createCheckBox(
-                `${await getString('Custom-Gamemode-Icon')}`, 'cusgameicon', 'cusgameiconbox',
+                `${await getString('theme-settings.custom-gamemode-icon')}`, 'cusgameicon', 'cusgameiconbox',
                 () => {
                     restartAfterChange('cusgameicon', 'Custom-Gamemode-Icon')
                 }, true, 'Custom-Gamemode-Icon'
             ),
             br(),
             UI.createCheckBox(
-                `${await getString("Custom-Ticker")}`, 'custick', 'custickbox',
+                `${await getString("theme-settings.custom-ticker")}`, 'custick', 'custickbox',
                 () => {
                     restartAfterChange('custick', "Custom-Ticker")
                 }, true, "Custom-Ticker"
@@ -127,19 +127,19 @@ export async function customAssetsSection(): Promise<HTMLElement> {
             br()
         ]),
         UI.createCheckBox(
-            `${await getString("animate-loading")}`, 'aniload', 'aniloadbox',
+            `${await getString("theme-settings.animate-loading")}`, 'aniload', 'aniloadbox',
             () => { }, true, "animate-loading"
         ),
         br(),
         UI.createCheckBox(
-            `${await getString("custom-runes-bg")}`, 'rsbg', 'rsbgbox',
+            `${await getString("theme-settings.custom-runes-bg")}`, 'rsbg', 'rsbgbox',
             () => {
                 restartAfterChange('rsbg', "Runes-BG")
             }, true, "Runes-BG"
         ),
         br(),
         UI.createCheckBox(
-            await getString("custom-champs-image"), 'cuschampimg', 'cuschampimgbox',
+            await getString("theme-settings.custom-champs-image"), 'cuschampimg', 'cuschampimgbox',
             () => {
                 restartAfterChange('cuschampimg', "custom-champs-image")
             }, true, "custom-champs-image"

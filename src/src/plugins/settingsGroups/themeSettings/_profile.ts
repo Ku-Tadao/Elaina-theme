@@ -7,11 +7,11 @@ import { addCss } from '../../../theme/loadCustomCss';
 export async function profileSection(): Promise<HTMLElement> {
     const br = () => document.createElement("br")
 
-    return UI.createSection("theme-settings-profile", await getString("settings-section-profile"), [
+    return UI.createSection("theme-settings-profile", await getString("theme-settings.settings-section-profile"), [
         UI.createRow("Custom-Curency", [
             UI.createRow("custom-rp", [
                 UI.createCheckBox(
-                    `${await getString("custom-rp")}`, 'cusrp', 'cusrpbox',
+                    `${await getString("theme-settings.custom-rp")}`, 'cusrp', 'cusrpbox',
                     () => {
                         restartAfterChange('cusrp', "custom-rp")
                     }, true, "custom-rp"
@@ -21,7 +21,7 @@ export async function profileSection(): Promise<HTMLElement> {
             ]),
             UI.createRow("custom-be", [
                 UI.createCheckBox(
-                    `${await getString("custom-be")}`, 'cusbe', 'cusbebox',
+                    `${await getString("theme-settings.custom-be")}`, 'cusbe', 'cusbebox',
                     () => {
                         restartAfterChange('cusbe', "custom-be")
                     }, true, "custom-be"
@@ -32,7 +32,7 @@ export async function profileSection(): Promise<HTMLElement> {
         ]),
         br(),
         UI.createCheckBox(
-            `${await getString("custom-summoner-lv")}`, 'cussumlv', 'cussumlvbox',
+            `${await getString("theme-settings.custom-summoner-lv")}`, 'cussumlv', 'cussumlvbox',
             () => {
                 restartAfterChange('cussumlv', "custom-summoner-lv")
             }, true, "custom-summoner-lv"
@@ -41,7 +41,7 @@ export async function profileSection(): Promise<HTMLElement> {
         UI.createSearchBox("custom-summoner-lv-number"),
         br(),
         UI.createCheckBox(
-            `${await getString("custom-rank-name")}`, 'cusrankname', 'cusranknamebox',
+            `${await getString("theme-settings.custom-rank-name")}`, 'cusrankname', 'cusranknamebox',
             () => {
                 restartAfterChange('cusrankname', "custom-rank-name")
             }, true, "custom-rank-name"
@@ -52,7 +52,7 @@ export async function profileSection(): Promise<HTMLElement> {
         br(),
         ...await customFontSection(),
         UI.createCheckBox(
-            `${await getString("change-nickname-color")}`, 'nicknamecolor', 'nicknamecolorbox', () => {
+            `${await getString("theme-settings.change-nickname-color")}`, 'nicknamecolor', 'nicknamecolorbox', () => {
                 if (!ElainaData.get("change-nickname-color")) {
                     document.getElementById("nickname-color-css")?.remove()
                 }
@@ -80,20 +80,20 @@ export async function profileSection(): Promise<HTMLElement> {
                     }
                 }),
                 UI.createLabel(ElainaData.get("nickname-color-with-opacity"), "nickname-color-text"),
-                UI.createLabel(`${await getString("preview")}: `, "nickname-color-preview-label"),
+                UI.createLabel(`${await getString("theme-settings.preview")}: `, "nickname-color-preview-label"),
                 UI.createLabel(
                     (document.querySelector(".rcp-fe-lol-social .player-name__force-locale-text-direction")?.textContent || ""),
                     "nickname-color-preview"
                 )
             ]),
-            UI.opacitySlider("change-nickname-opacity", await getString("opacity"), "nickname-opacity", async () => {
+            UI.opacitySlider("change-nickname-opacity", await getString("theme-settings.opacity"), "nickname-opacity", async () => {
                 let origin: any = document.getElementById("change-nickname-opacity")
                 let title: any = document.getElementById("change-nickname-opacity-title")
 
                 ElainaData.set("nickname-opacity", Math.round(origin.value / 100 * 255).toString(16).padStart(2, '0'))
                 ElainaData.set("nickname-color-with-opacity", ElainaData.get("nickname-color") + ElainaData.get("nickname-opacity"))
 
-                title.textContent = `${await getString("opacity")}: ${origin.value}%`
+                title.textContent = `${await getString("theme-settings.opacity")}: ${origin.value}%`
 
                 let color: any = document.getElementById("nickname-color-text")
                 color.textContent = ElainaData.get("nickname-color-with-opacity")
@@ -106,7 +106,7 @@ export async function profileSection(): Promise<HTMLElement> {
             }),
         ]),
         UI.createCheckBox(
-            `${await getString("hide-theme-usage-time")}`, 'hideusetime', 'hideusetimebox',
+            `${await getString("theme-settings.hide-theme-usage-time")}`, 'hideusetime', 'hideusetimebox',
             () => { }, true, "hide-theme-usage-time"
         ),
     ])

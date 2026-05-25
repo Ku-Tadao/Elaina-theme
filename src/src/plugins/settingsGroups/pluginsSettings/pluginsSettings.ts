@@ -8,7 +8,7 @@ import { developerSection } from "./_developer.ts"
 
 async function pluginsSettings(panel: Element) {
     const loading = UI.createRow("loading", [
-        UI.createLoading(await getString("settings-loading")),
+        UI.createLoading(await getString("common.settings-loading")),
     ])
     panel.appendChild(loading);
 

@@ -168,11 +168,11 @@ function OnClickOpenChestsButton() {
 
         loot.chests.forEach(async chest => {
             items.push({
-                title: `${await getString("open")}`,
+                title: `${await getString("loot-helper.open")}`,
                 subTitle: chest.name,
                 essenceText: chest.data.count,
                 clickEvent: async () => {
-                    if (window.confirm(`${await getString("open-chest-prom")} ` + chest.name + '?')) {
+                    if (window.confirm(`${await getString("loot-helper.open-chest-prom")} ` + chest.name + '?')) {
                         await fetch('/lol-loot/v1/recipes/' + chest.id + '_OPEN/craft?repeat=' + chest.data.count, {
                             method: 'POST',
                             body: JSON.stringify([chest.id]),
@@ -201,7 +201,7 @@ function OnClickOpenChestsButton() {
         });
 
         items.push({
-            title: `${await getString("close")}`,
+            title: `${await getString("loot-helper.close")}`,
             subTitle: '',
             actionIcon: '',
             essenceIcon: '',
@@ -214,7 +214,7 @@ function OnClickOpenChestsButton() {
             }
         });
         
-        AddContextMenu(`${await getString("materials")}`, `${await getString("open-chest")}`, items);
+        AddContextMenu(`${await getString("loot-helper.materials")}`, `${await getString("loot-helper.open-chest")}`, items);
     });
 }
 
@@ -256,15 +256,15 @@ function OnClickBlueEssenceButton() {
             }
         });
 
-        AddContextMenu(`${await getString("BE")}`, `${await getString("Champ-shards")}`, [
+        AddContextMenu(`${await getString("loot-helper.be")}`, `${await getString("loot-helper.champ-shards")}`, [
             {
-                title: `${await getString("disenchant")}`,
-                subTitle: `${await getString("duplicates")}`,
+                title: `${await getString("loot-helper.disenchant")}`,
+                subTitle: `${await getString("loot-helper.duplicates")}`,
                 actionIcon: '/fe/lol-loot/assets/context_menu/disenchant.png',
                 essenceIcon: '/fe/lol-loot/assets/context_menu/currency_champion.png',
                 essenceText: '+' + Sum(duplicates, 'data.disenchantValue'),
                 clickEvent: async () => {
-                    if (window.confirm(`${await getString("dis-dup-prom")}`)) {
+                    if (window.confirm(`${await getString("loot-helper.dis-dup-prom")}`)) {
                         duplicates.forEach(async (item) => {
                             await fetch('/lol-loot/v1/recipes/CHAMPION_RENTAL_disenchant/craft?repeat=1', {
                                 method: 'POST',
@@ -283,13 +283,13 @@ function OnClickBlueEssenceButton() {
                 }
             },
             {
-                title: `${await getString("disenchant")}`,
-                subTitle: `${await getString("already-owned")}`,
+                title: `${await getString("loot-helper.disenchant")}`,
+                subTitle: `${await getString("loot-helper.already-owned")}`,
                 actionIcon: '/fe/lol-loot/assets/context_menu/disenchant.png',
                 essenceIcon: '/fe/lol-loot/assets/context_menu/currency_champion.png',
                 essenceText: '+' + Sum(alreadyOwned, 'data.disenchantValue'),
                 clickEvent: async () => {
-                    if (window.confirm(`${await getString("dis-owned-prom")}`)) {
+                    if (window.confirm(`${await getString("loot-helper.dis-owned-prom")}`)) {
                         alreadyOwned.forEach(async (item) => {
                             await fetch('/lol-loot/v1/recipes/CHAMPION_RENTAL_disenchant/craft?repeat=1', {
                                 method: 'POST',
@@ -308,13 +308,13 @@ function OnClickBlueEssenceButton() {
                 }
             },
             {
-                title: `${await getString("disenchant")}`,
-                subTitle: `${await getString("all")}`,
+                title: `${await getString("loot-helper.disenchant")}`,
+                subTitle: `${await getString("loot-helper.all")}`,
                 actionIcon: '/fe/lol-loot/assets/context_menu/disenchant.png',
                 essenceIcon: '/fe/lol-loot/assets/context_menu/currency_champion.png',
                 essenceText: '+' + Sum(loot.championShards, 'data.disenchantValue'),
                 clickEvent: async () => {
-                    if (window.confirm(`${await getString("dis-all-prom")}`)) {
+                    if (window.confirm(`${await getString("loot-helper.dis-all-prom")}`)) {
                         loot.championShards.forEach(async (item) => {
                             await fetch('/lol-loot/v1/recipes/CHAMPION_RENTAL_disenchant/craft?repeat=1', {
                                 method: 'POST',
@@ -333,13 +333,13 @@ function OnClickBlueEssenceButton() {
                 }
             },
             {
-                title: `${await getString("upgrade")}`,
-                subTitle: `${await getString("all")}`,
+                title: `${await getString("loot-helper.upgrade")}`,
+                subTitle: `${await getString("loot-helper.all")}`,
                 actionIcon: '/fe/lol-loot/assets/context_menu/upgrade.png',
                 essenceIcon: '/fe/lol-loot/assets/context_menu/currency_champion.png',
                 essenceText: '-' + Sum(upgradableChampions, 'data.upgradeEssenceValue'),
                 clickEvent: async () => {
-                    if (window.confirm(`${await getString("up-all-prom")}`)) {
+                    if (window.confirm(`${await getString("loot-helper.up-all-prom")}`)) {
                         upgradableChampions.forEach(async (item) => {
                             await fetch('/lol-loot/v1/recipes/CHAMPION_upgrade/craft?repeat=1', {
                                 method: 'POST',
@@ -358,7 +358,7 @@ function OnClickBlueEssenceButton() {
                 }
             },
             {
-                title: `${await getString("close")}`,
+                title: `${await getString("loot-helper.close")}`,
                 subTitle: '',
                 actionIcon: '',
                 essenceIcon: '',
@@ -431,7 +431,7 @@ function CreateChapmsInformation() {
                 name: 'style',
                 value: 'margin-left: 5px;'
             }
-        ], ['loot-category-information'], '(' + loot.championShards.length + " " + await getString("shards") + " | " + await getString("worth") + " " + Sum(loot.championShards, 'data.disenchantValue', 'data.count') + ' <img style="margin-bottom: -4px;" src="/fe/lol-loot/assets/context_menu/currency_champion.png"/>)');
+        ], ['loot-category-information'], '(' + loot.championShards.length + " " + await getString("loot-helper.shards") + " | " + await getString("loot-helper.worth") + " " + Sum(loot.championShards, 'data.disenchantValue', 'data.count') + ' <img style="margin-bottom: -4px;" src="/fe/lol-loot/assets/context_menu/currency_champion.png"/>)');
     });
 }
 
@@ -450,7 +450,7 @@ function CreateSkinsInformation() {
                 name: 'style',
                 value: 'margin-left: 5px;'
             }
-        ], ['loot-category-information'], '(' + loot.championSkinShards.length + " " + await getString("shards") + " | " + await getString("worth") + " " + Sum(loot.championSkinShards, 'data.disenchantValue', 'data.count') + ' <img style="margin-bottom: -4px;" src="/fe/lol-loot/assets/context_menu/currency_cosmetic.png"/>)');
+        ], ['loot-category-information'], '(' + loot.championSkinShards.length + " " + await getString("loot-helper.shards") + " | " + await getString("loot-helper.worth") + " " + Sum(loot.championSkinShards, 'data.disenchantValue', 'data.count') + ' <img style="margin-bottom: -4px;" src="/fe/lol-loot/assets/context_menu/currency_cosmetic.png"/>)');
     });
 }
 

@@ -57,7 +57,7 @@ export function createHomePageTab(context: any) {
 
     //             n.push({
     //                 id: 'elaina-home',
-    //                 displayName: await getString("home"),
+    //                 displayName: await getString("common.home"),
     //                 isPlugin: false,
     //                 enabled: true,
     //                 visibile: true,
