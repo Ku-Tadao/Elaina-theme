@@ -68,16 +68,53 @@ function escapePipes(value) {
     return String(value).replace(/\|/g, '\\|').replace(/\n/g, '<br>');
 }
 
-function settingLabel(key, locale) {
-    return locale[key] || locale[key.replace(/-/g, '_')] || key;
+function sanitizeLocaleProperty(key) {
+    return String(key)
+        .replace(/&/g, ' and ')
+        .replace(/[’'`]/g, '')
+        .replace(/\+/g, ' plus ')
+        .replace(/[\s_./]+/g, '-')
+        .replace(/[^A-Za-z0-9-]/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '')
+        .toLowerCase();
+}
+
+function settingLocaleKey(key, settingsMeta) {
+    const explicitKeys = {
+        auto_accept: 'auto-accept.auto-accept',
+        auto_accept_delay: 'auto-accept.auto-accept-delay',
+        BE: 'loot-helper.be',
+    };
+
+    if (explicitKeys[key]) return explicitKeys[key];
+
+    const category = settingsMeta.settings?.[key]?.category;
+    const prefixByCategory = {
+        backup: 'backup-restore',
+        plugins: 'plugins-settings',
+        tft: 'theme-settings',
+        'theme-core': 'theme-settings',
+        'theme-visual': 'theme-settings',
+        'custom-assets': 'theme-settings',
+        'wallpaper-audio': 'theme-settings',
+    };
+    const prefix = prefixByCategory[category] || 'theme-settings';
+    return `${prefix}.${sanitizeLocaleProperty(key)}`;
+}
+
+function settingLabel(key, locale, settingsMeta) {
+    const localeKey = settingLocaleKey(key, settingsMeta);
+    return locale[localeKey] || locale[key] || locale[key.replace(/-/g, '_')] || key;
 }
 
 function settingRow(key, defaults, settingsMeta, locale) {
     const value = defaults[key];
     const meta = settingsMeta.settings?.[key];
     const type = meta?.type || inferType(value);
-    const description = meta?.description || settingLabel(key, locale) || '_Missing description_';
-    return `| \`${escapePipes(key)}\` | ${escapePipes(settingLabel(key, locale))} | ${formatDefault(value)} | ${escapePipes(type)} | ${escapePipes(description)} |`;
+    const label = settingLabel(key, locale, settingsMeta);
+    const description = meta?.description || label || '_Missing description_';
+    return `| \`${escapePipes(key)}\` | ${escapePipes(label)} | ${formatDefault(value)} | ${escapePipes(type)} | ${escapePipes(description)} |`;
 }
 
 function renderSettingTable(keys, defaults, settingsMeta, locale) {
